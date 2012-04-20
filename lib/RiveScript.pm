@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.22'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.23'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -286,6 +286,12 @@ sub parse {
 			next;
 		}
 		elsif ($line =~ /^\/\*/) {
+			if ($line =~ /\*\//) {
+				# Well this was a short comment.
+				next;
+			}
+
+			# Start of a multi-line comment.
 			$comment = 1;
 			next;
 		}
@@ -2117,6 +2123,8 @@ sub _reply_regexp {
 	}
 
 	# Filter input tags.
+	$regexp =~ s/<input>/$self->{client}->{$user}->{__history__}->{input}->[0]/ig;
+	$regexp =~ s/<reply>/$self->{client}->{$user}->{__history__}->{reply}->[0]/ig;
 	while ($regexp =~ /<input([0-9])>/i) {
 		my $index = $1;
 		my (@arrInput) = @{$self->{client}->{$user}->{__history__}->{input}};
@@ -2891,6 +2899,11 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.23  Apr 20 2012
+  - Fixed: having a single-line, multiline comment, e.g. /* ... */
+  - Fixed: you can use <input> and <reply> in triggers now, instead of only
+    <input1>-<input9> and <reply1>-<reply9>
 
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
