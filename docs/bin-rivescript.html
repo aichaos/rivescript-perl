@@ -1,0 +1,216 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>rivescript - A command line frontend to the Perl RiveScript interpreter.</title>
+<link rel="stylesheet" href="rivescript.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#options">OPTIONS</a></li>
+	<li><a href="#usage">USAGE</a></li>
+	<ul>
+
+		<li><a href="#interactive_mode">Interactive Mode</a></li>
+		<li><a href="#json_mode">JSON Mode</a></li>
+		<ul>
+
+			<li><a href="#end_of_message">End of Message</a></li>
+		</ul>
+
+	</ul>
+
+	<li><a href="#see_also">SEE ALSO</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#license">LICENSE</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>rivescript - A command line frontend to the Perl RiveScript interpreter.</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  $ rivescript [options] [path to RiveScript documents]</pre>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This is a command line front-end to the RiveScript interpreter. This script
+obsoletes the old <code>rsdemo</code>, and can also be used non-interactively by third
+party programs. To that end, it supports a variety of input/output and session
+handling methods.</p>
+<p>If no RiveScript document path is given, it will default to the example brain
+that ships with the RiveScript module, which is based on the Eliza bot.</p>
+<p>
+</p>
+<hr />
+<h1><a name="options">OPTIONS</a></h1>
+<dl>
+<dt><strong><a name="debug_d" class="item">--debug, -d</a></strong></dt>
+
+<dd>
+<p>Enables debug mode. This will print all debug data from RiveScript to your
+terminal. If you'd like it to log to a file instead, use the <code>--log</code> option
+instead of <code>--debug</code>.</p>
+</dd>
+<dt><strong><a name="log_file" class="item">--log FILE</a></strong></dt>
+
+<dd>
+<p>Enables debug mode and prints the debug output to <code>FILE</code> instead of to your
+terminal.</p>
+</dd>
+<dt><strong><a name="json_j" class="item">--json, -j</a></strong></dt>
+
+<dd>
+<p>Runs <code>rivescript</code> in JSON mode, for running the script in a non-interactive
+way (for example, to use RiveScript in a programming language that doesn't have
+a native RiveScript library). See <a href="#json_mode">JSON Mode</a> for details.</p>
+</dd>
+<dt><strong><a name="strict_nostrict" class="item">--strict, --nostrict</a></strong></dt>
+
+<dd>
+<p>Enables strict mode for the RiveScript parser. It's enabled by default, use
+<code>--nostrict</code> to disable it. Strict mode prevents the parser from continuing
+when it finds a syntax error in the RiveScript documents.</p>
+</dd>
+<dt><strong><a name="depth_50" class="item">--depth=50</a></strong></dt>
+
+<dd>
+<p>Override the default recursion depth limit. This controls how many times
+RiveScript will recursively follow redirects to other replies. The default is
+<code>50</code>.</p>
+</dd>
+<dt><strong><a name="help" class="item">--help</a></strong></dt>
+
+<dd>
+<p>Displays this documentation in your terminal.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="usage">USAGE</a></h1>
+<p>
+</p>
+<h2><a name="interactive_mode">Interactive Mode</a></h2>
+<p>This is the default mode used when you run <code>rivescript</code> without specifying
+another mode. This mode behaves similarly to the old <code>rsdemo</code> script and lets
+you chat one-on-one with your RiveScript bot.</p>
+<p>This mode can be used to test your RiveScript bot. Example:</p>
+<pre>
+  $ rivescript /path/to/rs/files</pre>
+<p>
+</p>
+<h2><a name="json_mode">JSON Mode</a></h2>
+<p>This mode should be used when calling from a third party program. In this mode,
+data that enters and leaves the script are encoded in JSON.</p>
+<p>Example:</p>
+<pre>
+  $ rivescript --json /path/to/rs/files</pre>
+<p>The format for incoming JSON data is as follows:</p>
+<pre>
+  {
+    &quot;username&quot;: &quot;localuser&quot;,
+    &quot;message&quot;:  &quot;Hello bot!&quot;,
+    &quot;vars&quot;: {
+      &quot;name&quot;: &quot;Aiden&quot;
+    }
+  }</pre>
+<p>Here, <code>username</code> is a unique name for the user, <code>message</code> is their message to
+the bot, and <code>vars</code> is a hash of any user variables your program might be
+keeping track of (such as the user's name and age).</p>
+<p>The response from <code>rivescript</code> will look like the following:</p>
+<pre>
+  {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;reply&quot;:  &quot;Hello, human!&quot;,
+    &quot;vars&quot;: {
+      &quot;name&quot;: &quot;Aiden&quot;
+    }
+  }</pre>
+<p>Here, <code>status</code> will be <code>&quot;ok&quot;</code> or <code>&quot;error&quot;</code>, <code>reply</code> is the bot's response to
+your message, and <code>vars</code> is a hash of the current variables for the user (so
+that your program can save them somewhere).</p>
+<p>
+</p>
+<h3><a name="end_of_message">End of Message</a></h3>
+<p>There are two ways you can use the JSON mode: &quot;fire and forget,&quot; or keep a
+stateful session open.</p>
+<p>In &quot;fire and forget,&quot; you open the program, print your JSON input and send the
+EOF signal, and then <code>rivescript</code> sends you the JSON response and exits.</p>
+<p>In a stateful session mode, you must send the text <code>__END__</code> on a line by
+itself after you finish sending your JSON data. Then <code>rivescript</code> will
+process it, return its JSON response and then also say <code>__END__</code> at the end.</p>
+<p>Example:</p>
+<pre>
+  {
+    &quot;username&quot;: &quot;localuser&quot;,
+    &quot;message&quot;: &quot;Hello bot!&quot;,
+    &quot;vars&quot;: {}
+  }
+  __END__</pre>
+<p>And the response:</p>
+<pre>
+  {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;reply&quot;: &quot;Hello, human!&quot;,
+    &quot;vars&quot;: {}
+  }
+  __END__</pre>
+<p>This way you can reuse the same pipe to send and receive multiple messages.</p>
+<p>
+</p>
+<hr />
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><em>RiveScript</em>, the Perl RiveScript interpreter.</p>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Noah Petherbridge, <a href="http://www.kirsle.net">http://www.kirsle.net</a></p>
+<p>
+</p>
+<hr />
+<h1><a name="license">LICENSE</a></h1>
+<pre>
+  RiveScript - Rendering Intelligence Very Easily
+  Copyright (C) 2008  Casey Kirsle
+  
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</pre>
+
+</body>
+
+</html>

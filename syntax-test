@@ -1,0 +1,111 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use lib "lib";
+use RiveScript;
+
+print "Testing syntax checker\n";
+
+my $lines = {
+	# ! Definition
+	'!' => [
+		'type name = value',   # pass
+		'version 2.00',        # error
+		'version = 2.00',      # pass
+		'var name = Aiden',    # pass
+		'sub who\'s = who is', # pass
+		'varage = 0',          # error
+		'var age=0',           # pass
+		'var gender =androgynous', # pass
+		'var generator=RiveScript', # pass
+		'array colors   =red green blue', # pass
+	],
+
+	# > Label
+	'>' => [
+		'begin inherits topic',       # error
+		'begin',                      # pass
+		'begin ',                     # error (IRL, the end space would be stripped)
+		'begin',                      # pass
+		'topic alpha',                # pass
+		'topic alpha inherits beta',  # pass
+		'topic HelloWorld',           # error
+		'topic @test inherits @beta', # error
+		'topic begin',                # pass (technically legal)
+		'object md5sum perl',         # pass
+		'object md5sum',              # pass (legal)
+		'object MD5_Sum',             # error
+		'object md5sum JavaScript',   # error
+		'object @google Perl',        # error
+		'object search-google perl',  # error
+	],
+
+	# + Trigger
+	'+' => [
+		'hello bot', # pass
+		'are you a bot', # pass
+		'my name is *', # pass
+		'* told me to say *', # pass
+		'what is your [home] phone number', # pass
+		'what is your [home phone number', # error
+		'hello) world', # error
+		'hello( world', # error
+		'My name is Kirsle', # error
+		'what\'s up?', # error
+		'are you (okay|alright)', # pass
+		'(are you|you) (okay|alright)', # pass
+		'i am wearing a (@colors) shirt', # pass
+		'my favorite color is (@colors', # error
+		'i have a @colors colored *', # pass
+		'google *', # pass
+		'Google *', # error
+		'google *{weight=100}', # pass
+		'* or not', # pass
+		'<!DOCTYPE HTML PUBLIC "-//W3C//HTML 4.01 Strict">', # error!
+		'body { background-color: blue; }', # error
+	],
+
+	# - Response
+	'-' => [
+		'Hello human!', # pass
+		'Hello <human{', # pass
+	],
+
+	# ^ Continue
+	'^' => [
+		'in a nonchalant sort of way.\n',
+		'With her forcefield around her,\n',
+		'The Spider, the bounder,\n',
+		'Is not in the picture today.',
+	],
+
+	# * Condition
+	'*' => [
+		'<get gender> eq male => You told me you were a boy.', # pass
+		'<id> eq <bot master> => Yes, you are my master.', # pass
+		'<get name> eq <star> => I know your name already.', # pass
+		'<get name> ne undefined => Did you change your name?', # pass
+		'5 < 6 => yes', # pass
+		'5 !== 7 => wtf', # error
+		'hello world', # error
+		'hello == => test', # I dunno?
+	],
+};
+$lines->{'%'} = $lines->{'+'};
+$lines->{'@'} = $lines->{'+'};
+
+my $rs = new RiveScript();
+foreach my $symbol (sort { $a cmp $b } keys %{$lines}) {
+	foreach my $line (@{$lines->{$symbol}}) {
+		print "Test: $symbol $line\n";
+
+		my $syntax = $rs->checkSyntax($symbol,$line);
+		if ($syntax) {
+			print "\tResult: $syntax\n";
+		}
+		else {
+			print "\tOK!\n";
+		}
+	}
+}

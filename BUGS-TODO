@@ -1,0 +1,23 @@
+Known Current Bugs & To-Do List
+-------------------------------
+
+Aug 17 2009
+o Wildcard matching needs to be fixed. Consider the following triggers:
+  A) my name is _
+  B) my name is #
+  C) my name is *
+
+  How they match:
+  "my name is Casey"        => A
+  "my name is 20"           => A
+  "my name is Casey Kirsle" => C
+  "my name is h3ll0"        => A
+
+  It should be:
+  _  -->  [A-Za-z0-9\s]  letters and spaces only
+  #  -->  [0-9\s]        numbers and spaces only
+  *  -->  (.+?)          anything goes
+  "my name is Casey"        => A
+  "my name is 20"           => B
+  "my name is Casey Kirsle" => A
+  "my name is h3ll0"        => C
