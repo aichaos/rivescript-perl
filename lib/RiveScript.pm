@@ -1025,9 +1025,9 @@ sub sortReplies {
 				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{wild}}) {
 					push (@running,@{$track->{$ip}->{wild}->{$i}});
 				}
-				push (@running,@{$track->{$ip}->{under}});
-				push (@running,@{$track->{$ip}->{pound}});
-				push (@running,@{$track->{$ip}->{star}});
+				push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{under}});
+				push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{pound}});
+				push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{star}});
 			}
 		}
 
@@ -1190,9 +1190,9 @@ sub sortThatTriggers {
 			foreach my $i (sort { $b <=> $a } keys %{$track->{wild}}) {
 				push (@running,@{$track->{wild}->{$i}});
 			}
-			push (@running,@{$track->{under}});
-			push (@running,@{$track->{pound}});
-			push (@running,@{$track->{star}});
+			push (@running, sort { length($b) <=> length($a) } @{$track->{under}});
+			push (@running, sort { length($b) <=> length($a) } @{$track->{pound}});
+			push (@running, sort { length($b) <=> length($a) } @{$track->{star}});
 
 			# Keep this buffer.
 			$self->{sortedthat}->{$topic}->{$that} = [ @running ];
@@ -2900,10 +2900,14 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.23  Apr 20 2012
+  1.23  May  9 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */
   - Fixed: you can use <input> and <reply> in triggers now, instead of only
     <input1>-<input9> and <reply1>-<reply9>
+  - When a trigger consists of nothing but multiple wildcard symbols, sort
+    the trigger by length, this way you can have '* * * * *' type triggers
+    still work correctly (each <star> tag would get one word, with the final
+    <star> collecting the remainder).
 
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
