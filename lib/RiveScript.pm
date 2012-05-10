@@ -2207,6 +2207,32 @@ sub processTags {
 		}
 		$reply =~ s/\{random\}(.+?)\{\/random\}/$output/i;
 	}
+	while ($reply =~ /<bot (.+?)=(.+?)>/i) {
+		my ($what,$is) = ($1, $2);
+		$self->{bot}->{$what} = $is;
+		$reply =~ s/<bot (.+?)=(.+?)>//i;
+	}
+	while ($reply =~ /<env (.+?)=(.+?)>/i) {
+		my ($what,$is) = ($1, $2);
+
+		# Reserved?
+		my $reserved = 0;
+		foreach my $res (@{$self->{reserved}}) {
+			if ($res eq $what) {
+				$reserved = 1;
+				last;
+			}
+		}
+
+		if ($reserved) {
+			$self->{globals}->{$what} = $is;
+		}
+		else {
+			$self->{$what} = $is;
+		}
+
+		$reply =~ s/<env (.+?)=(.+?)>//i;
+	}
 	while ($reply =~ /<bot (.+?)>/i) {
 		my $val = (exists $self->{bot}->{$1} ? $self->{bot}->{$1} : 'undefined');
 		$reply =~ s/<bot (.+?)>/$val/i;
@@ -2900,7 +2926,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.23  May  9 2012
+  1.23  May 10 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */
   - Fixed: you can use <input> and <reply> in triggers now, instead of only
     <input1>-<input9> and <reply1>-<reply9>
@@ -2908,6 +2934,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     the trigger by length, this way you can have '* * * * *' type triggers
     still work correctly (each <star> tag would get one word, with the final
     <star> collecting the remainder).
+  - Backported new feature from Python lib: you can now use <bot> and <env>
+    to SET variables (eg. <bot mood=happy>). The {!...} tag is deprecated.
 
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
