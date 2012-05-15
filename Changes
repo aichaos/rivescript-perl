@@ -1,5 +1,28 @@
 Revision history for Perl extension RiveScript.
 
+  1.24  May 15 2012
+  - Fixed: having a single-line, multiline comment, e.g. /* ... */
+  - Fixed: you can use <input> and <reply> in triggers now, instead of only
+    <input1>-<input9> and <reply1>-<reply9>
+  - When a trigger consists of nothing but multiple wildcard symbols, sort
+    the trigger by length, this way you can have '* * * * *' type triggers
+    still work correctly (each <star> tag would get one word, with the final
+    <star> collecting the remainder).
+  - Backported new feature from Python lib: you can now use <bot> and <env>
+    to SET variables (eg. <bot mood=happy>). The {!...} tag is deprecated.
+  - New feature: deparse() will return a Perl data structure representing all
+    of the RiveScript code parsed by the module so far. This way you can build
+    a user interface for editing replies without requiring a user to edit the
+    code directly.
+  - New method: write() will use deparse() to write a RiveScript document using
+    all of the in-memory triggers/responses/etc.
+  - Cleaned up the POD documentation, put POD code along side the Perl functions
+    it documents, removed useless bloat from the docs.
+  - POD documentation now only shows recent changes. For older changes, see the
+    "CHANGES" file in the distribution.
+  - Removed the `rsup` script from the distribution (it upgrades RiveScript 1.x
+    code to 2.x; there probably isn't any 1.x code out in the wild anyway).
+
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
     example to a separate document in the `docs' directory.

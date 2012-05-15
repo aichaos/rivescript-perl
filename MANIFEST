@@ -5,12 +5,10 @@ README
 LICENSE
 testsuite.rs
 bin/rivescript
-bin/rsup
 docs/rivescript.css
 docs/RiveScript.html
 docs/RiveScript-WD.html
 docs/rivescript.html
-docs/rsup.html
 t/RiveScript.t
 lib/RiveScript.pm
 lib/RiveScript/WD.pm

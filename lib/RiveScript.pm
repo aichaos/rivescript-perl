@@ -3,13 +3,100 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.23'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.24'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
+
+=head1 NAME
+
+RiveScript - Rendering Intelligence Very Easily
+
+=head1 SYNOPSIS
+
+  use RiveScript;
+
+  # Create a new RiveScript interpreter.
+  my $rs = new RiveScript;
+
+  # Load a directory of replies.
+  $rs->loadDirectory ("./replies");
+
+  # Load another file.
+  $rs->loadFile ("./more_replies.rs");
+
+  # Stream in some RiveScript code.
+  $rs->stream (q~
+    + hello bot
+    - Hello, human.
+  ~);
+
+  # Sort all the loaded replies.
+  $rs->sortReplies;
+
+  # Chat with the bot.
+  while (1) {
+    print "You> ";
+    chomp (my $msg = <STDIN>);
+    my $reply = $rs->reply ('localuser',$msg);
+    print "Bot> $reply\n";
+  }
+
+=head1 DESCRIPTION
+
+RiveScript is a simple trigger/response language primarily used for the creation
+of chatting robots. It's designed to have an easy-to-learn syntax but provide a
+lot of power and flexibility. For more information, visit
+http://www.rivescript.com/
+
+=head1 METHODS
+
+=head2 GENERAL
+
+=over 4
+
+=cut
 
 ################################################################################
 ## Constructor and Debug Methods                                              ##
 ################################################################################
+
+=item RiveScript new (hash %ARGS)
+
+Create a new instance of a RiveScript interpreter. The instance will become its
+own "chatterbot," with its own set of responses and user variables. You can pass
+in any global variables here. The two standard variables are:
+
+  debug     - Turns on debug mode (a LOT of information will be printed to the
+              terminal!). Default is 0 (disabled).
+  verbose   - When debug mode is on, all debug output will be printed to the
+              terminal if 'verbose' is also true. The default value is 1.
+  debugfile - Optional: paired with debug mode, all debug output is also written
+              to this file name. Since debug mode prints such a large amount of
+              data, it is often more practical to have the output go to an
+              external file for later review. Default is '' (no file).
+  depth     - Determines the recursion depth limit when following a trail of replies
+              that point to other replies. Default is 50.
+  strict    - If this has a true value, any syntax errors detected while parsing
+              a RiveScript document will result in a fatal error. Set it to a
+              false value and only a warning will result. Default is 1.
+
+It's recommended that if you set any other global variables that you do so by
+calling C<setGlobal> or defining it within the RiveScript code. This will avoid
+the possibility of overriding reserved globals. Currently, these variable names
+are reserved:
+
+  topics   sorted  sortsthat  sortedthat  thats
+  arrays   subs    person     client      bot
+  objects  syntax  sortlist   reserved    debugopts
+  frozen   globals handlers   objlangs
+
+Note: the options "verbose" and "debugfile", when provided, are noted and then
+deleted from the root object space, so that if your RiveScript code uses variables
+by the same values it won't conflict with the values that you passed here.
+
+=back
+
+=cut
 
 sub new {
 	my $proto = shift;
@@ -138,6 +225,20 @@ sub issue {
 ## Parsing Methods                                                            ##
 ################################################################################
 
+=head2 LOADING AND PARSING
+
+=over 4
+
+=item bool loadDirectory (string $PATH[, string @EXTS])
+
+Load a directory full of RiveScript documents. C<$PATH> must be a path to a
+directory. C<@EXTS> is optionally an array containing file extensions, including
+the dot. By default C<@EXTS> is C<('.rs')>.
+
+Returns true on success, false on failure.
+
+=cut
+
 sub loadDirectory {
 	my $self = shift;
 	my $dir = shift || '.';
@@ -178,6 +279,14 @@ sub loadDirectory {
 	return 1;
 }
 
+
+=item bool loadFile (string $PATH)
+
+Load a single RiveScript document. C<$PATH> should be the path to a valid
+RiveScript file. Returns true on success; false otherwise.
+
+=cut
+
 sub loadFile {
 	my ($self,$file) = @_;
 
@@ -202,6 +311,16 @@ sub loadFile {
 
 	return 1;
 }
+
+
+
+=item bool stream (arrayref $CODE)
+
+Stream RiveScript code directly into the module. This is for providing RS code
+from within the Perl script instead of from an external file. Returns true on
+success.
+
+=cut
 
 sub stream {
 	my ($self,$code) = @_;
@@ -690,6 +809,7 @@ sub parse {
 		elsif ($cmd eq '%') {
 			# % PREVIOUS
 			$self->debug ("\t% Previous pattern: $line");
+
 			# This was handled above.
 		}
 		elsif ($cmd eq '^') {
@@ -723,6 +843,22 @@ sub parse {
 		}
 	}
 }
+
+=item string checkSyntax (char $COMMAND, string $LINE)
+
+Check the syntax of a line of RiveScript code. This is called automatically
+for each line parsed by the module. C<$COMMAND> is the command part of the
+line, and C<$LINE> is the rest of the line following the command (and
+excluding inline comments).
+
+If there is no problem with the line, this method returns C<undef>. Otherwise
+it returns the text of the syntax error.
+
+If C<strict> mode is enabled in the constructor (which is on by default), a
+syntax error will result in a fatal error. If it's not enabled, the error is
+only sent via C<warn> and the file currently being processed is aborted.
+
+=cut
 
 sub checkSyntax {
 	my ($self,$cmd,$line) = @_;
@@ -817,6 +953,15 @@ sub checkSyntax {
 	# All good? Return undef.
 	return undef;
 }
+
+=item void sortReplies ()
+
+Call this method after loading replies to create an internal sort buffer. This
+is necessary for trigger matching purposes. If you fail to call this method
+yourself, RiveScript will call it once when you request a reply. However, it
+will complain loudly about it.
+
+=cut
 
 sub sortReplies {
 	my $self = shift;
@@ -1346,9 +1491,413 @@ sub _topicTriggers {
 	return (@triggers);
 }
 
+=item data deparse ()
+
+Translate the in-memory representation of the loaded RiveScript documents into
+a Perl data structure. This would be useful for developing a user interface to
+facilitate editing of RiveScript replies without having to edit the RiveScript
+code manually.
+
+The data structure returned from this will follow this format:
+
+  {
+    "begin" => { # Contains begin block and config settings
+      "global" => { # ! global (global variables)
+        "depth" => 50,
+        ...
+      },
+      "var" => {    # ! var (bot variables)
+        "name" => "Aiden",
+        ...
+      },
+      "sub" => {    # ! sub (substitutions)
+        "what's" => "what is",
+        ...
+      },
+      "person" => { # ! person (person substitutions)
+        "you" => "I",
+        ...
+      },
+      "array" => {  # ! array (arrays)
+        "colors" => [ "red", "green", "light green", "blue" ],
+        ...
+      },
+      "triggers" => {  # triggers in your > begin block
+        "request" => { # trigger "+ request"
+          "reply" => [ "{ok}" ],
+        },
+      },
+    },
+    "topic" => { # all topics under here
+      "random" => { # topic names (default is random)
+        "hello bot" => { # trigger labels
+          "reply"     => [ "Hello human!" ], # Array of -Replies
+          "redirect"  => "hello",            # Only if @Redirect exists
+          "previous"  => "hello human",      # Only if %Previous exists
+          "condition" => [                   # Only if *Conditions exist
+            "<get name> != undefined => Hello <get name>!",
+            ...
+          ],
+        },
+      },
+    },
+    "include" => { # topic inclusion
+      "alpha" => [ "beta", "gamma" ], # > topic alpha includes beta gamma
+    },
+    "inherit" => { # topic inheritence
+      "alpha" => [ "delta" ], # > topic alpha inherits delta
+    }
+  }
+
+Note that inline object macros can't be deparsed this way. This is probably for
+the best (for security, etc). The global variables "debug" and "depth" are only
+provided if the values differ from the defaults (true and 50, respectively).
+
+=cut
+
+sub deparse {
+	my ($self) = @_;
+
+	# Can we clone?
+	eval {
+		require Clone;
+		$self->{_can_clone} = 1;
+	};
+	if ($@) {
+		warn "You don't have the Clone module installed. Output from "
+			. "RiveScript->deparse will remain referenced to internal data "
+			. "structures. Be careful!";
+		$self->{_can_clone} = 0;
+	}
+
+	# Data to return.
+	my $deparse = {
+		begin   => {
+			global   => {},
+			var      => {},
+			sub      => {},
+			person   => {},
+			array    => {},
+			triggers => {},
+		},
+		topic   => {},
+		inherit => {},
+		include => {},
+	};
+
+	# Populate the config fields.
+	if ($self->{debug}) {
+		$deparse->{begin}->{global}->{debug} = $self->{debug};
+	}
+	if ($self->{depth} != 50) {
+		$deparse->{begin}->{global}->{depth} = $self->{depth};
+	}
+	$deparse->{begin}->{var}    = $self->_clone($self->{bot});
+	$deparse->{begin}->{sub}    = $self->_clone($self->{subs});
+	$deparse->{begin}->{person} = $self->_clone($self->{person});
+	$deparse->{begin}->{array}  = $self->_clone($self->{arrays});
+	foreach my $global (keys %{$self->{globals}}) {
+		$deparse->{begin}->{global}->{$global} = $self->{globals}->{$global};
+	}
+
+	# Triggers.
+	foreach my $topic (keys %{$self->{topics}}) {
+		my $dest; # Where to place the topic info.
+
+		if ($topic eq "__begin__") {
+			# Begin block.
+			$dest = $deparse->{begin}->{triggers};
+		}
+		else {
+			# Normal topic.
+			if (!exists $deparse->{topic}->{$topic}) {
+				$deparse->{topic}->{$topic} = {};
+			}
+			$dest = $deparse->{topic}->{$topic};
+		}
+
+		foreach my $trig (keys %{$self->{topics}->{$topic}}) {
+			my $src = $self->{topics}->{$topic}->{$trig};
+			$dest->{$trig} = {};
+			$self->_copy_trigger($trig, $src, $dest);
+		}
+	}
+
+	# %Previous's.
+	foreach my $topic (keys %{$self->{thats}}) {
+		my $dest; # Where to place the topic info.
+
+		if ($topic eq "__begin__") {
+			# Begin block.
+			$dest = $deparse->{begin}->{triggers};
+		}
+		else {
+			# Normal topic.
+			if (!exists $deparse->{topic}->{$topic}) {
+				$deparse->{topic}->{$topic} = {};
+			}
+			$dest = $deparse->{topic}->{$topic};
+		}
+
+		# The "that" structure is backwards: bot reply, then trigger, then info.
+		foreach my $previous (keys %{$self->{thats}->{$topic}}) {
+			foreach my $trig (keys %{$self->{thats}->{$topic}->{$previous}}) {
+				my $src = $self->{thats}->{$topic}->{$previous}->{$trig};
+				$dest->{$trig}->{previous} = $previous;
+				$self->_copy_trigger($trig, $src, $dest);
+			}
+		}
+	}
+
+	# Inherits/Includes.
+	foreach my $topic (keys %{$self->{lineage}}) {
+		$deparse->{inherit}->{$topic} = [];
+		foreach my $inherit (keys %{$self->{lineage}->{$topic}}) {
+			push @{$deparse->{inherit}->{$topic}}, $inherit;
+		}
+	}
+	foreach my $topic (keys %{$self->{includes}}) {
+		$deparse->{include}->{$topic} = [];
+		foreach my $include (keys %{$self->{includes}->{$topic}}) {
+			push @{$deparse->{include}->{$topic}}, $include;
+		}
+	}
+
+	return $deparse;
+}
+
+sub _copy_trigger {
+	my ($self, $trig, $src, $dest) = @_;
+
+	if (exists $src->{redirect}) { # @Redirect
+		$dest->{$trig}->{redirect} = $src->{redirect};
+	}
+	if (exists $src->{condition}) { # *Condition
+		$dest->{$trig}->{condition} = [];
+		foreach my $i (sort { $a <=> $b } keys %{$src->{condition}}) {
+			push @{$dest->{$trig}->{condition}}, $src->{condition}->{$i};
+		}
+	}
+	if (exists $src->{reply}) {     # -Reply
+		$dest->{$trig}->{reply} = [];
+		foreach my $i (sort { $a <=> $b } keys %{$src->{reply}}) {
+			push @{$dest->{$trig}->{reply}}, $src->{reply}->{$i};
+		}
+	}
+}
+
+sub _clone {
+	my ($self,$data) = @_;
+
+	# Can clone?
+	if ($self->{_can_clone}) {
+		return Clone::clone($data);
+	}
+
+	return $data;
+}
+
+=item void write (glob $fh || string $file)
+
+Write the currently parsed RiveScript data into a RiveScript file. This uses
+C<deparse()> to dump a representation of the loaded data and writes it to the
+destination file. Pass either a filehandle or a file name.
+
+=back
+
+=cut
+
+sub write {
+	my ($self, $file) = @_;
+
+	my $fh;
+	if (ref($file) eq "GLOB") {
+		$fh = $file;
+	}
+	elsif (ref($file)) {
+		die "Must pass either a filehandle or file name to write()";
+	}
+	else {
+		open ($fh, ">", $file) or die "Can't write to $file: $!";
+	}
+
+	my $deparse = $self->deparse();
+
+	# Start at the beginning.
+	print {$fh} "// Written by RiveScript::deparse()\n";
+	print {$fh} "! version = 2.0\n\n";
+
+	# Variables of all sorts!
+	foreach my $sort (qw/global var sub person array/) {
+		next unless scalar keys %{$deparse->{begin}->{$sort}} > 0;
+		foreach my $var (sort keys %{$deparse->{begin}->{$sort}}) {
+			my $value = ref($deparse->{begin}->{$sort}->{$var}) ?
+				join("|", @{$deparse->{begin}->{$sort}->{$var}}) :
+				$deparse->{begin}->{$sort}->{$var};
+
+			print {$fh} "! $sort $var = " . $self->_write_wrapped($value,
+				$sort eq "array" ? "|" : " ") . "\n";
+		}
+		print {$fh} "\n";
+	}
+
+	if (scalar keys %{$deparse->{begin}->{triggers}}) {
+		print {$fh} "> begin\n\n";
+
+		$self->_write_triggers($fh, $deparse->{begin}->{triggers}, "indent");
+
+		print {$fh} "< begin\n\n";
+	}
+
+	# The topics. Random first!
+	my $doneRandom = 0;
+	foreach my $topic ("random", sort keys %{$deparse->{topic}}) {
+		next unless exists $deparse->{topic}->{$topic};
+		next if $topic eq "random" && $doneRandom;
+		$doneRandom = 1 if $topic eq "random";
+
+		my $tagged = 0; # Used > topic tag
+
+		if ($topic ne "random" || exists $deparse->{include}->{$topic} || exists $deparse->{inherit}->{$topic}) {
+			$tagged = 1;
+			print {$fh} "> topic $topic";
+
+			if (exists $deparse->{inherit}->{$topic}) {
+				print {$fh} " inherits " . join(" ", @{$deparse->{inherit}->{$topic}});
+			}
+			if (exists $deparse->{include}->{$topic}) {
+				print {$fh} " includes " . join(" ", @{$deparse->{include}->{$topic}});
+			}
+
+			print {$fh} "\n\n";
+		}
+
+		$self->_write_triggers($fh, $deparse->{topic}->{$topic}, $tagged ? "indent" : 0);
+
+		if ($tagged) {
+			print {$fh} "< topic\n\n";
+		}
+	}
+
+	return 1;
+}
+
+sub _write_triggers {
+	my ($self, $fh, $trigs, $id) = @_;
+
+	$id = $id ? "\t" : "";
+
+	foreach my $trig (sort keys %{$trigs}) {
+		print {$fh} $id . "+ " . $self->_write_wrapped($trig," ",$id) . "\n";
+		my $d = $trigs->{$trig};
+
+		if (exists $d->{previous}) {
+			print {$fh} $id . "% " . $self->_write_wrapped($d->{previous}," ",$id) . "\n";
+		}
+
+		if (exists $d->{condition}) {
+			foreach my $cond (@{$d->{condition}}) {
+				print {$fh} $id . "* " . $self->_write_wrapped($cond," ",$id) . "\n";
+			}
+		}
+
+		if (exists $d->{redirect}) {
+			print {$fh} $id . "@ " . $self->_write_wrapped($d->{redirect}," ",$id) . "\n";
+		}
+
+		if (exists $d->{reply}) {
+			foreach my $reply (@{$d->{reply}}) {
+				print {$fh} $id . "- " . $self->_write_wrapped($reply," ",$id) . "\n";
+			}
+		}
+
+		print {$fh} "\n";
+	}
+}
+
+sub _write_wrapped {
+	my ($self, $line, $sep, $indent) = @_;
+
+	my $id = $indent ? "\t" : "";
+
+	my @words;
+	if ($sep eq " ") {
+		@words = split(/\s+/, $line);
+	}
+	elsif ($sep eq "|") {
+		@words = split(/\|/, $line);
+	}
+
+	my @lines = ();
+	$line     = "";
+	my @buf   = ();
+	while (scalar(@words)) {
+		push (@buf, shift(@words));
+		$line = join($sep, @buf);
+		if (length $line > 78) {
+			# Need to word wrap.
+			unshift(@words, pop(@buf)); # Undo
+			push (@lines, join($sep,@buf));
+			@buf = ();
+			$line = "";
+		}
+	}
+
+	# Straggler?
+	if ($line) {
+		push @lines, $line;
+	}
+
+	my $return = shift(@lines);
+	if (scalar(@lines)) {
+		my $eol = ($sep eq " " ? '\s' : "");
+		foreach my $ln (@lines) {
+			$return .= "$eol\n$id^ $ln";
+		}
+	}
+
+	return $return;
+}
+
 ################################################################################
 ## Configuration Methods                                                      ##
 ################################################################################
+
+=head2 CONFIGURATION
+
+=over 4
+
+=item bool setHandler (string $LANGUAGE => code $CODEREF, ...)
+
+Define some code to handle objects of a particular programming language. If the
+coderef is C<undef>, it will delete the handler.
+
+The code receives the variables C<$rs, $action, $name,> and C<$data>. These
+variables are described here:
+
+  $rs     = Reference to Perl RiveScript object.
+  $action = "load" during the parsing phase when an >object is found.
+            "call" when provoked via a <call> tag for a reply
+  $name   = The name of the object.
+  $data   = The source of the object during the parsing phase, or an array
+            reference of arguments when provoked via a <call> tag.
+
+There is a default handler set up that handles Perl objects.
+
+If you want to block Perl objects from being loaded, you can just set it to be
+undef, and its handler will be deleted and Perl objects will be skipped over:
+
+  $rs->setHandler (perl => undef);
+
+The rationale behind this "pluggable" object interface is that it makes
+RiveScript more flexible given certain environments. For instance, if you use
+RiveScript on the web where the user chats with your bot using CGI, you might
+define a handler so that JavaScript objects can be loaded and called. Perl
+itself can't execute JavaScript, but the user's web browser can.
+
+See the JavaScript example in the C<docs> directory in this distribution.
+
+=cut
 
 sub setHandler {
 	my ($self,%info) = @_;
@@ -1376,12 +1925,34 @@ sub setHandler {
 	return 1;
 }
 
+=item bool setSubroutine (string $NAME, code $CODEREF)
+
+Manually create a RiveScript object (a dynamic bit of Perl code that can be
+provoked in a RiveScript response). C<$NAME> should be a single-word,
+alphanumeric string. C<$CODEREF> should be a pointer to a subroutine or an
+anonymous sub.
+
+=cut
+
 sub setSubroutine {
 	my ($self,$name,$sub) = @_;
 
 	$self->{objects}->{$name} = $sub;
 	return 1;
 }
+
+=item bool setGlobal (hash %DATA)
+
+Set one or more global variables, in hash form, where the keys are the variable
+names and the values are their value. This subroutine will make sure that you
+don't override any reserved global variables, and warn if that happens.
+
+This is equivalent to C<! global> in RiveScript code.
+
+To delete a global, set its value to C<undef> or "C<E<lt>undefE<gt>>". This
+is true for variables, substitutions, person, and uservars.
+
+=cut
 
 sub setGlobal {
 	my ($self,%data) = @_;
@@ -1420,6 +1991,14 @@ sub setGlobal {
 	return 1;
 }
 
+=item bool setVariable (hash %DATA)
+
+Set one or more bot variables (things that describe your bot's personality).
+
+This is equivalent to C<! var> in RiveScript code.
+
+=cut
+
 sub setVariable {
 	my ($self,%data) = @_;
 
@@ -1438,6 +2017,20 @@ sub setVariable {
 
 	return 1;
 }
+
+=item bool setSubstitution (hash %DATA)
+
+Set one or more substitution patterns. The keys should be the original word, and
+the value should be the word to substitute with it.
+
+  $rs->setSubstitution (
+    q{what's}  => 'what is',
+    q{what're} => 'what are',
+  );
+
+This is equivalent to C<! sub> in RiveScript code.
+
+=cut
 
 sub setSubstitution {
 	my ($self,%data) = @_;
@@ -1458,6 +2051,12 @@ sub setSubstitution {
 	return 1;
 }
 
+=item bool setPerson (hash %DATA)
+
+Set a person substitution. This is equivalent to C<! person> in RiveScript code.
+
+=cut
+
 sub setPerson {
 	my ($self,%data) = @_;
 
@@ -1476,6 +2075,15 @@ sub setPerson {
 
 	return 1;
 }
+
+=item bool setUservar (string $USER, hash %DATA)
+
+Set a variable for a user. C<$USER> should be their User ID, and C<%DATA> is a
+hash containing variable/value pairs.
+
+This is like C<E<lt>setE<gt>> for a specific user.
+
+=cut
 
 sub setUservar {
 	my ($self,$user,%data) = @_;
@@ -1496,11 +2104,31 @@ sub setUservar {
 	return 1;
 }
 
+=item string getUservar (string $USER, string $VAR)
+
+This is an alias for getUservars, and is here because it makes more grammatical
+sense.
+
+=cut
+
 sub getUservar {
 	# Alias for getUservars.
 	my $self = shift;
 	return $self->getUservars (@_);
 }
+
+=item data getUservars ([string $USER][, string $VAR])
+
+Get all the variables about a user. If a username is provided, returns a hash
+B<reference> containing that user's information. Else, a hash reference of all
+the users and their information is returned.
+
+You can optionally pass a second argument, C<$VAR>, to get a specific variable
+that belongs to the user. For instance, C<getUservars ("soandso", "age")>.
+
+This is like C<E<lt>getE<gt>> for a specific user or for all users.
+
+=cut
 
 sub getUservars {
 	my ($self,$user,$var) = @_;
@@ -1525,6 +2153,13 @@ sub getUservars {
 	}
 }
 
+=item bool clearUservars ([string $USER])
+
+Clears all variables about C<$USER>. If no C<$USER> is provided, clears all
+variables about all users.
+
+=cut
+
 sub clearUservars {
 	my $self = shift;
 	my $user = shift || '';
@@ -1546,6 +2181,15 @@ sub clearUservars {
 
 	return 1;
 }
+
+=item bool freezeUservars (string $USER)
+
+Freeze the current state of variables for user C<$USER>. This will back up the
+user's current state (their variables and reply history). This won't statically
+prevent the user's state from changing; it merely saves its current state. Then
+use thawUservars() to revert back to this previous state.
+
+=cut
 
 sub freezeUservars {
 	my ($self,$user) = @_;
@@ -1578,6 +2222,31 @@ sub freezeUservars {
 
 	return undef;
 }
+
+=item bool thawUservars (string $USER[, hash %OPTIONS])
+
+If the variables for C<$USER> were previously frozen, this method will restore
+them to the state they were in when they were last frozen. It will then delete
+the stored cache by default. The following options are accepted as an additional
+hash of parameters (these options are mutually exclusive and you shouldn't use
+both of them at the same time. If you do, "discard" will win.):
+
+  discard: Don't restore the user's state from the frozen copy, just delete the
+           frozen copy.
+  keep:    Keep the frozen copy even after restoring the user's state. With this
+           you can repeatedly thawUservars on the same user to revert their state
+           without having to keep freezing them again. On the next freeze, the
+           last frozen state will be replaced with the new current state.
+
+Examples:
+
+  # Delete the frozen cache but don't modify the user's variables.
+  $rs->thawUservars ("soandso", discard => 1);
+
+  # Restore the user's state from cache, but don't delete the cache.
+  $rs->thawUservars ("soandso", keep => 1);
+
+=cut
 
 sub thawUservars {
 	my ($self,$user,%args) = @_;
@@ -1631,6 +2300,17 @@ sub thawUservars {
 	return undef;
 }
 
+=item string lastMatch (string $USER)
+
+After fetching a reply for user C<$USER>, the C<lastMatch> method will return the
+raw text of the trigger that the user has matched with their reply. This function
+may return undef in the event that the user B<did not> match any trigger at all
+(likely the last reply was "C<ERR: No Reply Matched>" as well).
+
+=back
+
+=cut
+
 sub lastMatch {
 	my ($self,$user) = @_;
 	$user = '' unless defined $user;
@@ -1646,6 +2326,21 @@ sub lastMatch {
 ################################################################################
 ## Interaction Methods                                                        ##
 ################################################################################
+
+=head2 INTERACTION
+
+=over 4
+
+=item string reply (string $USER, string $MESSAGE)
+
+Fetch a response to C<$MESSAGE> from user C<$USER>. RiveScript will take care of
+lowercasing, running substitutions, and removing punctuation from the message.
+
+Returns a response from the RiveScript brain.
+
+=back
+
+=cut
 
 sub reply {
 	my ($self,$user,$msg) = @_;
@@ -2463,459 +3158,11 @@ sub _personSub {
 1;
 __END__
 
-=head1 NAME
-
-RiveScript - Rendering Intelligence Very Easily
-
-=head1 SYNOPSIS
-
-  use RiveScript;
-
-  # Create a new RiveScript interpreter.
-  my $rs = new RiveScript;
-
-  # Load a directory of replies.
-  $rs->loadDirectory ("./replies");
-
-  # Load another file.
-  $rs->loadFile ("./more_replies.rs");
-
-  # Stream in some RiveScript code.
-  $rs->stream (q~
-    + hello bot
-    - Hello, human.
-  ~);
-
-  # Sort all the loaded replies.
-  $rs->sortReplies;
-
-  # Chat with the bot.
-  while (1) {
-    print "You> ";
-    chomp (my $msg = <STDIN>);
-    my $reply = $rs->reply ('localuser',$msg);
-    print "Bot> $reply\n";
-  }
-
-=head1 DESCRIPTION
-
-RiveScript is a simple trigger/response language primarily used for the creation
-of chatting robots. It's designed to have an easy-to-learn syntax but provide a
-lot of power and flexibility. For more information, visit
-http://www.rivescript.com/
-
-=head1 METHODS
-
-=head2 GENERAL
-
-=over 4
-
-=item new (ARGS)
-
-Create a new instance of a RiveScript interpreter. The instance will become its
-own "chatterbot," with its own set of responses and user variables. You can pass
-in any global variables here. The two standard variables are:
-
-  debug     - Turns on debug mode (a LOT of information will be printed to the
-              terminal!). Default is 0 (disabled).
-  verbose   - When debug mode is on, all debug output will be printed to the
-              terminal if 'verbose' is also true. The default value is 1.
-  debugfile - Optional: paired with debug mode, all debug output is also written
-              to this file name. Since debug mode prints such a large amount of
-              data, it is often more practical to have the output go to an
-              external file for later review. Default is '' (no file).
-  depth     - Determines the recursion depth limit when following a trail of replies
-              that point to other replies. Default is 50.
-  strict    - If this has a true value, any syntax errors detected while parsing
-              a RiveScript document will result in a fatal error. Set it to a
-              false value and only a warning will result. Default is 1.
-
-It's recommended that if you set any other global variables that you do so by
-calling C<setGlobal> or defining it within the RiveScript code. This will avoid
-the possibility of overriding reserved globals. Currently, these variable names
-are reserved:
-
-  topics   sorted  sortsthat  sortedthat  thats
-  arrays   subs    person     client      bot
-  objects  syntax  sortlist   reserved    debugopts
-  frozen   globals handlers   objlangs
-
-Note: the options "verbose" and "debugfile", when provided, are noted and then
-deleted from the root object space, so that if your RiveScript code uses variables
-by the same values it won't conflict with the values that you passed here.
-
-=back
-
-=head2 LOADING AND PARSING
-
-=over 4
-
-=item loadDirectory ($PATH[,@EXTS])
-
-Load a directory full of RiveScript documents. C<$PATH> must be a path to a
-directory. C<@EXTS> is optionally an array containing file extensions, including
-the dot. By default C<@EXTS> is C<('.rs')>.
-
-Returns true on success, false on failure.
-
-=item loadFile ($PATH)
-
-Load a single RiveScript document. C<$PATH> should be the path to a valid
-RiveScript file. Returns true on success; false otherwise.
-
-=item stream ($CODE)
-
-Stream RiveScript code directly into the module. This is for providing RS code
-from within the Perl script instead of from an external file. Returns true on
-success.
-
-=item checkSyntax ($COMMAND, $LINE)
-
-Check the syntax of a line of RiveScript code. This is called automatically
-for each line parsed by the module. C<$COMMAND> is the command part of the
-line, and C<$LINE> is the rest of the line following the command (and
-excluding inline comments).
-
-If there is no problem with the line, this method returns C<undef>. Otherwise
-it returns the text of the syntax error.
-
-If C<strict> mode is enabled in the constructor (which is on by default), a
-syntax error will result in a fatal error. If it's not enabled, the error is
-only sent via C<warn> and the file currently being processed is aborted.
-
-=item sortReplies
-
-Call this method after loading replies to create an internal sort buffer. This
-is necessary for trigger matching purposes. If you fail to call this method
-yourself, RiveScript will call it once when you request a reply. However, it
-will complain loudly about it.
-
-=back
-
-=head2 CONFIGURATION
-
-=over 4
-
-=item setHandler ($LANGUAGE => $CODEREF, ...)
-
-Define some code to handle objects of a particular programming language. If the
-coderef is C<undef>, it will delete the handler.
-
-The code receives the variables C<$rs, $action, $name,> and C<$data>. These
-variables are described here:
-
-  $rs     = Reference to Perl RiveScript object.
-  $action = "load" during the parsing phase when an >object is found.
-            "call" when provoked via a <call> tag for a reply
-  $name   = The name of the object.
-  $data   = The source of the object during the parsing phase, or an array
-            reference of arguments when provoked via a <call> tag.
-
-There is a default handler set up that handles Perl objects.
-
-If you want to block Perl objects from being loaded, you can just set it to be
-undef, and its handler will be deleted and Perl objects will be skipped over:
-
-  $rs->setHandler (perl => undef);
-
-The rationale behind this "pluggable" object interface is that it makes
-RiveScript more flexible given certain environments. For instance, if you use
-RiveScript on the web where the user chats with your bot using CGI, you might
-define a handler so that JavaScript objects can be loaded and called. Perl
-itself can't execute JavaScript, but the user's web browser can.
-
-See the JavaScript example in the C<docs> directory in this distribution.
-
-=item setSubroutine ($NAME, $CODEREF)
-
-Manually create a RiveScript object (a dynamic bit of Perl code that can be
-provoked in a RiveScript response). C<$NAME> should be a single-word,
-alphanumeric string. C<$CODEREF> should be a pointer to a subroutine or an
-anonymous sub.
-
-=item setGlobal (%DATA)
-
-Set one or more global variables, in hash form, where the keys are the variable
-names and the values are their value. This subroutine will make sure that you
-don't override any reserved global variables, and warn if that happens.
-
-This is equivalent to C<! global> in RiveScript code.
-
-To delete a global, set its value to C<undef> or "C<E<lt>undefE<gt>>". This
-is true for variables, substitutions, person, and uservars.
-
-=item setVariable (%DATA)
-
-Set one or more bot variables (things that describe your bot's personality).
-
-This is equivalent to C<! var> in RiveScript code.
-
-=item setSubstitution (%DATA)
-
-Set one or more substitution patterns. The keys should be the original word, and
-the value should be the word to substitute with it.
-
-  $rs->setSubstitution (
-    q{what's}  => 'what is',
-    q{what're} => 'what are',
-  );
-
-This is equivalent to C<! sub> in RiveScript code.
-
-=item setPerson (%DATA)
-
-Set a person substitution. This is equivalent to C<! person> in RiveScript code.
-
-=item setUservar ($USER,%DATA)
-
-Set a variable for a user. C<$USER> should be their User ID, and C<%DATA> is a
-hash containing variable/value pairs.
-
-This is like C<E<lt>setE<gt>> for a specific user.
-
-=item getUservar ($USER, $VAR)
-
-This is an alias for getUservars, and is here because it makes more grammatical
-sense.
-
-=item getUservars ([$USER][, $VAR])
-
-Get all the variables about a user. If a username is provided, returns a hash
-B<reference> containing that user's information. Else, a hash reference of all
-the users and their information is returned.
-
-You can optionally pass a second argument, C<$VAR>, to get a specific variable
-that belongs to the user. For instance, C<getUservars ("soandso", "age")>.
-
-This is like C<E<lt>getE<gt>> for a specific user or for all users.
-
-=item clearUservars ([$USER])
-
-Clears all variables about C<$USER>. If no C<$USER> is provided, clears all
-variables about all users.
-
-=item freezeUservars ($USER)
-
-Freeze the current state of variables for user C<$USER>. This will back up the
-user's current state (their variables and reply history). This won't statically
-prevent the user's state from changing; it merely saves its current state. Then
-use thawUservars() to revert back to this previous state.
-
-=item thawUservars ($USER[, %OPTIONS])
-
-If the variables for C<$USER> were previously frozen, this method will restore
-them to the state they were in when they were last frozen. It will then delete
-the stored cache by default. The following options are accepted as an additional
-hash of parameters (these options are mutually exclusive and you shouldn't use
-both of them at the same time. If you do, "discard" will win.):
-
-  discard: Don't restore the user's state from the frozen copy, just delete the
-           frozen copy.
-  keep:    Keep the frozen copy even after restoring the user's state. With this
-           you can repeatedly thawUservars on the same user to revert their state
-           without having to keep freezing them again. On the next freeze, the
-           last frozen state will be replaced with the new current state.
-
-Examples:
-
-  # Delete the frozen cache but don't modify the user's variables.
-  $rs->thawUservars ("soandso", discard => 1);
-
-  # Restore the user's state from cache, but don't delete the cache.
-  $rs->thawUservars ("soandso", keep => 1);
-
-=item lastMatch ($USER)
-
-After fetching a reply for user C<$USER>, the C<lastMatch> method will return the
-raw text of the trigger that the user has matched with their reply. This function
-may return undef in the event that the user B<did not> match any trigger at all
-(likely the last reply was "C<ERR: No Reply Matched>" as well).
-
-=back
-
-=head2 INTERACTION
-
-=over 4
-
-=item reply ($USER,$MESSAGE)
-
-Fetch a response to C<$MESSAGE> from user C<$USER>. RiveScript will take care of
-lowercasing, running substitutions, and removing punctuation from the message.
-
-Returns a response from the RiveScript brain.
-
-=back
-
-=head2 INTERNAL
-
-=over 4
-
-=item debug ($MESSAGE) *Internal
-
-Prints a debug message to the terminal. Called from within in debug mode.
-
-=item issue ($MESSAGE) *Internal
-
-Called internally to report an issue (similar to a warning). If debug mode is
-active, it will print the issue to STDOUT with a # sign prepended. Otherwise,
-the issue is sent to STDERR via C<warn>.
-
-=item parse ($FILENAME, $CODE) *Internal
-
-This method is called internally to parse a file or streamed RiveScript code.
-C<$FILENAME> is only there so it can keep internal track of files and line
-numbers, in case syntax errors appear.
-
-=item sortThatTriggers *Internal
-
-This method sorts all the C<+Trigger> lines that are paired with a common
-C<%Previous> line. This is necessary for when one question by the bot could
-have multiple replies. I found a bug with the following RS code:
-
-  + how [are] you [doing]
-  - I'm doing great, how are you?
-  - Good -- how are you?
-  - Fine, how are you?
-
-  + [*] @good [*]
-  % * how are you
-  - That's good. :-)
-
-  + [*] @bad [*]
-  % * how are you
-  - Aww. :-( What's the matter?
-
-  + *
-  % * how are you
-  - I see...
-
-The effective trigger order was "C<[*] @good [*]>", "C<*>", "C<[*] @bad [*]>",
-because there was no sort buffer and it was relying on Perl's hash sorting.
-This method was introduced to fix that problem and sort these triggers too.
-
-You don't need to call this method yourself; it is called automatically
-on a C<sortReplies()> request.
-
-=item sortList ($NAME,@LIST) *Internal
-
-This is used internally to sort arrays (namely, person and substitution pattern
-arrays). Sets C<$rs->{sortlist}->{$NAME}> to an array reference of the sorted
-values in C<@LIST>. The values are sorted by number of words from greatest to
-smallest, with each group of same-word-count items sorted by length amongst
-themselves.
-
-=item _getreply ($USER,$MSG,%TAGS) *Internal
-
-B<Do NOT call this method yourself.> This method assumes a few things about the
-user's input that is taken care of by C<reply()>. There is no reason to call
-this method manually.
-
-=item _reply_regexp ($USER,$TRIGGER) *Internal
-
-This method takes a raw trigger C<$TRIGGER> and formats it for a matching
-attempt in a regular expression. It removes C<{weight}> tags, processes arrays,
-processes bot variables and other tags, and returns something ready for the
-regular expression engine.
-
-=item processTags ($USER,$MSG,$REPLY,$STARS,$BOTSTARS) *Internal
-
-Process tags in the bot's response. C<$USER> and C<$MSG> are the values
-originally passed to the reply engine. C<$REPLY> is the bot's raw response.
-C<$STARS> and C<$BOTSTARS> are array references containing any wildcards matched
-in a trigger or C<%Previous> command, respectively. Returns a reply with all the
-tags processed.
-
-=item _formatMessage ($STRING) *Internal
-
-Formats a message to prepare it for reply matching. Lowercases the string, runs
-substitutions, and sanitizes what's left.
-
-=item _stringUtil ($TYPE,$STRING) *Internal
-
-Runs string modifiers on C<$STRING> (uppercase, lowercase, sentence, formal).
-
-=item _personSub ($STRING) *Internal
-
-Runs person substitutions on C<$STRING>.
-
-=back
-
 =head1 RIVESCRIPT
 
 This interpreter tries its best to follow RiveScript standards. Currently it
 supports RiveScript 2.0 documents. A current copy of the RiveScript working
 draft is included with this package: see L<RiveScript::WD>.
-
-=head1 ERROR MESSAGES
-
-Most of the Perl warnings that the module will emit are self-explanatory, and
-when parsing RiveScript files, file names and line numbers will be given. This
-section of the manpage instead outlines error strings that may turn up in
-responses to the bot's queries.
-
-=head2 ERR: Deep Recursion Detected!
-
-The deep recursion depth limit has been reached (a response redirected to a
-different trigger, which redirected somewhere else, etc.).
-
-How to fix: override the global variable C<depth>. This can be done via
-C<setGlobal> or in the RiveScript code:
-
-  ! global depth = 100
-
-=head2 ERR: No Reply Matched
-
-No match was found for the client's message.
-
-How to fix: create a catch-all trigger of just C<*>.
-
-  + *
-  - I don't know how to reply to that.
-
-=head2 ERR: No Reply Found
-
-A match to the client's message was found, but no response to it was found. This
-might mean you had a set of conditionals after it, and no C<-Reply> to fall back
-on, and every conditional returned false.
-
-How to fix: make sure you have at least one C<-Reply> to every C<+Trigger>, even
-if you don't expect that the C<-Reply> will ever be used.
-
-=head2 [ERR: Can't Modify Non-Numeric Variable $var]
-
-You called a math tag on a variable, and the current value of the variable
-contains something that isn't a number.
-
-How to fix: verify that the variable you're working with is a number. If
-necessary, reset the variable via C<E<lt>setE<gt>>.
-
-=head2 [ERR: Math Can't "add" Non-Numeric Value $value]
-
-("add" may also be sub, mult, or div). You tried to run a math function on a
-variable, but the value you used wasn't a number.
-
-How to fix: verify that you're adding, subtracting, multiplying, or dividing
-using numbers.
-
-=head2 [ERR: Can't Divide By Zero]
-
-A C<E<lt>divE<gt>> tag was found that attempted to divide a variable by zero.
-
-How to fix: make sure your division isn't dividing by zero. If you're using a
-variable to provide the divisor, validate that the variable isn't zero by using
-a conditional.
-
-  * <get divisor> == 0 => The divisor is zero so I can't do that.
-  - <div myvar=<get divisor>>I divided the variable by <get divisor>.
-
-=head2 [ERR: Object Not Found]
-
-RiveScript attempted to call an object that doesn't exist. This may be because a
-syntax error in the object prevented Perl from evaluating it, or the object was
-written in a different programming language.
-
-How to fix: verify that the called object was loaded properly. You will receive
-notifications on the terminal if the object failed to load for any reason.
 
 =head1 SEE ALSO
 
@@ -2926,7 +3173,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.23  May 10 2012
+  1.24  May 15 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */
   - Fixed: you can use <input> and <reply> in triggers now, instead of only
     <input1>-<input9> and <reply1>-<reply9>
@@ -2936,6 +3183,18 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     <star> collecting the remainder).
   - Backported new feature from Python lib: you can now use <bot> and <env>
     to SET variables (eg. <bot mood=happy>). The {!...} tag is deprecated.
+  - New feature: deparse() will return a Perl data structure representing all
+    of the RiveScript code parsed by the module so far. This way you can build
+    a user interface for editing replies without requiring a user to edit the
+    code directly.
+  - New method: write() will use deparse() to write a RiveScript document using
+    all of the in-memory triggers/responses/etc.
+  - Cleaned up the POD documentation, put POD code along side the Perl functions
+    it documents, removed useless bloat from the docs.
+  - POD documentation now only shows recent changes. For older changes, see the
+    "CHANGES" file in the distribution.
+  - Removed the `rsup` script from the distribution (it upgrades RiveScript 1.x
+    code to 2.x; there probably isn't any 1.x code out in the wild anyway).
 
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
@@ -3001,75 +3260,6 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     issues therein.
   - +Triggers can contain user <get> tags now.
   - Updated the RiveScript Working Draft.
-
-  1.17  Sep 15 2008
-  - Updated the rsdemo tool to be more flexible as a general debugging and
-    developing program. Also updated rsdemo and rsup to include POD documentation
-    that can be read via `perldoc`.
-  - Added a global variable $RiveScript::basedir which is the the path to your
-    Perl lib/RiveScript folder. This is used by `rsdemo` as its default location
-    to search for replies.
-  - Tweak: Triggers of only # and _ can exist now alongside the old single-wildcard
-    trigger of *.
-  - Bugfix: The lookahead code would throw Perl warnings if the following line
-    had a single space in it, but was otherwise empty.
-  - Bugfix: Inline comment removing has been fixed.
-  - Bugfix: In conditionals, any blank side of the equality will get a default
-    value of "undefined". This way you can use a matching array inside an optional
-    and check if that <star> tag is defined.
-    + i am wearing a [(@colors)] shirt
-    * <star> ne undefined => Why are you wearing a <star> shirt?
-    - What color is it?
-  - Updated the RiveScript Working Draft.
-
-  1.16  Jul 22 2008
-  - New options to the constructor: 'verbose' and 'debugfile'. See the new()
-    constructor for details.
-  - Added new wildcard variants:
-    * matches anything (previous behavior)
-    # matches only numbers
-    _ matches only letters
-    So you can have a trigger like "+ i am # years old" and "+ i am * years old",
-    with the latter trigger telling them to try that again and use a NUMBER this
-    time. :)
-  - Bugfix: when there were multiple +trigger's that had a common %previous,
-    there was no internal sort buffer for those +trigger's. As a result, matching
-    wasn't very efficient. Added the method sortThatTriggers() to fix this.
-  - Bugfix: tags weren't being processed in @Redirects when they really
-    should've!
-  - Bugfix: The ^Continue lookahead code wouldn't work if the next line began
-    with a tab. Fixed!
-  - Updated the RiveScript Working Draft.
-
-  1.15  Jun 19 2008
-  - Person substitutions support multiple-word patterns now.
-  - Message substititons also support multiple-word patterns now.
-  - Added syntax tracking, so Deep Recursion errors can give you a filename and
-    line number where the problem occurred.
-  - Added a handler for detecting when a user was put into an empty topic.
-  - Rearranged tag priority.
-  - Updated the RiveScript Working Draft.
-
-  1.14  Apr  2 2008
-  - Bugfix: If a BEGIN/request trigger didn't exist, RiveScript would not fetch
-    any replies for the client's message. Fixed.
-  - Bugfix: Tags weren't being re-processed for the text of the BEGIN statement,
-    so i.e. {uppercase}{ok}{/uppercase} wasn't working as expected. Fixed.
-  - Bugfix: RiveScript wasn't parsing out inline comments properly.
-  - Rearranged tag priorities.
-  - Optimization: When substituting <star>s in, an added bit of code will insert
-    '' (nothing) if the variable is undefined. This prevents Perl warnings that
-    occurred frequently with the Eliza brain.
-  - Updated the RiveScript Working Draft.
-
-  1.13  Mar 18 2008
-  - Included an "rsup" script for upgrading old RiveScript code.
-  - Attempted to fix the package for CPAN (1.12 was a broken upload).
-  - Bugfix: <bot> didn't have higher priority than <set>, so
-    i.e. <set name=<bot name>> wouldn't work as expected. Fixed.
-
-  1.12  Mar 16 2008
-  - Initial beta release for a RiveScript 2.00 parser.
 
 =head1 AUTHOR
 

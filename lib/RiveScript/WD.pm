@@ -271,11 +271,11 @@ Here's a maintenance mode example:
 
   // Allow the owner to change the maintenance mode
   + activate maintenance mode
-  * <id> eq <bot master> => {!global maint=true}Maintenance mode activated.
+  * <id> eq <bot master> => <env maint=true>Maintenance mode activated.
   - You're not my master! You can't tell me what to do!
 
   + deactivate maintenance mode
-  * <id> eq <bot master> => {!global maint=false}Maintenance mode deactivated.
+  * <id> eq <bot master> => <env maint=false>Maintenance mode deactivated.
   - Only my master can deactivate maintenance mode!
 
 With this example, if the global variable "maint" is set to "true", the bot
@@ -1074,8 +1074,11 @@ Perform an inline definition. This can be used just like the normal
 C<! Definition> command from within a reply. This tag can only be used
 with C<- Response>.
 
+B<This tag is deprecated>. This tag's purpose was to redefine a global or bot
+variable on the fly. Instead, the env and bot tags allow assignment.
+
   + set bot mood to *
-  - {! var mood = <star>}Bot mood set to <star>.
+  - <bot mood=<star>>Bot mood set to <star>.
 
 =head2 {random}...{/random}
 
@@ -1324,7 +1327,6 @@ that a tag is allowed is as follows:
   \\          #
   \#          #
   {random}    # Random text insertion (which may contain other tags)
-  {!}         # Redefine global variables
   <bot>       # Insert bot variables
   <env>       # Insert environment variables
   <person>    # String modifiers
@@ -1402,6 +1404,10 @@ Or perhaps there will just be a converter tool created that would go through cod
 that it already assumes will be RiveScript 1.x and update it to 2.x standards.
 
 =head1 REVISIONS
+
+  Rev 10 - May 15, 2012
+  - Deprecated the {!...} tag. It was intended for reassigning global or bot
+    variables. Instead use <env name=value>, <bot name=value>.
 
   Rev 9 - Jul 31, 2009
   - Added more explicit details on the usage of the BEGIN block, under the

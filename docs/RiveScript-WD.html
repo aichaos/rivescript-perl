@@ -385,11 +385,11 @@ mode,&quot; or could filter the results of your trigger based on a variable.</p>
 <pre>
   // Allow the owner to change the maintenance mode
   + activate maintenance mode
-  * &lt;id&gt; eq &lt;bot master&gt; =&gt; {!global maint=true}Maintenance mode activated.
+  * &lt;id&gt; eq &lt;bot master&gt; =&gt; &lt;env maint=true&gt;Maintenance mode activated.
   - You're not my master! You can't tell me what to do!</pre>
 <pre>
   + deactivate maintenance mode
-  * &lt;id&gt; eq &lt;bot master&gt; =&gt; {!global maint=false}Maintenance mode deactivated.
+  * &lt;id&gt; eq &lt;bot master&gt; =&gt; &lt;env maint=false&gt;Maintenance mode deactivated.
   - Only my master can deactivate maintenance mode!</pre>
 <p>With this example, if the global variable &quot;maint&quot; is set to &quot;true&quot;, the bot
 will always reply &quot;Sorry, I'm not available for chat right now!&quot; when a user
@@ -1117,9 +1117,11 @@ is embedded within another response. This tag can only be used with
 <p>Perform an inline definition. This can be used just like the normal
 <code>! Definition</code> command from within a reply. This tag can only be used
 with <code>- Response</code>.</p>
+<p><strong>This tag is deprecated</strong>. This tag's purpose was to redefine a global or bot
+variable on the fly. Instead, the env and bot tags allow assignment.</p>
 <pre>
   + set bot mood to *
-  - {! var mood = &lt;star&gt;}Bot mood set to &lt;star&gt;.</pre>
+  - &lt;bot mood=&lt;star&gt;&gt;Bot mood set to &lt;star&gt;.</pre>
 <p>
 </p>
 <h2><a name="_random______random_">{random}...{/random}</a></h2>
@@ -1353,7 +1355,6 @@ that a tag is allowed is as follows:</p>
   \\          #
   \#          #
   {random}    # Random text insertion (which may contain other tags)
-  {!}         # Redefine global variables
   &lt;bot&gt;       # Insert bot variables
   &lt;env&gt;       # Insert environment variables
   &lt;person&gt;    # String modifiers
@@ -1432,6 +1433,10 @@ that it already assumes will be RiveScript 1.x and update it to 2.x standards.</
 </p>
 <hr />
 <h1><a name="revisions">REVISIONS</a></h1>
+<pre>
+  Rev 10 - May 15, 2012
+  - Deprecated the {!...} tag. It was intended for reassigning global or bot
+    variables. Instead use &lt;env name=value&gt;, &lt;bot name=value&gt;.</pre>
 <pre>
   Rev 9 - Jul 31, 2009
   - Added more explicit details on the usage of the BEGIN block, under the
