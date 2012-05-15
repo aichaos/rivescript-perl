@@ -1697,18 +1697,24 @@ sub _clone {
 	return $data;
 }
 
-=item void write (glob $fh || string $file)
+=item void write (glob $fh || string $file[, data $deparsed])
 
 Write the currently parsed RiveScript data into a RiveScript file. This uses
 C<deparse()> to dump a representation of the loaded data and writes it to the
 destination file. Pass either a filehandle or a file name.
+
+If you provide C<$deparsed>, it should be a data structure matching the format
+of C<deparse()>. This way you can deparse your RiveScript brain, add/edit
+replies and then pass in the new version to this method to save the changes
+back to disk. Otherwise, C<deparse()> will be called to get the current
+snapshot of the brain.
 
 =back
 
 =cut
 
 sub write {
-	my ($self, $file) = @_;
+	my ($self, $file, $deparsed) = @_;
 
 	my $fh;
 	if (ref($file) eq "GLOB") {
@@ -1721,7 +1727,7 @@ sub write {
 		open ($fh, ">", $file) or die "Can't write to $file: $!";
 	}
 
-	my $deparse = $self->deparse();
+	my $deparse = ref($deparsed) ? $deparsed : $self->deparse();
 
 	# Start at the beginning.
 	print {$fh} "// Written by RiveScript::deparse()\n";

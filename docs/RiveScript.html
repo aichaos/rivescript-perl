@@ -234,12 +234,17 @@ code manually.</p>
 the best (for security, etc). The global variables &quot;debug&quot; and &quot;depth&quot; are only
 provided if the values differ from the defaults (true and 50, respectively).</p>
 </dd>
-<dt><strong><a name="write" class="item">void write (glob $fh || string $file)</a></strong></dt>
+<dt><strong><a name="write" class="item">void write (glob $fh || string $file[, data $deparsed])</a></strong></dt>
 
 <dd>
 <p>Write the currently parsed RiveScript data into a RiveScript file. This uses
 <a href="#deparse"><code>deparse()</code></a> to dump a representation of the loaded data and writes it to the
 destination file. Pass either a filehandle or a file name.</p>
+<p>If you provide <code>$deparsed</code>, it should be a data structure matching the format
+of <a href="#deparse"><code>deparse()</code></a>. This way you can deparse your RiveScript brain, add/edit
+replies and then pass in the new version to this method to save the changes
+back to disk. Otherwise, <a href="#deparse"><code>deparse()</code></a> will be called to get the current
+snapshot of the brain.</p>
 </dd>
 </dl>
 <p>
