@@ -1,6 +1,6 @@
 =head1 NAME
 
-RiveScript Handler Example - JavaScript
+RiveScript::Docs::JavaScript
 
 =head1 DESCRIPTION
 

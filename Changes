@@ -1,5 +1,9 @@
 Revision history for Perl extension RiveScript.
 
+  1.26  May 29 2012
+  - Added EXE_FILES to Makefile.PL so the rivescript utility installs
+    correctly.
+
   1.24  May 15 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */
   - Fixed: you can use <input> and <reply> in triggers now, instead of only
