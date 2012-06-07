@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.26'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.27'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -3178,6 +3178,9 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.27
+  - FIXED: Typos in RiveScript::WD (Bug #77618)
 
   1.26  May 29 2012
   - Added EXE_FILES to Makefile.PL so the rivescript utility installs

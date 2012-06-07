@@ -115,7 +115,7 @@ The variable types supported are detailed as follows:
 
 =head3 version
 
-It's highly recommended practice that new RiveScript documents explicitely
+It's highly recommended practice that new RiveScript documents explicitly
 define the version of RiveScript that they are following. RiveScript 2.00
 has some compatibility issues with the old 1.x line (see L<"REVERSE COMPATIBILITY">).
 Newer RiveScript versions should encourage that RiveScript documents define their
@@ -815,7 +815,7 @@ to the new line. It can be used to extend any other command. Example:
 
 Note that when the C<^> command continues the previous command, no spaces or
 line breaks are implied at the joining of the two lines. The C<\s> and C<\n>
-tags must be explicitely defined where needed.
+tags must be explicitly defined where needed.
 
 =head2 @ REDIRECT
 

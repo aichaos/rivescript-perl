@@ -1,0 +1,721 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>RiveScript::Tutorial - Learn to write RiveScript code.</title>
+<link rel="stylesheet" href="rivescript.css" type="text/css" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#introduction">INTRODUCTION</a></li>
+	<ul>
+
+		<li><a href="#getting_started">Getting Started</a></li>
+		<li><a href="#project_directory">Project Directory</a></li>
+	</ul>
+
+	<li><a href="#first_steps">FIRST STEPS</a></li>
+	<ul>
+
+		<li><a href="#hello__human_">Hello, Human!</a></li>
+		<ul>
+
+			<li><a href="#the_code__explained">The Code, Explained</a></li>
+		</ul>
+
+		<li><a href="#random_replies">Random Replies</a></li>
+		<ul>
+
+			<li><a href="#a_note_about_style">A Note About Style</a></li>
+			<li><a href="#let_s_talk_about_weight">Let's Talk About Weight</a></li>
+		</ul>
+
+		<li><a href="#the_begin_file">The Begin File</a></li>
+		<ul>
+
+			<li><a href="#definitions">Definitions</a></li>
+		</ul>
+
+		<li><a href="#open_ended_triggers">Open-Ended Triggers</a></li>
+		<ul>
+
+			<li><a href="#catch_all_trigger">Catch-All Trigger</a></li>
+			<li><a href="#specialized_wildcards">Specialized Wildcards</a></li>
+		</ul>
+
+		<li><a href="#alternatives_and_optionals">Alternatives and Optionals</a></li>
+		<li><a href="#arrays_in_triggers">Arrays in Triggers</a></li>
+		<li><a href="#priority_triggers">Priority Triggers</a></li>
+	</ul>
+
+	<li><a href="#appendix">APPENDIX</a></li>
+	<ul>
+
+		<li><a href="#windows_troubleshooting">Windows Troubleshooting</a></li>
+		<ul>
+
+			<li><a href="#command_prompt_help">Command Prompt Help</a></li>
+		</ul>
+
+		<li><a href="#writing_an_interpreter">Writing an Interpreter</a></li>
+	</ul>
+
+	<li><a href="#glossary">GLOSSARY</a></li>
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>RiveScript::Tutorial - Learn to write RiveScript code.</p>
+<p>
+</p>
+<hr />
+<h1><a name="introduction">INTRODUCTION</a></h1>
+<p>This tutorial will help you learn how to write your own chatbot personalities
+using the RiveScript language.</p>
+<p>
+</p>
+<h2><a name="getting_started">Getting Started</a></h2>
+<p>To <strong>write</strong> your own RiveScript code, you will only need a simple text editing
+program. You can use Notepad for Windows, or gedit for Linux, or any other
+text editors you have available.</p>
+<p>A RiveScript document is a text file containing RiveScript code. These files
+will have a <code>.rs</code> extension. An example file name would be <code>greetings.rs</code>.
+If you're writing RiveScript documents on Windows, you may need to put the
+file name in quotes when you save it, for example <code>&quot;greetings.rs&quot;</code> to be
+sure it gets saved with the file extension (and not &quot;<code>greetings.rs.txt</code>&quot;).</p>
+<p>To <strong>execute</strong> and test your RiveScript code, you will need a RiveScript
+Interpreter, or, a program that uses a RiveScript library to read and execute
+RiveScript code.</p>
+<p>The Perl <em>RiveScript</em> module comes with a ready-to-use interpreter that can
+be used for this tutorial! If you've installed the Perl RiveScript module on
+a Linux, Unix or Mac OS system, the RiveScript interpreter will probably be
+installed in a place like <code>/usr/bin/rivescript</code> or
+<code>/usr/local/bin/rivescript</code>. You can open a terminal window and run the
+command &quot;<code>rivescript</code>&quot; to use the RiveScript interpreter.</p>
+<p>If you're using Windows, or the <code>rivescript</code> command wasn't installed, you
+can obtain it from the distribution from CPAN, in the &quot;bin&quot; directory. After
+installing RiveScript, you can run the <code>rivescript</code> program in a terminal or
+command prompt window by switching to the &quot;bin&quot; directory and typing
+&quot;<code>perl rivescript</code>&quot;.</p>
+<p>If you are able to run the RiveScript interpreter that is shipped with the
+Perl distribution, you will be able to continue with this tutorial. If you're
+using a different RiveScript library, such as the Python version, please refer
+to the documentation of the library to see if it comes with a RiveScript
+interpreter that you can use.</p>
+<p>If you need to write your own interpreter program, see
+<a href="#writing_an_interpreter">Writing an Interpreter</a> for an example of how to do this in Perl.</p>
+<p>This tutorial will assume you are using the <code>rivescript</code> command shipped
+with the Perl RiveScript library.</p>
+<p>
+</p>
+<h2><a name="project_directory">Project Directory</a></h2>
+<p>For this tutorial, you should create a folder to save your RiveScript documents
+to. The following are some recommended locations, but you can place them
+wherever you like.</p>
+<p>For Linux, Unix and Mac OS users, I recommend making a folder in your home
+directory, like so:</p>
+<pre>
+  Unix: /home/USER/rstut
+  Mac:  /Users/USER/rstut</pre>
+<p>Substitute <code>USER</code> with your username of course.</p>
+<p>For Windows users, make a directory in the <code>C:\</code> drive, like so:</p>
+<pre>
+  Windows: C:\rstut</pre>
+<p>After you begin writing RiveScript documents, you can test your code at any time
+by running the RiveScript interpreter and pointing it at your reply directory.</p>
+<p>For Linux, Unix and Mac OS users, open a terminal window and run a command such
+as the following:</p>
+<pre>
+  rivescript rstut</pre>
+<p>For Windows, open a command prompt window (push the Start button, type <code>cmd</code>
+and hit Enter. For Windows XP or older, push the Windows key + R on your
+keyboard, and type <code>cmd</code> and hit enter in the Run dialog). Navigate to the
+&quot;bin&quot; folder in the Perl RiveScript distribution by using the <code>cd</code> command,
+and then run the following command:</p>
+<pre>
+  perl rivescript C:/rstut</pre>
+<p>If you're having trouble getting this to work on Windows, see
+<a href="#windows_troubleshooting">Windows Troubleshooting</a> for help.</p>
+<p>
+</p>
+<hr />
+<h1><a name="first_steps">FIRST STEPS</a></h1>
+<p>
+</p>
+<h2><a name="hello__human_">Hello, Human!</a></h2>
+<p>Let's write our first few lines of RiveScript code!</p>
+<p>In your text editor, create a new file and write the following in it:</p>
+<pre>
+  ! version = 2.0</pre>
+<pre>
+  + hello bot
+  - Hello, human!</pre>
+<p>Save this in your project directory as <code>hello.rs</code>, and then run the RiveScript
+interpreter on that directory (see <a href="#project_directory">Project Directory</a> for reference). You
+should see something along these lines in your terminal window:</p>
+<pre>
+  RiveScript Interpreter - Interactive Mode
+  -----------------------------------------
+  RiveScript Version: 1.28
+          Reply Root: rstut</pre>
+<pre>
+  You are now chatting with the RiveScript bot. Type a message and press
+  Return to send it.
+  When finished, type '/quit' to exit the program. Type '/help' for other
+  options.</pre>
+<pre>
+  You&gt;</pre>
+<p>At the prompt, type &quot;Hello bot&quot; and press Enter. The bot should respond with
+&quot;Hello, human!&quot;</p>
+<p>Try saying something else to the bot, such as &quot;how are you?&quot; and see what
+it says. The bot should respond with, &quot;ERR: No Reply Matched&quot;. This is because
+you said something that there was no RiveScript code written to handle. There
+is only a handler for &quot;hello bot&quot;, and nothing else. Later you will learn how
+to write a &quot;catch-all&quot; response that will be used when you say something the
+bot wasn't programmed to handle. But first, let's go over the code you wrote
+for <code>hello.rs</code>.</p>
+<p>
+</p>
+<h3><a name="the_code__explained">The Code, Explained</a></h3>
+<p>RiveScript code is really simple. Each line of the text file is a separate
+entity (RiveScript is a line-based scripting language). Lines of RiveScript
+code always begin with a command symbol (in this example, the symbols we see
+are <code>!</code>, <code>+</code>, and <code>-</code>) and they always have some kind of data that follows
+them. The data depends on the command used.</p>
+<p>The line, &quot;<code>! version = 2.0</code>&quot; tells the RiveScript interpreter that your code
+follows version 2.0 of the RiveScript specification. This way, future versions
+of the language can be backwards compatible with existing code by looking at
+the version number and responding accordingly. It is a good idea to always
+include the version line in your code (but it isn't the end of the world if you
+leave it out -- you'll just leave the interpreter to make its best guess about
+which version your code is using).</p>
+<p>The <code>+</code> command is how you define a <strong>trigger</strong>. A trigger is a line of text
+that is used to match the user's message. In this case, &quot;hello world&quot; is
+exactly the message that we're matching. You will learn about some more
+complex features of triggers later in this tutorial.</p>
+<p><strong>Important Note:</strong> a trigger is ALWAYS lower cased, and it doesn't contain
+punctuation symbols. Even if you write a trigger that contains the proper noun
+&quot;I&quot;, that &quot;I&quot; should be lowercased too. You may have noticed when testing your
+code that the interpreter doesn't care about the capitalizations used in your
+messages: you can say &quot;Hello Bot&quot;, &quot;HELLO BOT&quot;, or &quot;hello bot&quot; and it will
+match the trigger all the same.</p>
+<p>The <code>-</code> command is how you define a response to a trigger. In this case,
+when the user matches the &quot;hello bot&quot; trigger, the bot should respond to
+the user by saying &quot;Hello, human!&quot;</p>
+<p>
+</p>
+<h2><a name="random_replies">Random Replies</a></h2>
+<p>Making your bot <em>always</em> respond exactly the same way to something the user
+says will get boring really quickly. For this reason, RiveScript makes it
+easy to add random responses to a trigger!</p>
+<p>Getting random responses is as easy as entering multiple Response commands
+for the same trigger. To see this in action, open your <code>hello.rs</code> file from
+<a href="#hello__human_">Hello, Human!</a> and add the following lines to it:</p>
+<pre>
+  + how are you
+  - I'm great, how are you?
+  - I'm good, you?
+  - Good :) you?
+  - Great! You?
+  - I'm fine, thanks for asking!</pre>
+<p>Save this and then test it with the RiveScript interpreter. Ask your bot,
+&quot;How are you?&quot; a few times and see how it responds. It will say one of these
+five things at random each time you ask!</p>
+<p>
+</p>
+<h3><a name="a_note_about_style">A Note About Style</a></h3>
+<p>To keep your RiveScript documents nice and tidy and easy to read (and
+maintain!) you should follow these style guidelines:</p>
+<ul>
+<li><strong><a name="use_blank_lines_to_separate_logical_groups_of_code" class="item">Use blank lines to separate logical groups of code.</a></strong>
+
+<p>For example, a trigger line and its responses should be grouped together,
+and a blank line should separate them from a different trigger and its
+responses.</p>
+</li>
+<li><strong><a name="indent_code_inside_a_topic_or_begin_block" class="item">Indent code inside a topic or begin block.</a></strong>
+
+<p>You'll learn about these later in this tutorial.</p>
+</li>
+</ul>
+<p>So, our <code>hello.rs</code> should look like this now:</p>
+<pre>
+  ! version = 2.0</pre>
+<pre>
+  + hello bot
+  - Hello, human!</pre>
+<pre>
+  + how are you
+  - I'm great, how are you?
+  - I'm good, you?
+  - Good :) you?
+  - Great! You?
+  - I'm fine, thanks for asking!</pre>
+<p>
+</p>
+<h3><a name="let_s_talk_about_weight">Let's Talk About Weight</a></h3>
+<p>While random responses are certainly useful, there will be times when you
+would prefer that <em>some</em> replies would be chosen more frequently than
+others. For example, you might be writing a bot whose personality is that
+he's secretly an alien pretending to be a human that's pretending to be a
+bot, and you want the bot to respond in some unintelligible gibberish
+every once in a while.</p>
+<p>You can use the <code>{weight}</code> tag in a reply to override how frequently that
+reply will be chosen compared to the others. For our alien gibberish example,
+you could write a reply like this:</p>
+<pre>
+  + greetings
+  - Hi there!{weight=20}
+  - Hello!{weight=25}
+  - Yos kyoco duckeb!</pre>
+<p>Here, we've assigned a weight to each of the English responses, and
+left the gibberish one alone. The effect that this has is that &quot;Hi there!&quot;
+will be picked 20 times out of 46, &quot;Hello!&quot; will be picked 25 times out of
+46, and &quot;Yos kyoco duckeb!&quot; will be chosen only 1 time out of 46.</p>
+<p>You can test this by saying &quot;greetings&quot; to your bot over and over again.
+It should <em>very rarely</em> choose the &quot;Yos kyoco duckeb!&quot; response compared
+to the other two.</p>
+<p>The weight value controls the probability that the reply is chosen. Replies
+that don't explicitly include a weight tag automatically have a weight of 1.
+The probability of each reply being chosen is the reply's weight divided by
+the sum of all the weights combined (in this example, 20 + 25 + 1 = 46, so
+each reply has its weight out of 46 chance of being chosen).</p>
+<p>Weight values can't be zero and they can't be negative.</p>
+<p>
+</p>
+<h2><a name="the_begin_file">The Begin File</a></h2>
+<p>You now know some of the basics about how triggers and replies relate to
+each other. Before continuing, you should know how RiveScript brains are
+typically organized.</p>
+<p>RiveScript brains (a &quot;brain&quot; is a set of RiveScript documents) should, by
+convention, include a document named <code>begin.rs</code> that contains some
+configuration settings for your bot's brain. The most useful settings that
+would be set here include <strong>substitutions</strong>, which are able to make changes
+to the user's message <em>before</em> a reply is looked for.</p>
+<p>You may have noticed that the RiveScript interpreter doesn't care about
+punctuation in your messages (you can say &quot;Hello bot!!!&quot; and it ignores the
+exclamation marks), so what does that mean for things such as the word &quot;what's&quot;?
+By default, the word &quot;what's&quot; would be converted into &quot;whats&quot; before the
+interpreter looks for a reply for it. With substitutions, you can see to it
+that &quot;what's&quot; is expanded into &quot;what is&quot; instead -- allowing you better
+control over how you reply to the user's message!</p>
+<p>Let's start with our <code>begin.rs</code> file. In your text editor, create a new
+document and write the following code into it (this code will be explained
+below):</p>
+<pre>
+  ! version = 2.0</pre>
+<pre>
+  // Bot variables
+  ! var name = Tutorial
+  ! var age  = 5</pre>
+<pre>
+  // Substitutions
+  ! sub i'm     = i am
+  ! sub i'd     = i would
+  ! sub i've    = i have
+  ! sub i'll    = i will
+  ! sub don't   = do not
+  ! sub isn't   = is not
+  ! sub you'd   = you would
+  ! sub you're  = you are
+  ! sub you've  = you have
+  ! sub you'll  = you will
+  ! sub what's  = what is
+  ! sub whats   = what is
+  ! sub what're = what are
+  ! sub what've = what have
+  ! sub what'll = what will</pre>
+<p>Save this as <code>begin.rs</code> in your project directory. Now, for an explanation on
+what this code is doing.</p>
+<p>
+</p>
+<h3><a name="definitions">Definitions</a></h3>
+<p>You've already seen the <code>!</code> command used for the version line, but what are all
+these other lines? More generally, the <code>!</code> command is used for <strong>Definitions</strong>
+(just like the <code>+</code> is for <strong>Triggers</strong> and the <code>-</code> is for <strong>Replies</strong>). In the
+version line, we are <em>defining</em> that the version is 2.0.</p>
+<p>Also, you may be wondering what the <code>//</code> characters are for. Like in most
+programming languages, RiveScript allows you to include <strong>Comments</strong> in your
+source code. The <code>//</code> characters denote the start of a comment. The interpreter
+will ignore these comments when it reads your code; they're only there for the
+humans (you!) who have to read and maintain the code.</p>
+<p>Now let's go over these new definition types.</p>
+<p>First, we defined a couple of <strong>Bot Variables</strong>. These are pieces of information
+that describe your bot, such as its name and age in this example. These will
+come in handy later. With bot variables, we can write replies in which the bot
+can tell the user a little something about itself.</p>
+<p>Then, we defined a handful of <strong>Substitutions</strong>. Substitutions are
+<em>always lowercased</em>. On the left side of the = sign, you write the &quot;original
+text&quot; that may appear in the user's message, and on the right you place the
+substituted text. The text on the right <em>should not</em> contain any special
+symbols or punctuation, and it should also be lowercased.</p>
+<p>With these substitutions, if a user says to the bot, &quot;what's up?&quot; or
+&quot;I've been at work all day&quot;, the RiveScript interpreter will expand these
+messages out to &quot;what is up&quot; and &quot;i have been at work all day&quot;, respectively,
+before it starts looking for a reply.</p>
+<p>Here is some more code that you can add to your <code>hello.rs</code> file from earlier
+that demonstrates how substitutions work:</p>
+<pre>
+  + what is up
+  - Not much, you?
+  - nm, you?
+  - Not a lot, you?</pre>
+<pre>
+  + you are a bot
+  - How did you know I'm a machine?</pre>
+<p>You can then ask your bot, &quot;What's up?&quot; or &quot;You're a bot&quot; and see that it
+matches these replies accordingly. Notice that the substitutions didn't
+apply to the bot's response to &quot;you're a bot&quot; -- it says &quot;How did you know
+I'm a machine?&quot; -- substitutions only apply to the user's
+incoming message. They're also used with the <code>% Previous</code> command, but
+we'll get to that later.</p>
+<p>There are other types of definition commands available too: <code>array</code>,
+<code>global</code>, and <code>person</code>. These are useful for more advanced replies and
+they'll be covered later in this tutorial.</p>
+<p><strong>Note:</strong> there will be many more examples of RiveScript code in this
+tutorial. You can put these in any RiveScript document you wish; you can
+create a new <code>.rs</code> file for them if you like. Now and then I'll mention
+a recommended file name, though, but the names don't really matter that
+much.</p>
+<p>
+</p>
+<h2><a name="open_ended_triggers">Open-Ended Triggers</a></h2>
+<p>So far, the triggers you've seen have been what I call &quot;atomic&quot; -- they
+describe a user's message <em>perfectly</em>. For example, the user must say
+exactly &quot;hello bot&quot;; they can't say &quot;hello there&quot; or &quot;hello mang&quot; and
+still match one of your triggers, unless you've written individual triggers
+for each possible thing they could say!</p>
+<p>This is where <strong>Wildcards</strong> come into play. With wildcards, you can mark
+a part of the trigger as being open-ended. The best way to demonstrate
+this is with an example:</p>
+<pre>
+  + my name is *
+  - Nice to meet you, &lt;star1&gt;!</pre>
+<pre>
+  + * told me to say *
+  - Why would &lt;star1&gt; tell you to say &quot;&lt;star2&gt;&quot;?
+  - Did you say &quot;&lt;star2&gt;&quot; after &lt;star1&gt; told you to?</pre>
+<pre>
+  + i am * years old
+  - A lot of people are &lt;star1&gt; years old.</pre>
+<p>With these triggers, a user can say &quot;My name is Noah&quot;, or &quot;I am 24 years
+old&quot;, and the bot will be able to match these messages all the same.
+Wildcards are very useful to match messages that may contain &quot;variable&quot;
+data, such as names or numbers. They're also useful for your bot to be
+able to fake knowledge about a subject:</p>
+<pre>
+  + where is *
+  - Where it belongs.
+  - Where you left it.
+  - Where the heart is.</pre>
+<p>You can write triggers for common questions like &quot;who is&quot;, &quot;where is&quot;,
+and &quot;what is&quot; by using wildcards; so, if the user asks your bot about
+something that your bot doesn't have a special trigger to handle, it
+can give a sort of &quot;generic&quot; response that will be at least somewhat
+relevant to the question.</p>
+<p>You may have noticed the <code>&lt;star1&gt;</code> and <code>&lt;star2&gt;</code>
+tags that appeared in some of those replies up there. These tags can
+be used in a reply in order to repeat the words matched by the wildcards.
+When the user says &quot;my name is Noah&quot;, the first wildcard in that trigger
+would catch the name, and <code>&lt;star1&gt;</code> would be &quot;noah&quot; in this
+case.</p>
+<p>If you only have a single wildcard, you may just use the <code>&lt;star&gt;</code>
+tag without the number &quot;1&quot; as a shortcut:</p>
+<pre>
+  + who is *
+  - I don't know who &lt;star&gt; is.</pre>
+<p>While we're on the topic of wildcards...</p>
+<p>
+</p>
+<h3><a name="catch_all_trigger">Catch-All Trigger</a></h3>
+<p>Remember back in <a href="#hello__human_">Hello, Human!</a> where the bot would say &quot;ERR: No Reply
+Matched&quot; whenever we said something it couldn't reply to? Well, we can
+remedy this by writing a catch-all trigger.</p>
+<p>A catch-all trigger is one that simply consists of a single wildcard:</p>
+<pre>
+  + *
+  - I'm not sure how to reply to that.
+  - Try asking your question a different way.
+  - Let's change the subject.</pre>
+<p>Anything the user says now that doesn't get matched by a more relevant
+trigger will fall back to the <code>*</code> trigger. This way, you can avoid letting
+the bot say &quot;ERR: No Reply Matched&quot;, and use it to try to steer the
+conversation back on track.</p>
+<p>Conventionally, your catch-all trigger should go into a file named
+<code>star.rs</code>, so that when you're looking for it later to make changes
+you'll know exactly where you put it.</p>
+<p>
+</p>
+<h3><a name="specialized_wildcards">Specialized Wildcards</a></h3>
+<p>Wildcards are great, but what if you want to restrict what a wildcard is
+allowed to match? For example, the trigger &quot;i am * years old&quot; would match
+a message like &quot;I am twenty four years old&quot; just as well as &quot;I am 24 years
+old&quot;.</p>
+<p>There are two other wildcard symbols you may use. The <code>#</code> symbol is a wildcard
+that will <em>only</em> match a number. The <code>_</code> symbol is one that will <em>only</em> match
+a word with no numbers or spaces in it.</p>
+<p>You can have multiple triggers that look the same but use different wildcards
+and they will work how you'd expect:</p>
+<pre>
+  + i am # years old
+  - A lot of people are &lt;star&gt; years old.</pre>
+<pre>
+  + i am _ years old
+  - Tell me that again but with a number this time.</pre>
+<pre>
+  + i am * years old
+  - Can you use a number instead?</pre>
+<p>Regardless of the type of wildcard you use, you can use the <code>&lt;star&gt;</code>
+tags to pull them into the reply.</p>
+<p>
+</p>
+<h2><a name="alternatives_and_optionals">Alternatives and Optionals</a></h2>
+<p>What if you want to use something like a wildcard, but you want to limit the
+possible words to a select few? This is where optionals come into play.</p>
+<p>The syntax for these is a little tricky. Let's start with some examples:</p>
+<pre>
+  + what is your (home|office|cell) number
+  - You can reach me at: 1 (800) 555-1234.</pre>
+<pre>
+  + i am (really|very|super) tired
+  - I'm sorry to hear that you are &lt;star&gt; tired.</pre>
+<pre>
+  + i (like|love) the color *
+  - What a coincidence! I &lt;star1&gt; that color too!
+  - I also have a soft spot for the color &lt;star2&gt;!
+  - Really? I &lt;star1&gt; the color &lt;star2&gt; too!
+  - Oh I &lt;star1&gt; &lt;star2&gt; too!</pre>
+<p>In these examples, a user can say &quot;what is your home number&quot;, or &quot;what is
+your office number&quot;, or &quot;what is your cell number&quot; and match the first
+trigger. Or they can say &quot;I am really tired&quot;, &quot;I am very tired&quot;, or &quot;I am
+super tired&quot; and match the second one. And so on. But, if the user says
+&quot;I am extremely tired&quot;, it won't match because &quot;extremely&quot; wasn't listed
+in the alternatives!</p>
+<p>The alternative that the user used in their message can be captured with
+a <code>&lt;star&gt;</code> tag too, just like wildcards. Alternatives don't have
+to be single words, either.</p>
+<pre>
+  + i (will|will not) *
+  - It doesn't matter to me whether you &lt;star2&gt; or not.</pre>
+<p>Optionals are like alternatives, but they don't <em>need</em> to be present in
+the user's message <em>at all!</em> But, if the user does say them, it will help
+match the reply anyway.</p>
+<pre>
+  + how [are] you
+  - I'm great, you?</pre>
+<pre>
+  + what is your (home|office|cell) [phone] number
+  - You can reach me at: 1 (800) 555-1234.</pre>
+<pre>
+  + i have a [red|green|blue] car
+  - I bet you like your car a lot.</pre>
+<p>Since optionals don't have to be present in the user's message, they
+<em>can not</em> be captured with <code>&lt;star&gt;</code> tags. If you had a wildcard
+or optional before and after an optional, <code>&lt;star1&gt;</code> would be the
+first wildcard or optional, and <code>&lt;star2&gt;</code> would be the second; the
+optional would be skipped.</p>
+<p>
+</p>
+<h2><a name="arrays_in_triggers">Arrays in Triggers</a></h2>
+<p>Consider something a human might say to a bot: &quot;what color is my blue shirt?&quot;
+You might be able to program a reply to this using wildcards, but alternatives
+would be even better, since you can limit the color to a small set.</p>
+<pre>
+  + what color is my (red|blue|green|yellow) *
+  - Your &lt;star2&gt; is &lt;star1&gt;, silly!</pre>
+<p>Wouldn't it be useful to re-use this list of colors for other triggers without
+having to copy and paste it all over the place? Well, that's exactly the reason
+why <strong>Arrays</strong> exist! In RiveScript, you can make a list of words or phrases,
+give that list a name, and then use it in a trigger (or multiple triggers!)</p>
+<p>You define an array using the <code>! array</code> command, which was first mentioned
+in the <a href="#definitions">Definitions</a>. By convention, all definitions belong in <code>begin.rs</code>,
+so write the following code in <code>begin.rs</code>!</p>
+<pre>
+  ! array colors = red blue green yellow</pre>
+<p>Now, you can refer to this array by name in your triggers. Here are a couple
+examples you can use (you can use arrays in as many triggers as you want):</p>
+<pre>
+  + what color is my (@colors) *
+  - Your &lt;star2&gt; is &lt;star1&gt;, silly!
+  - Do I look dumb to you? It's &lt;star1&gt;!</pre>
+<pre>
+  + i am wearing a (@colors) shirt
+  - Do you really like &lt;star&gt;?</pre>
+<p>Just like wildcards and alternatives, the word the user used out of the array
+can be captured in a <code>&lt;star&gt;</code> tag. If you don't want this to happen,
+you can use the array without the parenthesis around it:</p>
+<pre>
+  // Without parenthesis, the array doesn't go into a &lt;star&gt; tag.
+  + what color is my @colors *
+  - I don't know what color your &lt;star&gt; is.</pre>
+<p>Arrays can be used in optionals too. They don't go into <code>&lt;star&gt;</code> tags
+though, because optionals <em>never</em> do!</p>
+<pre>
+  // Arrays in an optional
+  - i just bought a [@colors] *
+  - Is that your first &lt;star&gt;?</pre>
+<p>
+</p>
+<h2><a name="priority_triggers">Priority Triggers</a></h2>
+<p>You're almost done learning about all the things that can be done to a trigger!</p>
+<p>The last thing is weighted, or priority triggers. You've seen the <code>{weight}</code>
+tag applied to responses before. Well, the same tag can also be used in a
+trigger!</p>
+<p>A weighted trigger has a higher matching priority than others. This is useful
+to &quot;hand tune&quot; how well a trigger matches the user's message. An example of
+this would be, suppose you have the following two triggers:</p>
+<pre>
+  + google *
+  - Google search: &lt;a href=&quot;<a href="http://google.com/search?q=&lt;star&gt;">http://google.com/search?q=&lt;star&gt;</a>&quot;&gt;Click Here&lt;/a&gt;</pre>
+<pre>
+  + * perl script
+  - You need Perl to run a Perl script.</pre>
+<p>What if somebody asked the bot, &quot;google write perl script&quot;? They might expect
+the bot to provide them with a Google search link, but instead the bot replies
+talking about needing Perl. This is because &quot;* perl script&quot; has more words than
+&quot;google *&quot;, and therefore would usually be a better match.</p>
+<p>We can add a <code>{weight}</code> tag to the Google trigger to make that trigger &quot;more
+important&quot; than anything with a lower weight.</p>
+<pre>
+  + google *{weight=10}
+  - Google search: &lt;a href=&quot;<a href="http://google.com/search?q=&lt;star&gt;">http://google.com/search?q=&lt;star&gt;</a>&quot;&gt;Click Here&lt;/a&gt;</pre>
+<pre>
+  + * perl script
+  - You need Perl to run a Perl script.</pre>
+<p>Now, if the user starts their message with &quot;google&quot;, that trigger will have the
+highest priority for matching than anything else. The weights on triggers are
+arbitrary, and higher numbers just mean it has a higher priority than ones with
+lower numbers. Triggers that don't have a <code>{weight}</code> tag automatically have a
+weight of 1.</p>
+<p>You can't have a zero or negative weight value.</p>
+<p>If you have multiple triggers with the same weight value, these triggers are
+considered equals, and their matching order will be the same as usual (triggers
+with more words are tested first). If no triggers with a given weight can
+match the user's message, then triggers with a lower weight are tried.</p>
+<p>See the &quot;Sorting +Triggers&quot; section of the RiveScript Working Draft for a
+detailed explanation of how triggers are sorted.</p>
+<p>
+</p>
+<hr />
+<h1><a name="appendix">APPENDIX</a></h1>
+<p>
+</p>
+<h2><a name="windows_troubleshooting">Windows Troubleshooting</a></h2>
+<p>
+</p>
+<h3><a name="command_prompt_help">Command Prompt Help</a></h3>
+<p>If you're not familiar with DOS commands and how to change directories in a
+command prompt window, you should look up a quick tutorial on how to use the
+command line. One such tutorial can be found at
+<a href="http://www.computerhope.com/issues/chusedos.htm">http://www.computerhope.com/issues/chusedos.htm</a></p>
+<p>For the lazy, you can create a simple batch file and place it in the same folder
+as the RiveScript interpreter that would open a command prompt window there,
+without needing to <code>cd</code> to that folder yourself.</p>
+<p>Open Notepad and type the following code into a new file:</p>
+<pre>
+  @echo off
+  cmd</pre>
+<p>Save the file as <code>&quot;cmd.bat&quot;</code> (<em>with</em> the quotation marks!) in the same folder
+as the <code>rivescript</code> file from the Perl RiveScript distribution. Now, navigate
+to that folder in Windows Explorer and double-click on the <code>cmd.bat</code> file
+(the file might appear as simply &quot;<code>cmd</code>&quot; if file extensions are hidden).</p>
+<p>
+</p>
+<h2><a name="writing_an_interpreter">Writing an Interpreter</a></h2>
+<p>Here is an example of how to write your own RiveScript interpreter application
+in Perl 5.</p>
+<pre>
+  #!/usr/bin/perl</pre>
+<pre>
+  use strict;
+  use warnings;
+  use RiveScript;</pre>
+<pre>
+  # Create a new RiveScript interpreter object.
+  my $rs = RiveScript-&gt;new();</pre>
+<pre>
+  # Load a directory full of RiveScript documents.
+  $rs-&gt;loadDirectory(&quot;./replies&quot;);</pre>
+<pre>
+  # You must sort the replies before trying to fetch any!
+  $rs-&gt;sortReplies();</pre>
+<pre>
+  # Enter a loop to let the user chat with the bot using standard I/O.
+  while (1) {
+    print &quot;You&gt; &quot;;
+    chomp(my $message = &lt;STDIN&gt;);</pre>
+<pre>
+    # Let the user type &quot;/quit&quot; to quit.
+    if ($message eq &quot;/quit&quot;) {
+      exit(0);
+    }</pre>
+<pre>
+    # Fetch a reply from the bot.
+    my $reply = $rs-&gt;reply(&quot;user&quot;, $message);
+    print &quot;Bot&gt; $reply\n&quot;;
+  }</pre>
+<p>
+</p>
+<hr />
+<h1><a name="glossary">GLOSSARY</a></h1>
+<dl>
+<dt><strong><a name="trigger" class="item"><strong>Trigger</strong></a></strong></dt>
+
+<dd>
+<p>A trigger is a text pattern that is used to match a user's response. It is the
+name of the RiveScript command, <code>+</code>.</p>
+</dd>
+<dt><strong><a name="reply" class="item"><strong>Reply</strong></a></strong></dt>
+
+<dd>
+<p>This is the response given to the user after they matched a trigger. It is the
+name of the RiveScript command, <code>-</code>.</p>
+</dd>
+<dt><strong><a name="definition" class="item"><strong>Definition</strong></a></strong></dt>
+
+<dd>
+<p>This is a RiveScript command that is used to define something (to set a variable
+or substitution, usually). It is the name of the RiveScript command, <code>!</code>.</p>
+</dd>
+<dt><strong><a name="bot_variable" class="item"><strong>Bot Variable</strong></a></strong></dt>
+
+<dd>
+<p>A bot variable is a named piece of information about your chatbot, such as its
+name, age, and owner's name. It is set using the <code>! var</code> command, and retrieved
+in a reply using the <code>&lt;bot&gt;</code> tag.</p>
+</dd>
+<dt><strong><a name="substitution" class="item"><strong>Substitution</strong></a></strong></dt>
+
+<dd>
+<p>A substitution is used to replace parts of a user's message with other things,
+usually used to expand compound words like &quot;what's&quot; into &quot;what is&quot;. They are
+defined using the <code>! sub</code> command.</p>
+</dd>
+<dt><strong><a name="wildcard" class="item"><strong>Wildcard</strong></a></strong></dt>
+
+<dd>
+<p>A wildcard is a symbol that acts as a placeholder and can match a part of the
+user's message. There are three kinds of wildcards: <code>*</code> matches anything,
+<code>#</code> only matches numbers and <code>_</code> only matches words.</p>
+</dd>
+</dl>
+
+</body>
+
+</html>
