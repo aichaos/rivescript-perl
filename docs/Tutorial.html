@@ -21,6 +21,7 @@
 	<li><a href="#introduction">INTRODUCTION</a></li>
 	<ul>
 
+		<li><a href="#what_is_rivescript">What is RiveScript?</a></li>
 		<li><a href="#getting_started">Getting Started</a></li>
 		<li><a href="#project_directory">Project Directory</a></li>
 	</ul>
@@ -41,11 +42,22 @@
 			<li><a href="#let_s_talk_about_weight">Let's Talk About Weight</a></li>
 		</ul>
 
+		<li><a href="#line_breaking">Line Breaking</a></li>
+	</ul>
+
+	<li><a href="#anatomy_of_a_rivescript_brain">ANATOMY OF A RIVESCRIPT BRAIN</a></li>
+	<ul>
+
 		<li><a href="#the_begin_file">The Begin File</a></li>
 		<ul>
 
 			<li><a href="#definitions">Definitions</a></li>
 		</ul>
+
+	</ul>
+
+	<li><a href="#triggers">TRIGGERS</a></li>
+	<ul>
 
 		<li><a href="#open_ended_triggers">Open-Ended Triggers</a></li>
 		<ul>
@@ -59,6 +71,38 @@
 		<li><a href="#priority_triggers">Priority Triggers</a></li>
 	</ul>
 
+	<li><a href="#more_commands">MORE COMMANDS</a></li>
+	<ul>
+
+		<li><a href="#redirections">Redirections</a></li>
+		<li><a href="#short_discussions">Short Discussions</a></li>
+		<li><a href="#conditionals">Conditionals</a></li>
+		<ul>
+
+			<li><a href="#learning_things">Learning Things</a></li>
+			<li><a href="#writing_conditionals">Writing Conditionals</a></li>
+		</ul>
+
+	</ul>
+
+	<li><a href="#labeled_sections">LABELED SECTIONS</a></li>
+	<ul>
+
+		<li><a href="#topics">Topics</a></li>
+		<li><a href="#the_begin_block">The Begin Block</a></li>
+		<li><a href="#object_macros">Object Macros</a></li>
+	</ul>
+
+	<li><a href="#more_definitions">MORE DEFINITIONS</a></li>
+	<ul>
+
+		<li><a href="#global_variables">Global Variables</a></li>
+		<li><a href="#person_substitutions">Person Substitutions</a></li>
+	</ul>
+
+	<li><a href="#tags">TAGS</a></li>
+	<li><a href="#conclusion">CONCLUSION</a></li>
+	<li><a href="#version_and_author">VERSION AND AUTHOR</a></li>
 	<li><a href="#appendix">APPENDIX</a></li>
 	<ul>
 
@@ -71,7 +115,7 @@
 		<li><a href="#writing_an_interpreter">Writing an Interpreter</a></li>
 	</ul>
 
-	<li><a href="#glossary">GLOSSARY</a></li>
+	<li><a href="#see_also">SEE ALSO</a></li>
 </ul>
 
 <hr name="index" />
@@ -88,6 +132,13 @@
 <h1><a name="introduction">INTRODUCTION</a></h1>
 <p>This tutorial will help you learn how to write your own chatbot personalities
 using the RiveScript language.</p>
+<p>
+</p>
+<h2><a name="what_is_rivescript">What is RiveScript?</a></h2>
+<p>RiveScript is a text-based scripting language meant to aid in the development
+of interactive chatbots. A chatbot is a software application that can
+communicate with humans using natural languages such as English in order to
+provide entertainment, services or just have a conversation.</p>
 <p>
 </p>
 <h2><a name="getting_started">Getting Started</a></h2>
@@ -237,6 +288,13 @@ for the same trigger. To see this in action, open your <code>hello.rs</code> fil
 <p>Save this and then test it with the RiveScript interpreter. Ask your bot,
 &quot;How are you?&quot; a few times and see how it responds. It will say one of these
 five things at random each time you ask!</p>
+<p>You can also use random strings <em>inside</em> a reply by using the <a href="#random"><code>{random}</code></a>
+tag (see <a href="#tags">TAGS</a>). Example:</p>
+<pre>
+  + say something random
+  - This {random}message|sentence{/random} has a random word.</pre>
+<p>Between the <a href="#random"><code>{random}</code></a> and <a href="#random"><code>{/random}</code></a> tags, you separate the strings
+with a pipe symbol and one will be chosen randomly.</p>
 <p>
 </p>
 <h3><a name="a_note_about_style">A Note About Style</a></h3>
@@ -276,7 +334,7 @@ others. For example, you might be writing a bot whose personality is that
 he's secretly an alien pretending to be a human that's pretending to be a
 bot, and you want the bot to respond in some unintelligible gibberish
 every once in a while.</p>
-<p>You can use the <code>{weight}</code> tag in a reply to override how frequently that
+<p>You can use the <a href="#weight"><code>{weight}</code></a> tag in a reply to override how frequently that
 reply will be chosen compared to the others. For our alien gibberish example,
 you could write a reply like this:</p>
 <pre>
@@ -297,6 +355,44 @@ The probability of each reply being chosen is the reply's weight divided by
 the sum of all the weights combined (in this example, 20 + 25 + 1 = 46, so
 each reply has its weight out of 46 chance of being chosen).</p>
 <p>Weight values can't be zero and they can't be negative.</p>
+<p>You <strong>can not</strong> use weights inside a <a href="#random"><code>{random}</code></a> tag.</p>
+<p>
+</p>
+<h2><a name="line_breaking">Line Breaking</a></h2>
+<p>There will be times when you're writing a really long line of RiveScript
+code and you'd like to break it to span multiple lines. For these cases,
+you can use the <code>^</code> command (<strong>Continuation</strong>). The <code>^</code> command automatically
+extends the data from the previous line. Here is an example:</p>
+<pre>
+  + tell me a poem
+  - Little Miss Muffit sat on her tuffet,\n
+  ^ In a nonchalant sort of way.\n
+  ^ With her forcefield around her,\n
+  ^ The Spider, the bounder,\n
+  ^ Is not in the picture today.</pre>
+<p>Note that the Continuation command doesn't automatically insert a space between
+the previous line and the continuation line. Consider the following example:</p>
+<pre>
+  // There will be no space between &quot;programmed&quot; and &quot;using&quot;!
+  + what are you
+  - I am an artificial intelligence programmed
+  ^ using RiveScript.</pre>
+<p>If you asked &quot;what are you&quot; with this reply, the bot would say, &quot;I am an
+artificial intelligence programmedusing RiveScript.&quot;, with no space between
+&quot;programmed&quot; and &quot;using&quot;.</p>
+<p>To make sure there's a space between continuations, use the escape sequence
+<a href="#s"><code>\s</code></a> where you want the space to appear.</p>
+<pre>
+  // This one will have a space.
+  + what are you
+  - I am an artificial intelligence programmed\s
+  ^ using RiveScript.</pre>
+<p>From the &quot;tell me a poem&quot; example, the escape sequence <a href="#n"><code>\n</code></a> inserts a line
+break instead of a space.</p>
+<p>
+</p>
+<hr />
+<h1><a name="anatomy_of_a_rivescript_brain">ANATOMY OF A RIVESCRIPT BRAIN</a></h1>
 <p>
 </p>
 <h2><a name="the_begin_file">The Begin File</a></h2>
@@ -395,10 +491,14 @@ a recommended file name, though, but the names don't really matter that
 much.</p>
 <p>
 </p>
+<hr />
+<h1><a name="triggers">TRIGGERS</a></h1>
+<p>
+</p>
 <h2><a name="open_ended_triggers">Open-Ended Triggers</a></h2>
 <p>So far, the triggers you've seen have been what I call &quot;atomic&quot; -- they
 describe a user's message <em>perfectly</em>. For example, the user must say
-exactly &quot;hello bot&quot;; they can't say &quot;hello there&quot; or &quot;hello mang&quot; and
+exactly &quot;hello bot&quot;; they can't say &quot;hello there&quot; or &quot;hello robot&quot; and
 still match one of your triggers, unless you've written individual triggers
 for each possible thing they could say!</p>
 <p>This is where <strong>Wildcards</strong> come into play. With wildcards, you can mark
@@ -527,9 +627,16 @@ match the reply anyway.</p>
   - I bet you like your car a lot.</pre>
 <p>Since optionals don't have to be present in the user's message, they
 <em>can not</em> be captured with <code>&lt;star&gt;</code> tags. If you had a wildcard
-or optional before and after an optional, <code>&lt;star1&gt;</code> would be the
-first wildcard or optional, and <code>&lt;star2&gt;</code> would be the second; the
+or alternative before and after an optional, <code>&lt;star1&gt;</code> would be the
+first wildcard or alternative, and <code>&lt;star2&gt;</code> would be the second; the
 optional would be skipped.</p>
+<p>A clever thing you can do with optionals is write &quot;keyword&quot; triggers: if
+the user says a magic word ANYWHERE in their message, your trigger will match!</p>
+<pre>
+  + [*] the machine [*]
+  - How do you know about the machine!?</pre>
+<p>You can also these <code>[*]</code> optionals to ignore parts of a message by putting
+it before or after your trigger instead of on both sides.</p>
 <p>
 </p>
 <h2><a name="arrays_in_triggers">Arrays in Triggers</a></h2>
@@ -545,7 +652,7 @@ why <strong>Arrays</strong> exist! In RiveScript, you can make a list of words o
 give that list a name, and then use it in a trigger (or multiple triggers!)</p>
 <p>You define an array using the <code>! array</code> command, which was first mentioned
 in the <a href="#definitions">Definitions</a>. By convention, all definitions belong in <code>begin.rs</code>,
-so write the following code in <code>begin.rs</code>!</p>
+so write the following code in <code>begin.rs</code>:</p>
 <pre>
   ! array colors = red blue green yellow</pre>
 <p>Now, you can refer to this array by name in your triggers. Here are a couple
@@ -570,11 +677,29 @@ though, because optionals <em>never</em> do!</p>
   // Arrays in an optional
   - i just bought a [@colors] *
   - Is that your first &lt;star&gt;?</pre>
+<p>When defining arrays, you can either separate the array items with spaces
+(useful for single words) or pipe symbols (for phrases). Examples:</p>
+<pre>
+  // Single word array items
+  ! array colors = red blue green yellow</pre>
+<pre>
+  // Multiple word items
+  ! array blues = light blue|dark blue|medium blue</pre>
+<p>If you use Continuations when defining an array, you can swap between
+spaces and pipes on each line. Here is a very thorough array of colors:</p>
+<pre>
+  // A lot of colors!
+  ! array colors = red blue green yellow orange cyan fuchsia magenta
+  ^ light red|dark red|light blue|dark blue|light yellow|dark yellow
+  ^ light orange|dark orange|light cyan|dark cyan|light fuchsia
+  ^ dark fuchsia|light magenta|dark magenta
+  ^ black gray white silver
+  ^ light gray|dark gray</pre>
 <p>
 </p>
 <h2><a name="priority_triggers">Priority Triggers</a></h2>
 <p>You're almost done learning about all the things that can be done to a trigger!</p>
-<p>The last thing is weighted, or priority triggers. You've seen the <code>{weight}</code>
+<p>The last thing is weighted, or priority triggers. You've seen the <a href="#weight"><code>{weight}</code></a>
 tag applied to responses before. Well, the same tag can also be used in a
 trigger!</p>
 <p>A weighted trigger has a higher matching priority than others. This is useful
@@ -590,7 +715,7 @@ this would be, suppose you have the following two triggers:</p>
 the bot to provide them with a Google search link, but instead the bot replies
 talking about needing Perl. This is because &quot;* perl script&quot; has more words than
 &quot;google *&quot;, and therefore would usually be a better match.</p>
-<p>We can add a <code>{weight}</code> tag to the Google trigger to make that trigger &quot;more
+<p>We can add a <a href="#weight"><code>{weight}</code></a> tag to the Google trigger to make that trigger &quot;more
 important&quot; than anything with a lower weight.</p>
 <pre>
   + google *{weight=10}
@@ -598,10 +723,10 @@ important&quot; than anything with a lower weight.</p>
 <pre>
   + * perl script
   - You need Perl to run a Perl script.</pre>
-<p>Now, if the user starts their message with &quot;google&quot;, that trigger will have the
-highest priority for matching than anything else. The weights on triggers are
+<p>Now, if the user starts their message with &quot;google&quot;, that trigger will have a
+higher priority for matching than anything else. The weights on triggers are
 arbitrary, and higher numbers just mean it has a higher priority than ones with
-lower numbers. Triggers that don't have a <code>{weight}</code> tag automatically have a
+lower numbers. Triggers that don't have a <a href="#weight"><code>{weight}</code></a> tag automatically have a
 weight of 1.</p>
 <p>You can't have a zero or negative weight value.</p>
 <p>If you have multiple triggers with the same weight value, these triggers are
@@ -610,6 +735,767 @@ with more words are tested first). If no triggers with a given weight can
 match the user's message, then triggers with a lower weight are tried.</p>
 <p>See the &quot;Sorting +Triggers&quot; section of the RiveScript Working Draft for a
 detailed explanation of how triggers are sorted.</p>
+<p>
+</p>
+<hr />
+<h1><a name="more_commands">MORE COMMANDS</a></h1>
+<p>
+</p>
+<h2><a name="redirections">Redirections</a></h2>
+<p>If a user matches a trigger, you can have that trigger simply redirect them
+somewhere else, as though they had asked a different question. Example:</p>
+<pre>
+  + hello
+  - Hi there!
+  - Hey!
+  - Howdy!</pre>
+<pre>
+  + hey
+  @ hello</pre>
+<pre>
+  + hi
+  @ hello</pre>
+<p>In this example, if the user says &quot;hey&quot; or &quot;hi&quot;, the bot redirects them to the
+&quot;hello&quot; trigger, as though they had said hello to begin with.</p>
+<p>Of course, with alternatives and the other advanced trigger features, redirects
+like this aren't always useful. But you can also use redirects <em>inside</em> of
+replies. One of my favorite examples of this:</p>
+<pre>
+  + * or something{weight=100}
+  - Or something. {@ &lt;star&gt;}</pre>
+<p>If the user says, &quot;Are you a bot or something?&quot;, the bot might reply, &quot;Or
+something. How did you know I'm a machine?&quot;</p>
+<p>If you just want to use <code>{@ &lt;star&gt;}</code>, you can use a shortcut tag
+instead: <code>&lt;@&gt;</code>. Use the <code>{@...}</code> format for everything else:</p>
+<pre>
+  + hello *
+  - {@ hello} &lt;@&gt;</pre>
+<pre>
+  + hello
+  - Hi there!</pre>
+<pre>
+  + are you a bot
+  - How did you know I'm a machine?</pre>
+<p>This trigger would reply to &quot;Hello, are you a bot?&quot; with a reply like
+&quot;Hi there! How did you know I'm a machine?&quot;</p>
+<p>
+</p>
+<h2><a name="short_discussions">Short Discussions</a></h2>
+<p>Suppose you want to program your bot to be able to play along with a user
+who is telling a Knock-Knock joke? You can pull this off with the <code>%</code>
+command (<strong>Previous</strong>):</p>
+<pre>
+  + knock knock
+  - Who's there?</pre>
+<pre>
+  + *
+  % who is there
+  - &lt;star&gt; who?</pre>
+<pre>
+  + *
+  % * who
+  - LOL! &lt;star&gt;! That's funny!</pre>
+<p>This example introduces the <code>%</code> command. The <code>%</code> command is similar to the
+<code>+</code> used for triggers, except it looks at the bot's previous response to the
+user instead. In the second trigger here, if the bot's previous response was
+&quot;who is there&quot;, anything the user says (<code>*</code>) will match, and the bot will
+continue playing along with the joke.</p>
+<p>In the <code>%</code> command, the bot's previous response is sent through the same
+substitutions as the user's messages are. Notice that the bot's reply was
+&quot;Who's there?&quot;, but the <code>%</code> line on the next trigger says &quot;who is there&quot;.
+This is because the &quot;Who's&quot; was substituted for &quot;who is&quot; due to the
+substitution defined in your <code>begin.rs</code> file!</p>
+<p><code>% Previous</code> lines need to be lowercased just like triggers do.</p>
+<p>Here is another example:</p>
+<pre>
+  + i have a dog
+  - What color is it?</pre>
+<pre>
+  + (@colors)
+  % what color is it
+  - That's a silly color for a dog!</pre>
+<p>Now you can say &quot;I have a dog&quot; and the bot will ask what color it is. If you
+tell it the color, it will say &quot;That's a silly color for a dog!&quot; -- but, if
+you ignore the bot's question and say something else, the bot will just reply
+to your new message as usual.</p>
+<p>
+</p>
+<h2><a name="conditionals">Conditionals</a></h2>
+<p>
+</p>
+<h3><a name="learning_things">Learning Things</a></h3>
+<p>You now know most of the RiveScript commands and how to use them. But what good
+is a chatbot if it can't even remember your name?</p>
+<p>RiveScript has the capability to store and repeat variables about users. To set
+a user variable, we use the <code>&lt;set&gt;</code> tag, and to retrieve the variable
+we use <code>&lt;get&gt;</code>. Here are some examples of how we can learn and repeat
+information about the user.</p>
+<pre>
+  + my name is *
+  - &lt;set name=&lt;star&gt;&gt;It's nice to meet you, &lt;get name&gt;.</pre>
+<pre>
+  + what is my name
+  - Your name is &lt;get name&gt;, silly!</pre>
+<pre>
+  + i am # years old
+  - &lt;set age=&lt;star&gt;&gt;I will remember that you are &lt;get age&gt; years old.</pre>
+<pre>
+  + how old am i
+  - You are &lt;get age&gt; years old.</pre>
+<p>While we're talking about variables, what about those bot variables we defined
+in <code>begin.rs</code>? You can retrieve them in a similar fashion:</p>
+<pre>
+  // The user can ask the bot its name too!
+  + what is your name
+  - You can call me &lt;bot name&gt;.
+  - My name is &lt;bot name&gt;.</pre>
+<pre>
+  + how old are you
+  - I am &lt;bot age&gt; years old.</pre>
+<p>Now, you may notice that if you tell the bot, &quot;My name is Noah&quot;, it will store
+your name as &quot;noah&quot; -- lowercased. To store the name as a proper noun instead,
+you can use the formal tag. See <a href="#tags">TAGS</a>.</p>
+<pre>
+  // Store the name with the correct casing
+  + my name is *
+  - &lt;set name=&lt;formal&gt;&gt;Nice to meet you, &lt;get name&gt;!</pre>
+<p>The <code>&lt;formal&gt;</code> tag is a shortcut for
+<code>{formal}&lt;star&gt;{/formal}</code>, so you will need to use the
+<code>{formal}...{/formal}</code> syntax to formalize other things. See <a href="#tags">TAGS</a>.</p>
+<p>
+</p>
+<h3><a name="writing_conditionals">Writing Conditionals</a></h3>
+<p>And with learning information about the user, conditionals let us pick replies
+based on the values of those variables!</p>
+<p>You may notice that if you asked the bot what your name was <em>before</em> you told
+the bot your name, it would say &quot;Your name is undefined, silly!&quot; This doesn't
+look very professional and would give away that the bot is just a program.</p>
+<p>With conditionals, you can make sure the bot knows a user's name before it
+opens its big mouth, and say something else if it doesn't know.</p>
+<p>Here is an example:</p>
+<pre>
+  + what is my name
+  * &lt;get name&gt; == undefined =&gt; You never told me your name.
+  - Your name is &lt;get name&gt;, silly!
+  - Aren't you &lt;get name&gt;?</pre>
+<p>Now, if you ask the bot your name, it will see if your name is &quot;undefined&quot;, and
+if so, it will say &quot;You never told me your name.&quot; Otherwise, it will give one of
+the other replies.</p>
+<p>Conditions are used to compare variables to values. You can also compare
+variables to other variables. Here is a more advanced way of telling the
+bot what your name is:</p>
+<pre>
+  + my name is *
+  * &lt;formal&gt;   == &lt;bot name&gt; =&gt; Wow, we have the same name!&lt;set name=&lt;formal&gt;&gt;
+  * &lt;get name&gt; == undefined  =&gt; &lt;set name=&lt;formal&gt;&gt;Nice to meet you!
+  - &lt;set oldname=&lt;get name&gt;&gt;&lt;set name=&lt;formal&gt;&gt;
+  ^ I thought your name was &lt;get oldname&gt;?</pre>
+<p>If you're feeling a little bit cramped on the condition lines, using the
+<code>^ Continuation</code> command is useful to get some more room.</p>
+<p>Conditions are checked in order from top to bottom. If no condition turns out
+true, the normal <code>-</code> replies are used. If you want to have a random response
+when a condition is true, you need to use the <a href="#random"><code>{random}</code></a> tag.</p>
+<p>With conditionals, you can use the following equality tests:</p>
+<pre>
+  ==  equal to
+  eq  equal to (alias)
+  !=  not equal to
+  ne  not equal to (alias)
+  &lt;&gt;  not equal to (alias)</pre>
+<p>The following equality tests can be used on variables that contain numbers
+only:</p>
+<pre>
+  &lt;   less than
+  &lt;=  less than or equal to
+  &gt;   greater than
+  &gt;=  greater than or equal to</pre>
+<p>Here is an example using different equality tests:</p>
+<pre>
+  + what am i old enough to do
+  * &lt;get age&gt; &gt;  25 =&gt; You can do anything you want.
+  * &lt;get age&gt; == 25 =&gt; You're old enough to rent a car with no extra fees.
+  * &lt;get age&gt; &gt;  21 =&gt; You're old enough to drink, but not rent a car.
+  * &lt;get age&gt; == 21 =&gt; You're exactly old enough to drink.
+  * &lt;get age&gt; &gt;  18 =&gt; You're old enough to gamble, but not drink.
+  * &lt;get age&gt; == 18 =&gt; You're exactly old enough to gamble.
+  * &lt;get age&gt; &lt;  18 =&gt; You're not old enough to do much of anything yet.
+  - I don't know how old you are.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="labeled_sections">LABELED SECTIONS</a></h1>
+<p>There are three types of labeled sections. Labels are defined using the
+<code>&gt;</code> command symbol, and they're ended with <code>&lt;</code>. All labeled
+sections should be properly closed when done (even if it's at the end of the
+file). For style purposes, you should indent the contents of a labeled section
+too. Labeled sections can not be embedded inside each other.</p>
+<p>
+</p>
+<h2><a name="topics">Topics</a></h2>
+<p>Topics are logical groupings of triggers. When a user is in a topic, they can
+only match triggers that belong to that topic. Here's an example:</p>
+<pre>
+  + i hate you
+  - You're really mean! I'm not talking again until you apologize.{topic=sorry}</pre>
+<pre>
+  &gt; topic sorry</pre>
+<pre>
+    // This will match if the word &quot;sorry&quot; exists ANYWHERE in their message
+    + [*] sorry [*]
+    - It's OK, I'll forgive you!{topic=random}</pre>
+<pre>
+    + *
+    - Nope, not until you apologize.
+    - Say you're sorry!
+    - Apologize!</pre>
+<pre>
+  &lt; topic</pre>
+<p>In this example, if the user tells the bot that they don't think very much of
+it, the bot will force the user to apologize before continuing conversation.
+Once the user has been put into the &quot;sorry&quot; topic, the ONLY triggers available
+for matching are the two in that topic.</p>
+<p>The default topic is &quot;random&quot;, and you change the user's topic using the
+<a href="#topic"><code>{topic}</code></a> tag, for example <code>{topic=sorry}</code> and <code>{topic=random}</code>.</p>
+<p>You might be wondering why you can't use <code>&lt;set topic=random&gt;</code> instead.
+Well, you <em>can</em>, but there is a small difference in how the two tags will
+behave:</p>
+<p>The <code>&lt;set&gt;</code> tag can appear multiple times in a reply and each one is
+processed in order. The <a href="#topic"><code>{topic}</code></a> tag can only appear once (if there are
+multiple ones, the first one wins). So, they'll both do the same job, but
+<a href="#topic"><code>{topic}</code></a> is a little shorter to type.</p>
+<p>Topics are capable of inheriting and including triggers from other topics, too.
+But, this is for more advanced users and is outside the scope of this tutorial
+(see the file <code>rpg.rs</code> that comes with standard RiveScript distributions for
+a practical example of this).</p>
+<p>You may be wondering what happens if you accidentally set the topic to one
+that doesn't exist? Would the user be unable to chat with the bot anymore since
+no replies can be matched? Fortunately, the RiveScript libraries are smart
+enough to detect this and will place the user back in the &quot;random&quot; topic
+automatically.</p>
+<p>
+</p>
+<h2><a name="the_begin_block">The Begin Block</a></h2>
+<p>The Begin Block is an optional feature of a RiveScript brain. The Begin Block
+will typically be found in <code>begin.rs</code>. They work in a similar fashion as
+topics. Here is an example:</p>
+<pre>
+  &gt; begin</pre>
+<pre>
+    + request
+    - {ok}</pre>
+<pre>
+  &lt; begin</pre>
+<p>The Begin block serves as a pre-processor <em>and</em> post-processor for fetching
+a response. If the Begin Block is present, the <code>request</code> trigger will be tried
+for each message the user says. If the response to this contains the <a href="#ok"><code>{ok}</code></a>
+tag, then a reply is fetched for the user's message and the <a href="#ok"><code>{ok}</code></a> tag is
+substituted out.</p>
+<p>Here is a longer example that use the pre-processing capabilities of the
+Begin Block to introduce itself to new users and interview them:</p>
+<pre>
+  &gt; begin</pre>
+<pre>
+    // If we don't know their name, set the new_user topic and continue.
+    + request
+    * &lt;get name&gt; == undefined =&gt; {topic=new_user}{ok}
+    - {ok}</pre>
+<pre>
+  &lt; begin</pre>
+<pre>
+  &gt; topic new_user</pre>
+<pre>
+    + *
+    - Hi! I'm &lt;bot name&gt;! I'm a chatbot written in RiveScript.\s
+    ^ What is your name?{topic=asked_name}</pre>
+<pre>
+  &lt; topic</pre>
+<pre>
+  &gt; topic asked_name</pre>
+<pre>
+    + #
+    - Your name is a number?</pre>
+<pre>
+    + *
+    - I only want your first name.</pre>
+<pre>
+    + _
+    - &lt;set name=&lt;formal&gt;&gt;Nice to meet you, &lt;get name&gt;!{topic=random}</pre>
+<pre>
+  &lt; topic</pre>
+<p>And here is another example that would use the post-processing capability for
+the Begin Block:</p>
+<pre>
+  &gt; begin</pre>
+<pre>
+    // Change the reply formatting based on the bot's mood
+    + request
+    * &lt;bot mood&gt; == happy =&gt; {sentence}{ok}{/sentence}
+    * &lt;bot mood&gt; == angry =&gt; {uppercase}{ok}{/uppercase}
+    * &lt;bot mood&gt; == sad   =&gt; {lowercase}{ok}{/lowercase}...
+    - {ok}</pre>
+<pre>
+  &lt; begin</pre>
+<p>With this example, the bot would change the formatting of its response based on
+a &quot;mood&quot; variable. It will be left as an exercise for you to decide how the
+mood variable would be set (you can use e.g. <code>&lt;bot mood=happy&gt;</code> to
+change the value of a bot variable from a reply).</p>
+<p>
+</p>
+<h2><a name="object_macros">Object Macros</a></h2>
+<p>In RiveScript, an Object Macro is a programming function written in another
+programming language. Usually, a RiveScript library written in a dynamic
+programming language such as Perl or Python will support Object Macros of the
+same language. The RiveScript libraries will also allow you to add custom
+language handlers to support other languages, but this will be up to the
+programmer and is outside the scope of this tutorial.</p>
+<p>Object macros allow you to do more powerful things with your bot's responses.
+For example, you can allow the user to ask the bot questions about the current
+weather or about movie ticket prices, and your bot can call an object macro that
+goes out to the Internet to fetch that information.</p>
+<p>All object macros should define the programming language they're written in,
+in lowercase (e.g. &quot;perl&quot;, &quot;python&quot;, &quot;javascript&quot;).</p>
+<p>Here is an example of an object macro written in Perl (you will be able to run
+this code using the Perl RiveScript interpreter).</p>
+<pre>
+  // The object name is &quot;hash&quot;, written in Perl
+  &gt; object hash perl
+    my ($rs, $args) = @_;
+    my $method = shift @{$args};
+    my $string = join &quot; &quot;, @{$args};</pre>
+<pre>
+    # Here, $method is a hashing method (MD5 or SHA1), and $string
+    # is the text to hash.</pre>
+<pre>
+    if ($method eq &quot;MD5&quot;) {
+      require Digest::MD5;
+      return Digest::MD5::md5_hex($string);
+    }
+    elsif ($method eq &quot;SHA1&quot;) {
+      require Digest::SHA1;
+      return Digest::SHA1::sha1_hex($string);
+    }
+  &lt; object</pre>
+<pre>
+  // You call an object using the &lt;call&gt; tag.
+  + what is the md5 hash of *
+  - The hash of &quot;&lt;star&gt;&quot; is: &lt;call&gt;hash MD5 &lt;star&gt;&lt;/call&gt;</pre>
+<pre>
+  + what is the sha1 hash of *
+  - The hash of &quot;&lt;star&gt;&quot; is: &lt;call&gt;hash SHA1 &lt;star&gt;&lt;/call&gt;</pre>
+<p>Here is another example of an object that would tell you the bot's public IP
+address, using icanhazip.com. You'd probably want to secure this question and
+only allow the bot's owner to get the IP address for obvious privacy reasons.
+So, you can have an &quot;authentication&quot; system before the bot will allow you to
+see its IP address.</p>
+<pre>
+  // To gain botmaster power, say &quot;I am your master&quot;...
+  + i am your master
+  - Then you must know the secret password:</pre>
+<pre>
+  // And then enter the botmaster password...
+  + *
+  % then you must know the secret password
+  * &lt;star&gt; == rivescript is awesome =&gt; Correct password!&lt;set master=true&gt;
+  - That's not the right password. :-P</pre>
+<pre>
+  // And after authenticated, let them get the bot's IP address!
+  + what is your ip address
+  * &lt;get master&gt; == true =&gt; My IP address is: &lt;call&gt;myip&lt;/call&gt;
+  - You're not my master so you don't need to know! :-P</pre>
+<pre>
+  // The object macro that fetches an IP address.
+  &gt; object myip perl
+    my ($rs, $args) = @_;</pre>
+<pre>
+    # Fetch the IP.
+    use LWP::Simple;
+    my $ip = get &quot;<a href="http://icanhazip.com&quot">http://icanhazip.com&quot</a>;;
+    return $ip;
+  &lt; object</pre>
+<p>As you can see from this example, you don't need to declare your object macro
+before calling it with a <a href="#call"><code>&lt;call&gt;</code></a> tag. The RiveScript interpreter
+parses <em>all</em> of your code before you can start getting replies, so it will
+find your object macro definition no matter where you put it.</p>
+<p>You can test this code with the Perl RiveScript interpreter like so:</p>
+<pre>
+  You&gt; What is your IP address?
+  Bot&gt; You're not my master so you don't need to know! :-P
+  You&gt; I am your master.
+  Bot&gt; Then you must know the secret password:
+  You&gt; RiveScript is awesome
+  Bot&gt; Correct password!
+  You&gt; What is your IP address?
+  Bot&gt; My IP address is: 67.205.20.243</pre>
+<p>See the documentation of your RiveScript library to see how to write object
+macros (in particular, to see the format in which arguments are passed to your
+object).</p>
+<p>
+</p>
+<hr />
+<h1><a name="more_definitions">MORE DEFINITIONS</a></h1>
+<p>To go back to <code>begin.rs</code> definition commands, there are two more types that
+may come in handy.</p>
+<p>
+</p>
+<h2><a name="global_variables">Global Variables</a></h2>
+<p>Global variables are similar to bot variables, but they're not particularly
+related to your bot as an entity. Global variables may be defined by your
+RiveScript interpreter (a common example would be to make all the environment
+variables of your program available as globals in RiveScript, for example
+<code>&lt;env REMOTE_ADDR&gt;</code> could be used to show the user's IP address in
+a CGI environment). However, there are two special globals that affect the
+RiveScript interpreter directly:</p>
+<dl>
+<dt><strong><a name="debug_mode" class="item">Debug Mode</a></strong></dt>
+
+<dd>
+<pre>
+  ! global debug = true
+  ! global debug = false</pre>
+<p>This global variable will turn debug mode on or off in the RiveScript
+interpreter. Debug mode typically will print lines of text to the terminal
+window that will thoroughly document <em>what</em> the interpreter is doing (for
+example, if debug mode is on while parsing files from disk, it will print
+every line of RiveScript code it sees and a short summary of what it's doing
+with it. When it's on while fetching a reply, it will print every trigger that
+it's trying to compare the user's message to, etc.)</p>
+<p>The value should be <code>true</code> or <code>false</code>.</p>
+</dd>
+<dt><strong><a name="recursion_depth" class="item">Recursion Depth</a></strong></dt>
+
+<dd>
+<pre>
+  ! global depth = 50</pre>
+<p>Because RiveScript replies can redirect to each other, there is some protection
+in place to avoid infinite recursion (for example, a trigger that redirects to
+another one, and that trigger redirects back to the first one, forever). By
+default the recursion depth limit is set to 50, meaning if RiveScript can't find
+a reply after 50 redirects it will give up and say &quot;ERR: Deep Recursion
+Detected&quot;.</p>
+<p>This value should be a positive number higher than zero.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="person_substitutions">Person Substitutions</a></h2>
+<p>These are a special kind of substitution that is intended to swap first- and
+second-person pronouns. Here is how you define the person substitutions
+(usually in your <code>begin.rs</code> file):</p>
+<pre>
+  ! person i am    = you are
+  ! person you are = i am
+  ! person i'm     = you're
+  ! person you're  = I'm
+  ! person my      = your
+  ! person your    = my
+  ! person you     = I
+  ! person i       = you</pre>
+<p>Notice in this example that each pair of substitutions works in both directions.</p>
+<p>To invoke person substitutions, you can use the <code>&lt;person&gt;</code> tag (to
+substitute on the <code>&lt;star&gt;</code>), or <a href="#person_person"><code>{person}...{/person}</code></a> to substitute
+on something else. Here is a practical example to show why person substitutions
+can come in handy:</p>
+<pre>
+  + say *
+  - Umm... &quot;&lt;person&gt;&quot;</pre>
+<p>Now, if the user says, &quot;say I am the greatest&quot;, the bot will reply with
+&quot;Umm... &quot;you are the greatest&quot;&quot;. Without person substitutions, the bot would
+repeat &quot;i am the greatest&quot; instead.</p>
+<p>
+</p>
+<hr />
+<h1><a name="tags">TAGS</a></h1>
+<p>By now, you've seen examples of all the different RiveScript commands. Sprinkled
+here and there throughout the examples were tags. Examples of tags you've seen
+are <code>&lt;star&gt;</code>, <code>&lt;get&gt;</code>, and <a href="#topic"><code>{topic}</code></a>. There are many more
+tags available! This section will teach you about all the tags and how to use
+them.</p>
+<p>In general, a tag that has &lt;angled&gt; brackets are tags that insert
+text in their place, or tags that set a variable silently. Tags that have
+{curly} brackets modify the text around them.</p>
+<p>Tags can be used with all the RiveScript commands except where explicitly
+noted.</p>
+<dl>
+<dt><strong><a name="star_star1_starn" class="item"><code>&lt;star&gt;</code>, <code>&lt;star1&gt;</code> - <code>&lt;starN&gt;</code></a></strong></dt>
+
+<dd>
+<p>The star tag is used for capturing values used in wildcards, alternatives and
+arrays present in the matched trigger. You've seen many examples of this in
+this tutorial. If you have multiple stars, you can use <code>&lt;star1&gt;</code>,
+<code>&lt;star2&gt;</code>, <code>&lt;star3&gt;</code>, etc. to use the stars in order from
+left to right. The <code>&lt;star&gt;</code> tag is an alias for <code>&lt;star1&gt;</code>, so
+if you only have one wildcard this tag can be useful.</p>
+<p>These tags can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="botstar_botstar1_botstarn" class="item"><code>&lt;botstar&gt;</code>, <code>&lt;botstar1&gt;</code> - <code>&lt;botstarN&gt;</code></a></strong></dt>
+
+<dd>
+<p>This tag is similar to <code>&lt;star&gt;</code>, but it captures wildcards present
+in a <code>% Previous</code> line. Here is an example:</p>
+<pre>
+  + i bought a new *
+  - Oh? What color is your new &lt;star&gt;?</pre>
+<pre>
+  + (@colors)
+  % oh what color is your new *
+  - &lt;star&gt; is a pretty color for a &lt;botstar&gt;.</pre>
+<p>Like the <code>&lt;star&gt;</code> tag, <code>&lt;botstar&gt;</code> is an alias for
+<code>&lt;botstar1&gt;</code>.</p>
+<p>These tags can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="input_reply" class="item"><code>&lt;input&gt;</code>, <code>&lt;reply&gt;</code></a></strong></dt>
+
+<dd>
+<p>The input and reply tags are used for showing previous messages sent by the
+user and the bot, respectively. The previous 9 messages and responses are
+stored, so you can use the tags <code>&lt;input1&gt;</code> through
+<code>&lt;input9&gt;</code>, or <code>&lt;reply1&gt;</code> through <code>&lt;reply9&gt;</code>
+to get a particular message or reply. <code>&lt;input&gt;</code> is an alias for
+<code>&lt;input1&gt;</code>, and <code>&lt;reply&gt;</code> is an alias for <code>&lt;reply1&gt;</code>.</p>
+<p>Here are a couple examples:</p>
+<pre>
+  // If the user repeats the bot's previous message
+  + &lt;reply&gt;
+  - Don't repeat what I say.</pre>
+<pre>
+  // If the user keeps repeating themselves over and over.
+  + &lt;input1&gt;
+  * &lt;input1&gt; == &lt;input2&gt; =&gt; That's the second time you've repeated yourself.
+  * &lt;input1&gt; == &lt;input3&gt; =&gt; If you repeat yourself again I'll stop talking.
+  * &lt;input1&gt; == &lt;input4&gt; =&gt; That's it. I'm not talking.{topic=sorry}
+  - Please don't repeat yourself.</pre>
+<pre>
+  // An example that uses both tags
+  + why did you say that
+  - I said, &quot;&lt;reply&gt;&quot;, because you said, &quot;&lt;input&gt;&quot;.</pre>
+</dd>
+<dt><strong><a name="id" class="item"><code>&lt;id&gt;</code></a></strong></dt>
+
+<dd>
+<p>This tag inserts the user's ID, which was passed in to the RiveScript
+interpreter when fetching a reply. With the interpreter shipped with the
+Perl RiveScript library, the <a href="#id"><code>&lt;id&gt;</code></a> is, by default, <code>localuser</code>.</p>
+<p>RiveScript uses user IDs to keep multiple users separate. You can use the same
+RiveScript interpreter to serve responses to multiple users, and it will keep
+their user variables separate based on their ID.</p>
+<p>Here is an example of how you might distinguish the botmaster from other users
+based on a screen name (for example, for an instant messenger bot, where the
+user ID is set to the user's screen name).</p>
+<pre>
+  ! var master = kirsle</pre>
+<pre>
+  + am i your master
+  * &lt;id&gt; == &lt;bot master&gt; =&gt; Yes, you are. Hi Kirsle!
+  - No, &lt;bot master&gt; is my master, and you are &lt;id&gt;.</pre>
+</dd>
+<dt><strong><a name="bot" class="item"><code>&lt;bot&gt;</code></a></strong></dt>
+
+<dd>
+<p>The <a href="#bot"><code>&lt;bot&gt;</code></a> tag is used for retrieving a bot variable. It can also
+be used to set a bot variable.</p>
+<p>Bot variables can be considered &quot;global&quot; to the RiveScript interpreter instance.
+That is, if you set the bot's name to Aiden, its name will be Aiden for
+everybody who asks, regardless of the user's ID. This is in contrast to user
+variables which are tied to a specific user ID.</p>
+<pre>
+  + what is your name
+  - You can call me &lt;bot name&gt;.</pre>
+<pre>
+  + tell me about yourself
+  - I am &lt;bot name&gt;, a chatterbot written by &lt;bot master&gt;.</pre>
+<pre>
+  // Setting a bot variable dynamically
+  + i hate you
+  - Aww! You've just ruined my day.&lt;bot mood=depressed&gt;</pre>
+</dd>
+<dt><strong><a name="env" class="item"><code>&lt;env&gt;</code></a></strong></dt>
+
+<dd>
+<p>The <a href="#env"><code>&lt;env&gt;</code></a> tag is used for retrieving global variables. It can also
+be used to set a global variable.</p>
+<p>For example, if the RiveScript interpreter copies all its environment variables
+into RiveScript globals, a CGI-based RiveScript bot could tell a user their
+IP address.</p>
+<pre>
+  + what is my ip
+  - Your IP address is: &lt;env REMOTE_ADDR&gt;</pre>
+<p>And here is an example of how you can set a global using this tag. In this
+example, the bot's master is able to turn debug mode on or off dynamically.</p>
+<pre>
+  + set debug mode (true|false)
+  * &lt;id&gt; == &lt;bot master&gt; =&gt; &lt;env debug=&lt;star&gt;&gt;Debug mode set to &lt;star&gt;.
+  - You're not my master.</pre>
+</dd>
+<dt><strong><a name="get_set" class="item"><code>&lt;get&gt;</code>, <code>&lt;set&gt;</code></a></strong></dt>
+
+<dd>
+<p>These tags are used to get or set a user variable, respectively. User variables
+are arbitrary name/value pairs. You can make up any variable name you want.</p>
+<p>Here are some examples:</p>
+<pre>
+  + my name is *
+  - &lt;set name=&lt;formal&gt;&gt;Nice to meet you, &lt;get name&gt;.</pre>
+<pre>
+  + i am # years old
+  - &lt;set age=&lt;star&gt;&gt;I will remember that you are &lt;get age&gt; years old.</pre>
+<pre>
+  + what do you know about me
+  - I know your name is &lt;get name&gt; and you are &lt;get age&gt; years old.</pre>
+<p>If you attempt to <code>&lt;get&gt;</code> a variable that had never been defined for
+the user before, it will insert the word &quot;undefined&quot; in its place instead. You
+can use this feature to test whether a variable has been defined:</p>
+<pre>
+  + do you know my name
+  * &lt;get name&gt; != undefined =&gt; Yes, your name is &lt;get name&gt;.
+  - No, you've never told me your name before.</pre>
+<p><code>&lt;get&gt;</code> can be used in a trigger, but <code>&lt;set&gt;</code> can not.</p>
+</dd>
+<dt><strong><a name="add_sub_mult_div" class="item"><code>&lt;add&gt;</code>, <code>&lt;sub&gt;</code>, <code>&lt;mult&gt;</code>, <code>&lt;div&gt;</code></a></strong></dt>
+
+<dd>
+<p>These tags can add, subtract, multiply or divide a numeric user variable,
+respectively.</p>
+<pre>
+  + give me 5 points
+  - &lt;add points=5&gt;You have been given 5 points. Your balance is: &lt;get points&gt;.</pre>
+<p>If you operate on a variable that isn't defined, it will be initialized to
+zero first. If you operate on a variable that doesn't currently contain a
+number, an error message will appear in the place of the tag.</p>
+<p>These tags can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="topic" class="item"><code>{topic}</code></a></strong></dt>
+
+<dd>
+<p>This tag changes the client's topic.</p>
+<pre>
+  + play hangman
+  - {topic=hangman}Now playing hangman. Type &quot;quit&quot; to quit.</pre>
+<pre>
+  &gt; topic hangman</pre>
+<pre>
+    + quit
+    - Quitting the game.{topic=random}</pre>
+<pre>
+    + *
+    - &lt;call&gt;hangman &lt;star&gt;&lt;/call&gt;</pre>
+<pre>
+  &lt; topic</pre>
+<p>This tag can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="weight" class="item"><code>{weight}</code></a></strong></dt>
+
+<dd>
+<p>This tag applies a weight to a trigger or response. When used with a trigger,
+it controls the matching priority of the trigger (a higher weight means higher
+priority). When used with a reply, it controls how frequently that reply will
+be randomly chosen.</p>
+<pre>
+  + * or something{weight=10}
+  - Or something. &lt;@&gt;</pre>
+<pre>
+  + hello
+  - Hi there!{weight=20}
+  - Hey!{weight=10}
+  - Howdy!</pre>
+<p>This tag can only be used with <code>+ Trigger</code> and <code>- Reply</code>.</p>
+</dd>
+<dt><strong><a name="________" class="item"><code>{@}, &lt;@&gt;</code></a></strong></dt>
+
+<dd>
+<p>This tag performs an inline redirection to a different trigger. <code>&lt;@&gt;</code>
+is an alias for <code>{@ &lt;star&gt;}</code>.</p>
+<pre>
+  + your *
+  - I think you mean to say &quot;you are&quot; or &quot;you're&quot;, not &quot;your&quot;. {@you are &lt;star&gt;}</pre>
+<p>You don't need to include a space between the <code>@</code> and the trigger text.</p>
+<p>This tag can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="random" class="item"><code>{random}</code></a></strong></dt>
+
+<dd>
+<p>Insert a sub-set of random text. This can come in handy in conditional lines, if
+you want a random reply for a condition.</p>
+<p>Between the <a href="#random"><code>{random}</code></a> and <a href="#random"><code>{/random}</code></a> tags, separate your possible texts with
+a pipe symbol. Here is an example:</p>
+<pre>
+  + hello
+  * &lt;get name&gt; != undefined =&gt; {random}
+  ^ Hello there, &lt;get name&gt;!|
+  ^ Nice to see you again, &lt;get name&gt;!|
+  ^ Hey, &lt;get name&gt;!{/random}
+  - Hello there!
+  - Hi there!
+  - Hello!</pre>
+<p>In this example, you give a random response that includes the user's name if the
+bot knows it, or a normal random response otherwise.</p>
+<p>This tag can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="person_person" class="item"><code>{person}</code>, <code>&lt;person&gt;</code></a></strong></dt>
+
+<dd>
+<p>Processes person substitutions on some text. See <a href="#person_substitutions">Person Substitutions</a>.</p>
+<pre>
+  + say *
+  - &lt;person&gt;</pre>
+<p><code>&lt;person&gt;</code> is an alias for <code>{person}&lt;star&gt;{/person}</code>.</p>
+<p>This tag can not be used with <code>+ Trigger</code>.</p>
+</dd>
+<dt><strong><a name="formal_sentence_uppercase_lowercase" class="item"><code>&lt;formal&gt;</code>, <code>&lt;sentence&gt;</code>, <code>&lt;uppercase&gt;</code>, <code>&lt;lowercase&gt;</code></a></strong></dt>
+
+<dd>
+<p>Change the case formatting on some text. <code>&lt;formal&gt;</code> is an alias for
+<code>{formal}&lt;star&gt;{/formal}</code>. The same applies for the other tags.</p>
+<p><strong>Formal</strong> text makes the first letter of each word uppercase. This is useful
+for names and other proper nouns.</p>
+<p><strong>Sentence</strong> text makes the first word of each sentence uppercase.</p>
+<p><strong>Uppercase</strong> and <strong>lowercase</strong> make the entire string upper or lower case.</p>
+</dd>
+<dt><strong><a name="call" class="item"><code>&lt;call&gt;</code></a></strong></dt>
+
+<dd>
+<p>This tag is used to call an object macro. Example:</p>
+<pre>
+  // Call a macro named &quot;reverse&quot; and give it an argument
+  + say * to me in reverse
+  - &lt;call&gt;reverse &lt;star&gt;&lt;/call&gt;</pre>
+<p>The first word in the <a href="#call"><code>&lt;call&gt;</code></a> tag is the name of an object macro to
+call (see <a href="#object_macros">Object Macros</a>). The macros may optionally take some arguments,
+and you can pass them in by placing them in the <a href="#call"><code>&lt;call&gt;</code></a> tag as shown
+in this example.</p>
+</dd>
+<dt><strong><a name="ok" class="item"><code>{ok}</code></a></strong></dt>
+
+<dd>
+<p>This is only used in the Begin Block in response to the <code>request</code> trigger. It
+indicates that it's OK to fetch a reply for the user's message. The reply will
+replace the <a href="#ok"><code>{ok}</code></a> tag.</p>
+</dd>
+<dt><strong><a name="s" class="item"><code>\s</code></a></strong></dt>
+
+<dd>
+<p>This inserts a space character. It's useful when using the <code>^ Continue</code> command
+to extend a line of RiveScript code.</p>
+</dd>
+<dt><strong><a name="n" class="item"><code>\n</code></a></strong></dt>
+
+<dd>
+<p>This inserts a line break.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="conclusion">CONCLUSION</a></h1>
+<p>This concludes the RiveScript tutorial. By now you should have a thorough
+understanding of how RiveScript code is written and you should be able to
+start creating replies for your own chatterbot.</p>
+<p>For more information about RiveScript, see <a href="http://www.rivescript.com/">http://www.rivescript.com/</a></p>
+<p>
+</p>
+<hr />
+<h1><a name="version_and_author">VERSION AND AUTHOR</a></h1>
+<p>This tutorial was last updated on June 8, 2012.</p>
+<p>This tutorial was written by Noah Petherbridge, <a href="http://www.kirsle.net/">http://www.kirsle.net/</a></p>
 <p>
 </p>
 <hr />
@@ -673,48 +1559,10 @@ in Perl 5.</p>
 <p>
 </p>
 <hr />
-<h1><a name="glossary">GLOSSARY</a></h1>
-<dl>
-<dt><strong><a name="trigger" class="item"><strong>Trigger</strong></a></strong></dt>
-
-<dd>
-<p>A trigger is a text pattern that is used to match a user's response. It is the
-name of the RiveScript command, <code>+</code>.</p>
-</dd>
-<dt><strong><a name="reply" class="item"><strong>Reply</strong></a></strong></dt>
-
-<dd>
-<p>This is the response given to the user after they matched a trigger. It is the
-name of the RiveScript command, <code>-</code>.</p>
-</dd>
-<dt><strong><a name="definition" class="item"><strong>Definition</strong></a></strong></dt>
-
-<dd>
-<p>This is a RiveScript command that is used to define something (to set a variable
-or substitution, usually). It is the name of the RiveScript command, <code>!</code>.</p>
-</dd>
-<dt><strong><a name="bot_variable" class="item"><strong>Bot Variable</strong></a></strong></dt>
-
-<dd>
-<p>A bot variable is a named piece of information about your chatbot, such as its
-name, age, and owner's name. It is set using the <code>! var</code> command, and retrieved
-in a reply using the <code>&lt;bot&gt;</code> tag.</p>
-</dd>
-<dt><strong><a name="substitution" class="item"><strong>Substitution</strong></a></strong></dt>
-
-<dd>
-<p>A substitution is used to replace parts of a user's message with other things,
-usually used to expand compound words like &quot;what's&quot; into &quot;what is&quot;. They are
-defined using the <code>! sub</code> command.</p>
-</dd>
-<dt><strong><a name="wildcard" class="item"><strong>Wildcard</strong></a></strong></dt>
-
-<dd>
-<p>A wildcard is a symbol that acts as a placeholder and can match a part of the
-user's message. There are three kinds of wildcards: <code>*</code> matches anything,
-<code>#</code> only matches numbers and <code>_</code> only matches words.</p>
-</dd>
-</dl>
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><em>RiveScript</em></p>
+<p><a href="/RiveScript/WD.html">the RiveScript::WD manpage</a> - The RiveScript Working Draft -
+<a href="http://www.rivescript.com/wd/RiveScript.html">http://www.rivescript.com/wd/RiveScript.html</a></p>
 
 </body>
 

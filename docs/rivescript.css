@@ -11,13 +11,16 @@ a:link, a:visited {
 a:hover, a:active {
  text-decoration: none
 }
+h1,h2 {
+ text-shadow: 2px 2px 2px #000000;
+}
 h1 {
- font-size: xx-large;
+ font-size: 32pt;
  text-decoration: underline;
  color: #FF0000
 }
 h2 {
- font-size: x-large;
+ font-size: 28pt;
  color: #DD0000
 }
 h3 {
