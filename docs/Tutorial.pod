@@ -574,7 +574,7 @@ the user says a magic word ANYWHERE in their message, your trigger will match!
   + [*] the machine [*]
   - How do you know about the machine!?
 
-You can also these C<[*]> optionals to ignore parts of a message by putting
+You can also use these C<[*]> optionals to ignore parts of a message by putting
 it before or after your trigger instead of on both sides.
 
 =head2 Arrays in Triggers
