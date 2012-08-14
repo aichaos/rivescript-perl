@@ -30,6 +30,7 @@
 	</ul>
 
 	<li><a href="#rivescript">RIVESCRIPT</a></li>
+	<li><a href="#constants">CONSTANTS</a></li>
 	<li><a href="#see_also">SEE ALSO</a></li>
 	<li><a href="#changes">CHANGES</a></li>
 	<li><a href="#author">AUTHOR</a></li>
@@ -409,6 +410,38 @@ draft is included with this package: see <a href="/RiveScript/WD.html">the RiveS
 <p>
 </p>
 <hr />
+<h1><a name="constants">CONSTANTS</a></h1>
+<p>This module can export some constants.</p>
+<pre>
+  use RiveScript qw(:standard);</pre>
+<p>These constants include:</p>
+<dl>
+<dt><strong><a name="rs_err_match" class="item">RS_ERR_MATCH</a></strong></dt>
+
+<dd>
+<p>This is the reply text given when no trigger has matched the message. It equals
+&quot;<code>ERR: No Reply Matched</code>&quot;.</p>
+<pre>
+  if ($reply eq RS_ERR_MATCH) {
+    $reply = &quot;I couldn't find a good reply for you!&quot;;
+  }</pre>
+</dd>
+<dt><strong><a name="rs_err_reply" class="item">RS_ERR_REPLY</a></strong></dt>
+
+<dd>
+<p>This is the reply text given when a trigger <em>was</em> matched, but no reply was
+given from it (for example, the trigger only had conditionals and all of them
+were false, with no default replies to fall back on). It equals
+&quot;<code>ERR: No Reply Found</code>&quot;.</p>
+<pre>
+  if ($reply eq RS_ERR_REPLY) {
+    $reply = &quot;I don't know what to say about that!&quot;;
+  }</pre>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
 <h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/RiveScript/WD.html">the RiveScript::WD manpage</a> - A current snapshot of the Working Draft that
 defines the standards of RiveScript.</p>
@@ -417,6 +450,14 @@ defines the standards of RiveScript.</p>
 </p>
 <hr />
 <h1><a name="changes">CHANGES</a></h1>
+<pre>
+  1.28  Aug 14 2012
+  - FIXED: Typos in RiveScript::WD (Bug #77618)
+  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.</pre>
+<pre>
+  1.26  May 29 2012
+  - Added EXE_FILES to Makefile.PL so the rivescript utility installs
+    correctly.</pre>
 <pre>
   1.24  May 15 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */

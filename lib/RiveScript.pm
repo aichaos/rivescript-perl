@@ -7,6 +7,18 @@ our $VERSION = '1.27'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
+# Constants.
+use constant RS_ERR_MATCH => "ERR: No Reply Matched";
+use constant RS_ERR_REPLY => "ERR: No Reply Found";
+
+# Exports
+require Exporter;
+our @ISA         = qw(Exporter);
+our @EXPORT_OK   = qw(RS_ERR_MATCH RS_ERR_REPLY);
+our %EXPORT_TAGS = (
+	standard => \@EXPORT_OK,
+);
+
 =head1 NAME
 
 RiveScript - Rendering Intelligence Very Easily
@@ -2663,10 +2675,10 @@ sub _getreply {
 
 	# Still no reply?
 	if ($foundMatch == 0) {
-		$reply = "ERR: No Reply Matched";
+		$reply = RS_ERR_MATCH;
 	}
-	elsif (length $reply == 0) {
-		$reply = "ERR: No Reply Found";
+	elsif (!defined $reply || length $reply == 0) {
+		$reply = RS_ERR_REPLY;
 	}
 
 	$self->debug ("Reply: $reply");
@@ -3170,6 +3182,38 @@ This interpreter tries its best to follow RiveScript standards. Currently it
 supports RiveScript 2.0 documents. A current copy of the RiveScript working
 draft is included with this package: see L<RiveScript::WD>.
 
+=head1 CONSTANTS
+
+This module can export some constants.
+
+  use RiveScript qw(:standard);
+
+These constants include:
+
+=over 4
+
+=item RS_ERR_MATCH
+
+This is the reply text given when no trigger has matched the message. It equals
+"C<ERR: No Reply Matched>".
+
+  if ($reply eq RS_ERR_MATCH) {
+    $reply = "I couldn't find a good reply for you!";
+  }
+
+=item RS_ERR_REPLY
+
+This is the reply text given when a trigger I<was> matched, but no reply was
+given from it (for example, the trigger only had conditionals and all of them
+were false, with no default replies to fall back on). It equals
+"C<ERR: No Reply Found>".
+
+  if ($reply eq RS_ERR_REPLY) {
+    $reply = "I don't know what to say about that!";
+  }
+
+=back
+
 =head1 SEE ALSO
 
 L<RiveScript::WD> - A current snapshot of the Working Draft that
@@ -3179,8 +3223,9 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.27
+  1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
+  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.
 
   1.26  May 29 2012
   - Added EXE_FILES to Makefile.PL so the rivescript utility installs

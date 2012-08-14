@@ -37,11 +37,8 @@ installed in a place like C</usr/bin/rivescript> or
 C</usr/local/bin/rivescript>. You can open a terminal window and run the
 command "C<rivescript>" to use the RiveScript interpreter.
 
-If you're using Windows, or the C<rivescript> command wasn't installed, you
-can obtain it from the distribution from CPAN, in the "bin" directory. After
-installing RiveScript, you can run the C<rivescript> program in a terminal or
-command prompt window by switching to the "bin" directory and typing
-"C<perl rivescript>".
+If you're using Windows, you can open a Command Prompt window and run the
+command "C<rivescript>" to use the RiveScript interpreter.
 
 If you are able to run the RiveScript interpreter that is shipped with the
 Perl distribution, you will be able to continue with this tutorial. If you're
@@ -87,7 +84,7 @@ keyboard, and type C<cmd> and hit enter in the Run dialog). Navigate to the
 "bin" folder in the Perl RiveScript distribution by using the C<cd> command,
 and then run the following command:
 
-  perl rivescript C:/rstut
+  rivescript C:/rstut
 
 If you're having trouble getting this to work on Windows, see
 L<"Windows Troubleshooting"> for help.

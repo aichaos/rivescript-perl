@@ -1,5 +1,9 @@
 Revision history for Perl extension RiveScript.
 
+  1.28  Aug 14 2012
+  - FIXED: Typos in RiveScript::WD (Bug #77618)
+  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.
+
   1.26  May 29 2012
   - Added EXE_FILES to Makefile.PL so the rivescript utility installs
     correctly.
