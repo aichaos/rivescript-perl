@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.28'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.29'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -3222,6 +3222,12 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.29
+  - Added "TCP Mode" to the `rivescript` command so that it can listen on a
+    socket instead of using standard input and output.
+  - Added a "--data" option to the `rivescript` command for providing JSON
+    input as a command line argument instead of standard input.
 
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)

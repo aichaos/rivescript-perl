@@ -3,12 +3,15 @@
 # A front-end to RiveScript.
 # See `rivescript --help` for help.
 
+use 5.10.0;
 use strict;
 use warnings;
 use RiveScript;
-use JSON;
 use Getopt::Long;
 use Pod::Text;
+use IO::Socket;
+use IO::Select;
+use JSON;
 
 #------------------------------------------------------------------------------#
 # Command Line Arguments                                                       #
@@ -19,17 +22,21 @@ my $opt = {
 	verbose => 1,  # Private, verbose mode for RS
 	log     => "", # --log, debug logs to file instead of terminal
 	json    => 0,  # --json, running in batch mode
+	listen  => "", # --listen, listen on a TCP port
 	depth   => 50, # depth variable
 	strict  => 1,  # --strict, strict mode
+	data    => "", # --data, provide JSON data via CLI instead of STDIN
 	help    => 0,  # --help
 };
 GetOptions (
-	'debug|d'  => \$opt->{debug},
-	'log=s'    => \$opt->{log},
-	'help|h|?' => \$opt->{help},
-	'json|j'   => \$opt->{json},
-	'depth=i'  => \$opt->{depth},
-	'strict!'  => \$opt->{strict},
+	'debug|d'    => \$opt->{debug},
+	'log=s'      => \$opt->{log},
+	'help|h|?'   => \$opt->{help},
+	'json|j'     => \$opt->{json},
+	'listen|l=s' => \$opt->{listen},
+	'depth=i'    => \$opt->{depth},
+	'data=s'     => \$opt->{data},
+	'strict!'    => \$opt->{strict},
 );
 
 # Asking for help?
@@ -56,10 +63,12 @@ my $root = scalar(@ARGV) ? $ARGV[0] : $RiveScript::basedir . "/demo";
 
 # Create the RiveScript interpreter.
 my $rs = init();
-my $json; # JSON interpreter if we need it.
+my $json;   # JSON interpreter if we need it.
+my $server; # Server socket if we need it.
+my $select; # Selector object if we need it.
 
 # Interactive mode?
-if (!$opt->{json}) {
+if (!$opt->{json} && !$opt->{listen}) {
 	# If called with no arguments, hint about the --help option.
 	unless (scalar(@ARGV)) {
 		print "Hint: use `rivescript --help` for documentation on this command.\n\n";
@@ -104,35 +113,195 @@ else {
 	# JSON mode.
 	$json = JSON->new->pretty();
 
-	# Read from standard input.
-	my $buffer = "";
+	# Are we listening from a TCP socket or standard I/O?
+	if ($opt->{listen}) {
+		tcp_mode();
+	} else {
+		json_mode();
+	}
+}
+
+# Handle JSON mode: standard input and output
+sub json_mode {
+	my $buffer   = "";
 	my $stateful = 0;
-	while (my $line = <STDIN>) {
-		chomp($line);
-		$line =~ s/[\x0D\x0A]+//g;
 
-		# Look for the __END__ line.
-		if ($line =~ /^__END__$/i) {
-			# Process it.
-			$stateful = 1; # This is a stateful session.
-			json_in($buffer, 1);
-			$buffer = "";
-			next;
+	# Did they provide us a complete message via --data?
+	if ($opt->{data}) {
+		$buffer = $opt->{data};
+	} else {
+		# Nope. Read from standard input. This loop breaks when we
+		# receive the EOF (Ctrl+D) signal.
+		while (my $line = <STDIN>) {
+			chomp($line);
+			$line =~ s/[\x0D\x0A]+//g;
+
+			# Look for the __END__ line.
+			if ($line =~ /^__END__$/i) {
+				# Process it.
+				$stateful = 1; # This is a stateful session.
+				print json_in($buffer, 1);
+				$buffer = "";
+				next;
+			}
+
+			$buffer .= "$line\n";
 		}
-
-		$buffer .= "$line\n";
 	}
 
-	# We got the EOF. If the session was stateful, just exit, otherwise
+	# If the session was stateful, just exit, otherwise
 	# process what we just read.
 	if ($stateful) {
 		exit(0);
 	}
 
-	json_in($buffer);
+	print json_in($buffer);
 	exit(0);
 }
 
+# Handle TCP mode: using a TCP socket
+sub tcp_mode {
+	# Validate the listen parameter.
+	my $hostname = "localhost";
+	my $port     = 2001;
+	if ($opt->{listen} =~ /^(.+?):(\d+)$/) {
+		$hostname = $1;
+		$port     = $2;
+	} elsif ($opt->{listen} =~ /^\d+$/) {
+		$port     = $opt->{listen};
+	} else {
+		print "The --listen option requires an address and/or port number. Examples:\n"
+			. "--listen localhost:2001\n"
+			. "--listen 2001\n";
+		exit(1);
+	}
+
+	# Create a listening socket.
+	$server = IO::Socket::INET->new (
+		LocalAddr => $hostname,
+		LocalPort => $port,
+		Proto     => 'tcp',
+		Listen    => 1,
+		Reuse     => 1,
+	);
+	if (!$server) {
+		say "Couldn't create socket on $hostname:$port: $@";
+		exit 1;
+	}
+
+	# Create a socket selector.
+	$select = IO::Select->new($server);
+
+	say "Listening for connections at $hostname:$port";
+
+	# Listen for events.
+	while (do_one_loop()) {
+		select(undef,undef,undef,0.001);
+	}
+}
+
+# Main loop for TCP server.
+my $buffer = {}; # Message buffers per connection.
+sub do_one_loop {
+	# Look for new events.
+	my @ready = $select->can_read(.1);
+	return 1 unless @ready;
+
+	foreach my $socket (@ready) {
+		my $id = $socket->fileno;
+		if ($socket == $server) {
+			# It's a new connection.
+			$socket = $server->accept();
+			$select->add($socket);
+			$id = $socket->fileno; # Get the correct fileno for the new socket.
+			say ts() ."Connection created: $id";
+
+			# Initialize their buffers.
+			$buffer->{$id} = {
+				buffer => "", # Current line being read
+				lines  => [], # Previous lines being read
+			};
+		} else {
+			# Read what they have to say.
+			my $buf;
+			$socket->recv($buf, 1024);
+
+			# Completely empty? They've disconnected.
+			if (length $buf == 0) {
+				# Note that even a "blank line" will still have \r\n characters, so there are
+				# no false positives to be had here!
+				disconnect($socket);
+				next;
+			}
+
+			# Trim excess fat.
+			$buf =~ s/\x0D\x0A/\x0A/g; # The \r characters
+
+			# Any newlines here?
+			if ($buf =~ /\n/) {
+				my @pieces = split(/\n/, $buf);
+				if (scalar(@pieces) > 1) {
+					$buffer->{$id}->{buffer} = pop(@pieces);    # Keep the most recent piece
+				}
+				push (@{$buffer->{$id}->{lines}}, @pieces); # Stash the rest
+			}
+
+			# Are they done?
+			if (scalar @{$buffer->{$id}->{lines}} > 0 &&
+			$buffer->{$id}->{lines}->[-1] eq "__END__") {
+				# Get their response.
+				my @lines = @{$buffer->{$id}->{lines}};
+				pop(@lines); # Remove the __END__ line.
+
+				# Get the reply and send it.
+				my $response = json_in(join("\n",@lines), 1, $id);
+				sock_send($socket, $response);
+
+				# Reset their line buffer.
+				$buffer->{$id}->{lines} = [];
+			} elsif (scalar @{$buffer->{$id}->{lines}} > 20 || length($buffer->{$id}->{buffer}) > 1024) {
+				# This is getting ridiculous.
+				sock_send($socket, $json->encode({
+					status => "error",
+					reply => "Internal Error: Input stream too long. Giving up.",
+				}), 1);
+				next;
+			}
+		}
+	}
+
+	return 1;
+}
+
+# Send a message to a socket.
+sub sock_send {
+	my ($socket,$msg,$disconnect_after) = @_;
+
+	$socket->send($msg) or do {
+		# They've been disconnected.
+		disconnect($socket);
+		return;
+	};
+
+	# Disconnect after?
+	if ($disconnect_after) {
+		disconnect($socket);
+	}
+}
+
+# Disconnect a socket.
+sub disconnect {
+	my $socket = shift;
+	my $id     = $socket->fileno;
+	say ts() . "Disconnected: $id";
+
+	# Forget we ever saw them.
+	delete $buffer->{$id};
+	$select->remove($socket);
+	$socket->close();
+}
+
+# Initializes the RiveScript interpreter.
 sub init {
 	my $rs = RiveScript->new (
 		debug     => $opt->{debug},
@@ -150,6 +319,7 @@ sub init {
 sub json_in {
 	my $buffer = shift;
 	my $end    = shift;
+	my $tcp    = shift;
 
 	my $data  = {};
 	my $reply = {
@@ -165,6 +335,9 @@ sub json_in {
 	if ($@) {
 		$reply->{status} = "error";
 		$reply->{reply}  = "Failed to decode your input: $@";
+		if ($tcp) {
+			say ts() . "$tcp: Failed to decode JSON input: $@";
+		}
 	}
 	else {
 		# Decode their variables.
@@ -178,6 +351,10 @@ sub json_in {
 
 		# Get their answer.
 		$reply->{reply} = $rs->reply($username, $data->{message});
+		if ($tcp) {
+			say ts() . "$tcp: [$username] $data->{message}";
+			say ts() . "$tcp: [Response] $reply->{reply}";
+		}
 
 		# Retrieve vars.
 		$reply->{vars} = {};
@@ -189,8 +366,15 @@ sub json_in {
 	}
 
 	# Encode and print.
-	print $json->encode($reply);
-	print "__END__\n" if $end;
+	my $return = $json->encode($reply);
+	$return .= "__END__\n" if $end;
+	return $return;
+}
+
+# Simple time stamp.
+sub ts {
+	my @now = localtime();
+	return sprintf("[%02d:%02d:%02d] ", $now[2], $now[1], $now[0]);
 }
 
 __DATA__
@@ -233,6 +417,21 @@ terminal.
 Runs C<rivescript> in JSON mode, for running the script in a non-interactive
 way (for example, to use RiveScript in a programming language that doesn't have
 a native RiveScript library). See L<"JSON Mode"> for details.
+
+=item --data JSON_DATA
+
+When using the C<--json> option, you can provide the JSON input message as a
+command line argument with the C<--data> option. If not provided, then the
+JSON data will be read from standard input instead. This option is helpful,
+therefore, if you don't want to open a two-way pipe, but rather pass the message
+as a command line argument and just read the response from standard output.
+See L<"JSON Mode"> for more details.
+
+=item --listen, -l [ADDRESS:]PORT
+
+Runs C<rivescript> in TCP mode, for running the script as a server daemon.
+If an address isn't specified, it will bind to C<localhost>. See
+L<"TCP Mode"> for details.
 
 =item --strict, --nostrict
 
@@ -301,6 +500,24 @@ Here, C<status> will be C<"ok"> or C<"error">, C<reply> is the bot's response to
 your message, and C<vars> is a hash of the current variables for the user (so
 that your program can save them somewhere).
 
+=head3 Standard Input or Data
+
+By default, JSON mode will read from standard input to receive your JSON
+message. As an alternative to this, you can provide the C<--data> option to
+C<rivescript> to present the incoming JSON data as a command line argument.
+
+This may be helpful if you don't want to open a two-way pipe to C<rivescript>,
+and would rather pass your input as a command line argument and simply read
+the response from standard output.
+
+Example:
+
+  $ rivescript --json --data '{"username": "localuser", "message": "hello" }' \
+    /path/to/rs/files
+
+This will cause C<rivescript> to print its JSON response to standard output
+and exit. You can't have a stateful session using this method.
+
 =head3 End of Message
 
 There are two ways you can use the JSON mode: "fire and forget," or keep a
@@ -333,6 +550,26 @@ And the response:
 
 This way you can reuse the same pipe to send and receive multiple messages.
 
+=head2 TCP Mode
+
+TCP Mode will make C<rivescript> listen on a TCP socket for incoming
+connections. This way you can connect to it from a different program (for
+example, a CGI script or a program written in a different language).
+
+Example:
+
+  $ rivescript --listen localhost:2001
+
+TCP Mode behaves similarly to L<"JSON Mode">; the biggest difference is that
+it will read and write using a TCP socket instead of standard input and
+output. Unlike JSON Mode, however, TCP Mode I<always> runs in a stateful
+way (the JSON messages must end with the text "C<__END__>" on a line by
+itself). See L<"End of Message">.
+
+If the C<__END__> line isn't found after 20 lines of text are read from
+the client, it will give up and send the client an error message (encoded
+in JSON) and disconnect it.
+
 =head1 SEE ALSO
 
 L<RiveScript>, the Perl RiveScript interpreter.
@@ -344,7 +581,7 @@ Noah Petherbridge, http://www.kirsle.net
 =head1 LICENSE
 
   RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2011 Noah Petherbridge
+  Copyright (C) 2012 Noah Petherbridge
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

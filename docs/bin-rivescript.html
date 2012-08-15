@@ -28,9 +28,11 @@
 		<li><a href="#json_mode">JSON Mode</a></li>
 		<ul>
 
+			<li><a href="#standard_input_or_data">Standard Input or Data</a></li>
 			<li><a href="#end_of_message">End of Message</a></li>
 		</ul>
 
+		<li><a href="#tcp_mode">TCP Mode</a></li>
 	</ul>
 
 	<li><a href="#see_also">SEE ALSO</a></li>
@@ -86,6 +88,23 @@ terminal.</p>
 <p>Runs <code>rivescript</code> in JSON mode, for running the script in a non-interactive
 way (for example, to use RiveScript in a programming language that doesn't have
 a native RiveScript library). See <a href="#json_mode">JSON Mode</a> for details.</p>
+</dd>
+<dt><strong><a name="data_json_data" class="item">--data JSON_DATA</a></strong></dt>
+
+<dd>
+<p>When using the <code>--json</code> option, you can provide the JSON input message as a
+command line argument with the <code>--data</code> option. If not provided, then the
+JSON data will be read from standard input instead. This option is helpful,
+therefore, if you don't want to open a two-way pipe, but rather pass the message
+as a command line argument and just read the response from standard output.
+See <a href="#json_mode">JSON Mode</a> for more details.</p>
+</dd>
+<dt><strong><a name="listen_l_address_port" class="item">--listen, -l [ADDRESS:]PORT</a></strong></dt>
+
+<dd>
+<p>Runs <code>rivescript</code> in TCP mode, for running the script as a server daemon.
+If an address isn't specified, it will bind to <code>localhost</code>. See
+<a href="#tcp_mode">TCP Mode</a> for details.</p>
 </dd>
 <dt><strong><a name="strict_nostrict" class="item">--strict, --nostrict</a></strong></dt>
 
@@ -154,6 +173,21 @@ your message, and <code>vars</code> is a hash of the current variables for the u
 that your program can save them somewhere).</p>
 <p>
 </p>
+<h3><a name="standard_input_or_data">Standard Input or Data</a></h3>
+<p>By default, JSON mode will read from standard input to receive your JSON
+message. As an alternative to this, you can provide the <code>--data</code> option to
+<code>rivescript</code> to present the incoming JSON data as a command line argument.</p>
+<p>This may be helpful if you don't want to open a two-way pipe to <code>rivescript</code>,
+and would rather pass your input as a command line argument and simply read
+the response from standard output.</p>
+<p>Example:</p>
+<pre>
+  $ rivescript --json --data '{&quot;username&quot;: &quot;localuser&quot;, &quot;message&quot;: &quot;hello&quot; }' \
+    /path/to/rs/files</pre>
+<p>This will cause <code>rivescript</code> to print its JSON response to standard output
+and exit. You can't have a stateful session using this method.</p>
+<p>
+</p>
 <h3><a name="end_of_message">End of Message</a></h3>
 <p>There are two ways you can use the JSON mode: &quot;fire and forget,&quot; or keep a
 stateful session open.</p>
@@ -181,6 +215,23 @@ process it, return its JSON response and then also say <code>__END__</code> at t
 <p>This way you can reuse the same pipe to send and receive multiple messages.</p>
 <p>
 </p>
+<h2><a name="tcp_mode">TCP Mode</a></h2>
+<p>TCP Mode will make <code>rivescript</code> listen on a TCP socket for incoming
+connections. This way you can connect to it from a different program (for
+example, a CGI script or a program written in a different language).</p>
+<p>Example:</p>
+<pre>
+  $ rivescript --listen localhost:2001</pre>
+<p>TCP Mode behaves similarly to <a href="#json_mode">JSON Mode</a>; the biggest difference is that
+it will read and write using a TCP socket instead of standard input and
+output. Unlike JSON Mode, however, TCP Mode <em>always</em> runs in a stateful
+way (the JSON messages must end with the text &quot;<code>__END__</code>&quot; on a line by
+itself). See <a href="#end_of_message">End of Message</a>.</p>
+<p>If the <code>__END__</code> line isn't found after 20 lines of text are read from
+the client, it will give up and send the client an error message (encoded
+in JSON) and disconnect it.</p>
+<p>
+</p>
 <hr />
 <h1><a name="see_also">SEE ALSO</a></h1>
 <p><em>RiveScript</em>, the Perl RiveScript interpreter.</p>
@@ -195,7 +246,7 @@ process it, return its JSON response and then also say <code>__END__</code> at t
 <h1><a name="license">LICENSE</a></h1>
 <pre>
   RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2008  Casey Kirsle
+  Copyright (C) 2012 Noah Petherbridge
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
