@@ -242,6 +242,13 @@ sub do_one_loop {
 				my @pieces = split(/\n/, $buf);
 				if (scalar(@pieces) > 1) {
 					$buffer->{$id}->{buffer} = pop(@pieces);    # Keep the most recent piece
+
+					# Is this the end?
+					if ($buffer->{$id}->{buffer} =~ /^__END__/) {
+						# We want this piece after all!
+						push(@pieces, $buffer->{$id}->{buffer});
+						$buffer->{$id}->{buffer} = "";
+					}
 				}
 				push (@{$buffer->{$id}->{lines}}, @pieces); # Stash the rest
 			}
