@@ -23,6 +23,7 @@ my $opt = {
 	log     => "", # --log, debug logs to file instead of terminal
 	json    => 0,  # --json, running in batch mode
 	listen  => "", # --listen, listen on a TCP port
+	utf8    => 0,  # --utf8, use UTF-8 mode in RiveScript
 	depth   => 50, # depth variable
 	strict  => 1,  # --strict, strict mode
 	data    => "", # --data, provide JSON data via CLI instead of STDIN
@@ -33,6 +34,7 @@ GetOptions (
 	'log=s'      => \$opt->{log},
 	'help|h|?'   => \$opt->{help},
 	'json|j'     => \$opt->{json},
+	'utf8|u'     => \$opt->{utf8},
 	'listen|l=s' => \$opt->{listen},
 	'depth=i'    => \$opt->{depth},
 	'data=s'     => \$opt->{data},
@@ -52,6 +54,13 @@ if ($opt->{log}) {
 	# Logging automatically enables debugging.
 	$opt->{debug}   = 1;
 	$opt->{verbose} = 0;
+}
+
+# UTF-8 support?
+if ($opt->{utf8}) {
+	binmode(STDIN, ":utf8");
+	binmode(STDOUT, ":utf8");
+	binmode(STDERR, ":utf8");
 }
 
 #------------------------------------------------------------------------------#
@@ -316,6 +325,7 @@ sub init {
 		debugfile => $opt->{log},
 		depth     => $opt->{depth},
 		strict    => $opt->{strict},
+		utf8      => $opt->{utf8},
 	);
 
 	$rs->loadDirectory($root);
@@ -451,6 +461,12 @@ when it finds a syntax error in the RiveScript documents.
 Override the default recursion depth limit. This controls how many times
 RiveScript will recursively follow redirects to other replies. The default is
 C<50>.
+
+=item --utf8, -u
+
+Use the UTF-8 option in RiveScript. This allows triggers to contain foreign
+characters and relaxes the filtering of user messages. This is not enabled
+by default!
 
 =item --help
 

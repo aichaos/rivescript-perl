@@ -86,6 +86,8 @@ in any global variables here. The two standard variables are:
               to this file name. Since debug mode prints such a large amount of
               data, it is often more practical to have the output go to an
               external file for later review. Default is '' (no file).
+  utf8      - Enable UTF-8 support for the RiveScript code. See the section on
+              UTF-8 support for details.
   depth     - Determines the recursion depth limit when following a trail of replies
               that point to other replies. Default is 50.
   strict    - If this has a true value, any syntax errors detected while parsing
@@ -120,6 +122,7 @@ sub new {
 			verbose => 1,  # Print to the terminal
 			file    => '', # Print to a filename
 		},
+		utf8       => 0,  # UTF-8 support
 		depth      => 50, # Recursion depth allowed.
 		strict     => 1,  # Strict syntax checking (causes a die)
 		topics     => {}, # Loaded replies under topics
@@ -269,8 +272,8 @@ sub loadDirectory {
 		$self->loadFile ("$dir/begin.rs");
 	}
 
-	opendir (DIR, $dir);
-	foreach my $file (sort { $a cmp $b } readdir(DIR)) {
+	opendir (my $dh, $dir);
+	foreach my $file (sort { $a cmp $b } readdir($dh)) {
 		next if $file eq '.';
 		next if $file eq '..';
 		next if $file =~ /\~$/i; # Skip backup files
@@ -286,7 +289,7 @@ sub loadDirectory {
 
 		$self->loadFile ("$dir/$file");
 	}
-	closedir (DIR);
+	closedir ($dh);
 
 	return 1;
 }
@@ -312,9 +315,9 @@ sub loadFile {
 		return 0;
 	}
 
-	open (READ, $file);
-	my @code = <READ>;
-	close (READ);
+	open (my $fh, "<:utf8", $file);
+	my @code = <$fh>;
+	close ($fh);
 	chomp @code;
 
 	# Parse the file.
@@ -919,8 +922,16 @@ sub checkSyntax {
 		my $chevron = 0; # Open angled brackets
 
 		# Look for obvious errors.
-		if ($line =~ /[^a-z0-9(\|)\[\]*_#\@{}<>=\s]/) {
-			return "Triggers may only contain lowercase letters, numbers, and these symbols: ( | ) [ ] * _ # @ { } < > =";
+		if ($self->{utf8}) {
+			# UTF-8 only restricts certain meta characters.
+			if ($line =~ /[A-Z\\.]/) {
+				return "Triggers can't contain uppercase letters, backslashes or dots in UTF-8 mode.";
+			}
+		} else {
+			# Only simple ASCIIs allowed.
+			if ($line =~ /[^a-z0-9(\|)\[\]*_#\@{}<>=\s]/) {
+				return "Triggers may only contain lowercase letters, numbers, and these symbols: ( | ) [ ] * _ # @ { } < > =";
+			}
 		}
 
 		# Count brackets.
@@ -3121,8 +3132,15 @@ sub _formatMessage {
 		$string =~ s/<rot13sub>(.+?)<bus31tor>/$rot13/i;
 	}
 
-	# Format punctuation.
-	$string =~ s/[^A-Za-z0-9 ]//g;
+	# In UTF-8 mode, only strip meta characters.
+	if ($self->{utf8}) {
+		# Backslashes and HTML tags
+		$string =~ s/[\\<>]//g;
+	} else {
+		$string =~ s/[^A-Za-z0-9 ]//g;
+	}
+
+	# Remove excess whitespace.
 	$string =~ s/^\s+//g;
 	$string =~ s/\s+$//g;
 
@@ -3182,6 +3200,27 @@ This interpreter tries its best to follow RiveScript standards. Currently it
 supports RiveScript 2.0 documents. A current copy of the RiveScript working
 draft is included with this package: see L<RiveScript::WD>.
 
+=head1 UTF-8 SUPPORT
+
+Version 1.29+ adds experimental support for UTF-8 in RiveScript. It is not
+enabled by default. Enable it by passing a true value for the C<utf8> option
+in the constructor, or by using the C<--utf8> argument to the C<rivescript>
+application.
+
+By default (without UTF-8 mode on), triggers may only contain basic ASCII
+characters (no foreign characters), and the user's message is stripped of
+all characters except letters and spaces. This means that, for example, you
+can't capture a user's e-mail address in a RiveScript reply, because of the
+@ and . characters.
+
+When UTF-8 mode is enabled, these restrictions are lifted. Triggers are only
+limited to not contain certain metacharacters like the backslash, and the
+user's message is only stripped of backslashes and HTML angled brackets (to
+prevent obvious XSS if you use RiveScript in a web application). The
+C<E<lt>starE<gt>> tags in RiveScript will capture the user's "raw" input,
+so you can write replies to get the user's e-mail address or store foreign
+characters in their name.
+
 =head1 CONSTANTS
 
 This module can export some constants.
@@ -3228,6 +3267,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     socket instead of using standard input and output.
   - Added a "--data" option to the `rivescript` command for providing JSON
     input as a command line argument instead of standard input.
+  - Added experimental UTF-8 support.
 
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
