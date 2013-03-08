@@ -3116,20 +3116,37 @@ sub _formatMessage {
 	# Lowercase it.
 	$string = lc($string);
 
+	# Make placeholders each time we substitute something.
+	my @ph = ();
+	my $i = 0;
+
 	# Run substitutions on it.
 	foreach my $pattern (@{$self->{sortlist}->{subs}}) {
 		my $result = $self->{subs}->{$pattern};
-		$result =~ tr/A-Za-z/N-ZA-Mn-za-m/;
+
+		# Make a placeholder.
+		push (@ph, $result);
+		my $placeholder = "\x00$i\x00";
+		$i++;
+
 		my $qm = quotemeta($pattern);
-		$string =~ s/^$qm$/<rot13sub>$result<bus31tor>/ig;
-		$string =~ s/^$qm(\W+)/<rot13sub>$result<bus31tor>$1/ig;
-		$string =~ s/(\W+)$qm(\W+)/$1<rot13sub>$result<bus31tor>$2/ig;
-		$string =~ s/(\W+)$qm$/$1<rot13sub>$result<bus31tor>/ig;
+		$string =~ s/^$qm$/$placeholder/ig;
+		$string =~ s/^$qm(\W+)/$placeholder$1/ig;
+		$string =~ s/(\W+)$qm(\W+)/$1$placeholder$2/ig;
+		$string =~ s/(\W+)$qm$/$1$placeholder/ig;
 	}
-	while ($string =~ /<rot13sub>(.+?)<bus31tor>/i) {
-		my $rot13 = $1;
-		$rot13 =~ tr/A-Za-z/N-ZA-Mn-za-m/;
-		$string =~ s/<rot13sub>(.+?)<bus31tor>/$rot13/i;
+	while ($string =~ /\x00(\d+)\x00/i) {
+		my $id = $1;
+		my $result = $ph[$id];
+		$string =~ s/\x00$id\x00/$result/i;
+	}
+
+	# In UTF-8 mode, only strip meta characters.
+	if ($self->{utf8}) {
+		# Backslashes and HTML tags
+		$string =~ s/[\\<>]//g;
+	} else {
+		$string =~ s/[^A-Za-z0-9 ]//g;
 	}
 
 	# In UTF-8 mode, only strip meta characters.
@@ -3169,23 +3186,31 @@ sub _stringUtil {
 sub _personSub {
 	my ($self,$string) = @_;
 
+	# Make placeholders each time we substitute something.
+	my @ph = ();
+	my $i = 0;
+
 	# Substitute each of the sorted person sub arrays in order,
 	# using a one-way substitution algorithm (read: base13).
 	foreach my $pattern (@{$self->{sortlist}->{person}}) {
 		my $result = $self->{person}->{$pattern};
-		$result =~ tr/A-Za-z/N-ZA-Mn-za-m/;
+
+		# Make a placeholder.
+		push (@ph, $result);
+		my $placeholder = "\x00$i\x00";
+		$i++;
+
 		my $qm = quotemeta($pattern);
-		$string =~ s/^$qm$/<rot13sub>$result<bus31tor>/ig;
-		$string =~ s/^$qm(\W+)/<rot13sub>$result<bus31tor>$1/ig;
-		$string =~ s/(\W+)$qm(\W+)/$1<rot13sub>$result<bus31tor>$2/ig;
-		$string =~ s/(\W+)$qm$/$1<rot13sub>$result<bus31tor>/ig;
+		$string =~ s/^$qm$/$placeholder/ig;
+		$string =~ s/^$qm(\W+)/$placeholder$1/ig;
+		$string =~ s/(\W+)$qm(\W+)/$1$placeholder$2/ig;
+		$string =~ s/(\W+)$qm$/$1$placeholder/ig;
 	}
 
-	# Now rot13-decode what's left.
-	while ($string =~ /<rot13sub>(.+?)<bus31tor>/i) {
-		my $rot13 = $1;
-		$rot13 =~ tr/A-Za-z/N-ZA-Mn-za-m/;
-		$string =~ s/<rot13sub>(.+?)<bus31tor>/$rot13/i;
+	while ($string =~ /\x00(\d+)\x00/i) {
+		my $id = $1;
+		my $result = $ph[$id];
+		$string =~ s/\x00$id\x00/$result/i;
 	}
 
 	return $string;
@@ -3268,6 +3293,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
   - Added a "--data" option to the `rivescript` command for providing JSON
     input as a command line argument instead of standard input.
   - Added experimental UTF-8 support.
+  - Bugfix: don't use hacky ROT13-encoded placeholders for message
+    substitutions... use a null character method instead. ;)
 
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
