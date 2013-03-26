@@ -287,6 +287,16 @@
 + {weight=100}* davenport
 - That's a word that's not used much anymore.
 
+/* Unique Triggers
+   ---------------
+   Human says:     Tell me something interesting
+   Expected reply: I will only say this once!
+   Human says:     Tell me something interesting
+   Expected reply: ERR: No Reply Found
+*/
++ {unique} tell me something interesting
+- I will only say this once!
+
 /******************************************************************************
  * Basic Reply Testing                                                        *
  ******************************************************************************/
