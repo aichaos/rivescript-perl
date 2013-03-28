@@ -1057,6 +1057,16 @@ When used with C<- Response>, this will weigh the response more heavily to be
 chosen when random responses are available. When used with C<+ Trigger>, this
 sets that trigger to have a higher matching priority.
 
+=head2 {unique}
+
+This will mark the trigger as unique, meaning that for the current user, any
+particular response produced by this trigger will only occur once before a
+"no reply found" error is produced.
+
+    + {unique}tell me something interesting
+    - I will only say this once!
+    - And I will only say this once!
+
 =head2 {@...}, E<lt>@E<gt>
 
 Perform an inline redirection. This should work like a regular redirection but

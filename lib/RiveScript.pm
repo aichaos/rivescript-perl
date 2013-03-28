@@ -795,6 +795,7 @@ sub parse {
 			}
 			else {
 				$self->{topics}->{$topic}->{$line} = {};
+				$self->{topics}->{$topic}->{$line}->{is_unique} = 1 if $line =~ /{unique}/;
 				$self->{syntax}->{$topic}->{$line}->{ref} = "$fname line $lineno";
 				$self->debug ("\t\tSaved to \$self->{topics}->{$topic}->{$line}: "
 					. "$self->{topics}->{$topic}->{$line}");
@@ -2439,6 +2440,7 @@ sub _getreply {
 	my @stars = ();
 	my @thatstars = (); # For %previous's.
 	my $reply = '';
+	my $unique_violation;
 	if (exists $self->{client}->{$user}) {
 		$topic = $self->{client}->{$user}->{topic};
 	}
@@ -2681,14 +2683,25 @@ sub _getreply {
 
 		# Get a random reply.
 		$reply = $bucket [ int(rand(scalar(@bucket))) ];
-		last;
+
+        last unless $reply;
+
+		# Does this trigger have a unique constraint?
+		if ($matched->{is_unique}) {
+			if ($self->{client}->{$user}->{__unique__}->{$reply}) {
+				$unique_violation = 1;
+			}
+			else {
+				$self->{client}->{$user}->{__unique__}->{$reply} = 1;
+			}
+		}
 	}
 
 	# Still no reply?
 	if ($foundMatch == 0) {
 		$reply = RS_ERR_MATCH;
 	}
-	elsif (!defined $reply || length $reply == 0) {
+	elsif (!defined $reply || length $reply == 0 || $unique_violation) {
 		$reply = RS_ERR_REPLY;
 	}
 
@@ -2791,6 +2804,7 @@ sub _reply_regexp {
 	$regexp =~ s/\#/(\\d+)/ig;    # Convert # into ([0-9]+?)
 	$regexp =~ s/\_/(\\w+)/ig; # Convert _ into ([A-Za-z]+?)
 	$regexp =~ s/\{weight=\d+\}//ig; # Remove {weight} tags.
+	$regexp =~ s/\{unique}//ig;      # Remove {unique} tags.
 	$regexp =~ s/<zerowidthstar>/(.*?)/i;
 	while ($regexp =~ /\[(.+?)\]/i) { # Optionals
 		my @parts = split(/\|/, $1);
@@ -2900,6 +2914,7 @@ sub processTags {
 
 	# Quick tags.
 	$reply =~ s/\{weight=(\d+)\}//ig; # Remove leftover {weight}s
+	$reply =~ s/\{unique}//ig;        # Remove {unique}s
 	if (scalar(@stars) > 0) {
 		$reply =~ s/<star>/$stars[1]/ig if defined $stars[1];
 		$reply =~ s/<star(\d+)>/(defined $stars[$1] ? $stars[$1] : '')/ieg;
