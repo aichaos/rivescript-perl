@@ -2684,13 +2684,15 @@ sub _getreply {
 		# Get a random reply.
 		$reply = $bucket [ int(rand(scalar(@bucket))) ];
 
+        last unless $reply;
+
 		# Does this trigger have a unique constraint?
 		if ($matched->{is_unique}) {
-			if ($self->{client}->{$user}->{seen_unique}->{$reply}) {
+			if ($self->{client}->{$user}->{__unique__}->{$reply}) {
 				$unique_violation = 1;
 			}
 			else {
-				$self->{client}->{$user}->{seen_unique}->{$reply} = 1;
+				$self->{client}->{$user}->{__unique__}->{$reply} = 1;
 			}
 		}
 	}
