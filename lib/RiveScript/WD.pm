@@ -1018,6 +1018,13 @@ L<"var"> commands.
   + my name is <bot name>
   - <set name=<bot name>>What a coincidence, that's my name too!
 
+The C<E<lt>botE<gt>> tag allows assignment as well (which deprecates the old
+C<{!...}> tag.
+
+  + set mood to (happy|angry|sad)
+  * <get master> == true => <bot mood=<star>>Updated my mood.
+  - Only my botmaster can do that.
+
 =head2 E<lt>envE<gt>
 
 Insert a global variable, which was previously defined via C<! Definition>
@@ -1026,6 +1033,13 @@ L<"global"> commands.
   + is debug mode enabled
   * <env debug> == 1 => Yes, debug mode is active.
   - No, debug mode is set to "<env debug>"
+
+The C<E<lt>envE<gt>> tag allows assignment as well (which deprecates the old
+C<{!...}> tag.
+
+  + turn debug mode on
+  * <get master> == true => <env debug=1>Debug mode enabled.
+  - You can't turn debug mode on.
 
 =head2 E<lt>getE<gt>, E<lt>setE<gt>
 
@@ -1404,6 +1418,9 @@ Or perhaps there will just be a converter tool created that would go through cod
 that it already assumes will be RiveScript 1.x and update it to 2.x standards.
 
 =head1 REVISIONS
+
+  Rev 11 - Jun 13, 2013
+  - Clarify the ability for the <bot> and <env> tags to be used for assignment.
 
   Rev 10 - May 15, 2012
   - Deprecated the {!...} tag. It was intended for reassigning global or bot

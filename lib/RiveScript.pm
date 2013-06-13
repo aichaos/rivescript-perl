@@ -2789,7 +2789,7 @@ sub _reply_regexp {
 
 	$regexp =~ s/\*/(.+?)/ig;        # Convert * into (.+?)
 	$regexp =~ s/\#/(\\d+)/ig;    # Convert # into ([0-9]+?)
-	$regexp =~ s/\_/(\\w+)/ig; # Convert _ into ([A-Za-z]+?)
+	$regexp =~ s/\_/([A-Za-z]+)/ig; # Convert _ into ([A-Za-z]+?)
 	$regexp =~ s/\{weight=\d+\}//ig; # Remove {weight} tags.
 	$regexp =~ s/<zerowidthstar>/(.*?)/i;
 	while ($regexp =~ /\[(.+?)\]/i) { # Optionals
@@ -2806,7 +2806,7 @@ sub _reply_regexp {
 		my $pipes = join("|",@new);
 		$pipes =~ s/\(\.\+\?\)/(?:.+?)/ig; # (.+?) --> (?:.+?)
 		$pipes =~ s/\(\\d\+\)/(?:\\d+)/ig; # (\d+) --> (?:\d+)
-		$pipes =~ s/\(\\w\+\)/(?:\\w+)/ig; # (\w+) --> (?:\w+)
+		$pipes =~ s/\([A-Za-z]\+\)/(?:[A-Za-z]+)/ig; # (\w+) --> (?:\w+)
 
 		my $rep = "(?:$pipes)";
 		$regexp =~ s/\s*\[(.+?)\]\s*/$rep/i;
