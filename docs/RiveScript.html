@@ -2,188 +2,163 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>RiveScript - Rendering Intelligence Very Easily</title>
+<title>RiveScript</title>
 <link rel="stylesheet" href="rivescript.css" type="text/css" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rev="made" href="mailto:root@localhost" />
+<link rev="made" href="mailto:kirsle@zefr.(none)" />
 </head>
 
 <body>
 
 
-<!-- INDEX BEGIN -->
-<div name="index">
-<p><a name="__index__"></a></p>
 
-<ul>
-
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#description">DESCRIPTION</a></li>
-	<li><a href="#methods">METHODS</a></li>
-	<ul>
-
-		<li><a href="#general">GENERAL</a></li>
-		<li><a href="#loading_and_parsing">LOADING AND PARSING</a></li>
-		<li><a href="#configuration">CONFIGURATION</a></li>
-		<li><a href="#interaction">INTERACTION</a></li>
-	</ul>
-
-	<li><a href="#rivescript">RIVESCRIPT</a></li>
-	<li><a href="#constants">CONSTANTS</a></li>
-	<li><a href="#see_also">SEE ALSO</a></li>
-	<li><a href="#changes">CHANGES</a></li>
-	<li><a href="#author">AUTHOR</a></li>
-	<li><a href="#keywords">KEYWORDS</a></li>
-	<li><a href="#copyright_and_license">COPYRIGHT AND LICENSE</a></li>
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+  <li><a href="#METHODS">METHODS</a>
+    <ul>
+      <li><a href="#GENERAL">GENERAL</a></li>
+      <li><a href="#LOADING-AND-PARSING">LOADING AND PARSING</a></li>
+      <li><a href="#CONFIGURATION">CONFIGURATION</a></li>
+      <li><a href="#INTERACTION">INTERACTION</a></li>
+    </ul>
+  </li>
+  <li><a href="#RIVESCRIPT">RIVESCRIPT</a></li>
+  <li><a href="#UTF-8-SUPPORT">UTF-8 SUPPORT</a></li>
+  <li><a href="#CONSTANTS">CONSTANTS</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+  <li><a href="#CHANGES">CHANGES</a></li>
+  <li><a href="#AUTHOR">AUTHOR</a></li>
+  <li><a href="#KEYWORDS">KEYWORDS</a></li>
+  <li><a href="#COPYRIGHT-AND-LICENSE">COPYRIGHT AND LICENSE</a></li>
 </ul>
 
-<hr name="index" />
-</div>
-<!-- INDEX END -->
+<h1 id="NAME">NAME</h1>
 
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
 <p>RiveScript - Rendering Intelligence Very Easily</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<pre>
-  use RiveScript;</pre>
-<pre>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use RiveScript;
+
   # Create a new RiveScript interpreter.
-  my $rs = new RiveScript;</pre>
-<pre>
+  my $rs = new RiveScript;
+
   # Load a directory of replies.
-  $rs-&gt;loadDirectory (&quot;./replies&quot;);</pre>
-<pre>
+  $rs-&gt;loadDirectory (&quot;./replies&quot;);
+
   # Load another file.
-  $rs-&gt;loadFile (&quot;./more_replies.rs&quot;);</pre>
-<pre>
+  $rs-&gt;loadFile (&quot;./more_replies.rs&quot;);
+
   # Stream in some RiveScript code.
   $rs-&gt;stream (q~
     + hello bot
     - Hello, human.
-  ~);</pre>
-<pre>
+  ~);
+
   # Sort all the loaded replies.
-  $rs-&gt;sortReplies;</pre>
-<pre>
+  $rs-&gt;sortReplies;
+
   # Chat with the bot.
   while (1) {
     print &quot;You&gt; &quot;;
     chomp (my $msg = &lt;STDIN&gt;);
-    my $reply = $rs-&gt;reply ('localuser',$msg);
+    my $reply = $rs-&gt;reply (&#39;localuser&#39;,$msg);
     print &quot;Bot&gt; $reply\n&quot;;
-  }</pre>
-<p>
-</p>
-<hr />
-<h1><a name="description">DESCRIPTION</a></h1>
-<p>RiveScript is a simple trigger/response language primarily used for the creation
-of chatting robots. It's designed to have an easy-to-learn syntax but provide a
-lot of power and flexibility. For more information, visit
-<a href="http://www.rivescript.com/">http://www.rivescript.com/</a></p>
-<p>
-</p>
-<hr />
-<h1><a name="methods">METHODS</a></h1>
-<p>
-</p>
-<h2><a name="general">GENERAL</a></h2>
-<dl>
-<dt><strong><a name="new" class="item">RiveScript new (hash %ARGS)</a></strong></dt>
+  }</code></pre>
 
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>RiveScript is a simple trigger/response language primarily used for the creation of chatting robots. It&#39;s designed to have an easy-to-learn syntax but provide a lot of power and flexibility. For more information, visit http://www.rivescript.com/</p>
+
+<h1 id="METHODS">METHODS</h1>
+
+<h2 id="GENERAL">GENERAL</h2>
+
+<dl>
+
+<dt id="RiveScript-new-hash-ARGS">RiveScript new (hash %ARGS)</dt>
 <dd>
-<p>Create a new instance of a RiveScript interpreter. The instance will become its
-own &quot;chatterbot,&quot; with its own set of responses and user variables. You can pass
-in any global variables here. The two standard variables are:</p>
-<pre>
-  debug     - Turns on debug mode (a LOT of information will be printed to the
+
+<p>Create a new instance of a RiveScript interpreter. The instance will become its own &quot;chatterbot,&quot; with its own set of responses and user variables. You can pass in any global variables here. The two standard variables are:</p>
+
+<pre><code>  debug     - Turns on debug mode (a LOT of information will be printed to the
               terminal!). Default is 0 (disabled).
   verbose   - When debug mode is on, all debug output will be printed to the
-              terminal if 'verbose' is also true. The default value is 1.
+              terminal if &#39;verbose&#39; is also true. The default value is 1.
   debugfile - Optional: paired with debug mode, all debug output is also written
               to this file name. Since debug mode prints such a large amount of
               data, it is often more practical to have the output go to an
-              external file for later review. Default is '' (no file).
+              external file for later review. Default is &#39;&#39; (no file).
+  utf8      - Enable UTF-8 support for the RiveScript code. See the section on
+              UTF-8 support for details.
   depth     - Determines the recursion depth limit when following a trail of replies
               that point to other replies. Default is 50.
   strict    - If this has a true value, any syntax errors detected while parsing
               a RiveScript document will result in a fatal error. Set it to a
-              false value and only a warning will result. Default is 1.</pre>
-<p>It's recommended that if you set any other global variables that you do so by
-calling <a href="#setglobal"><code>setGlobal</code></a> or defining it within the RiveScript code. This will avoid
-the possibility of overriding reserved globals. Currently, these variable names
-are reserved:</p>
-<pre>
-  topics   sorted  sortsthat  sortedthat  thats
+              false value and only a warning will result. Default is 1.</code></pre>
+
+<p>It&#39;s recommended that if you set any other global variables that you do so by calling <code>setGlobal</code> or defining it within the RiveScript code. This will avoid the possibility of overriding reserved globals. Currently, these variable names are reserved:</p>
+
+<pre><code>  topics   sorted  sortsthat  sortedthat  thats
   arrays   subs    person     client      bot
   objects  syntax  sortlist   reserved    debugopts
-  frozen   globals handlers   objlangs</pre>
-<p>Note: the options &quot;verbose&quot; and &quot;debugfile&quot;, when provided, are noted and then
-deleted from the root object space, so that if your RiveScript code uses variables
-by the same values it won't conflict with the values that you passed here.</p>
+  frozen   globals handlers   objlangs</code></pre>
+
+<p>Note: the options &quot;verbose&quot; and &quot;debugfile&quot;, when provided, are noted and then deleted from the root object space, so that if your RiveScript code uses variables by the same values it won&#39;t conflict with the values that you passed here.</p>
+
 </dd>
 </dl>
-<p>
-</p>
-<h2><a name="loading_and_parsing">LOADING AND PARSING</a></h2>
+
+<h2 id="LOADING-AND-PARSING">LOADING AND PARSING</h2>
+
 <dl>
-<dt><strong><a name="loaddirectory" class="item">bool loadDirectory (string $PATH[, string @EXTS])</a></strong></dt>
 
+<dt id="bool-loadDirectory-string-PATH-string-EXTS">bool loadDirectory (string $PATH[, string @EXTS])</dt>
 <dd>
-<p>Load a directory full of RiveScript documents. <code>$PATH</code> must be a path to a
-directory. <code>@EXTS</code> is optionally an array containing file extensions, including
-the dot. By default <code>@EXTS</code> is <code>('.rs')</code>.</p>
+
+<p>Load a directory full of RiveScript documents. <code>$PATH</code> must be a path to a directory. <code>@EXTS</code> is optionally an array containing file extensions, including the dot. By default <code>@EXTS</code> is <code>(&#39;.rs&#39;)</code>.</p>
+
 <p>Returns true on success, false on failure.</p>
-</dd>
-<dt><strong><a name="loadfile" class="item">bool loadFile (string $PATH)</a></strong></dt>
 
-<dd>
-<p>Load a single RiveScript document. <code>$PATH</code> should be the path to a valid
-RiveScript file. Returns true on success; false otherwise.</p>
 </dd>
-<dt><strong><a name="stream" class="item">bool stream (arrayref $CODE)</a></strong></dt>
-
+<dt id="bool-loadFile-string-PATH">bool loadFile (string $PATH)</dt>
 <dd>
-<p>Stream RiveScript code directly into the module. This is for providing RS code
-from within the Perl script instead of from an external file. Returns true on
-success.</p>
+
+<p>Load a single RiveScript document. <code>$PATH</code> should be the path to a valid RiveScript file. Returns true on success; false otherwise.</p>
+
 </dd>
-<dt><strong><a name="checksyntax" class="item">string checkSyntax (char $COMMAND, string $LINE)</a></strong></dt>
-
+<dt id="bool-stream-arrayref-CODE">bool stream (arrayref $CODE)</dt>
 <dd>
-<p>Check the syntax of a line of RiveScript code. This is called automatically
-for each line parsed by the module. <code>$COMMAND</code> is the command part of the
-line, and <code>$LINE</code> is the rest of the line following the command (and
-excluding inline comments).</p>
-<p>If there is no problem with the line, this method returns <code>undef</code>. Otherwise
-it returns the text of the syntax error.</p>
-<p>If <code>strict</code> mode is enabled in the constructor (which is on by default), a
-syntax error will result in a fatal error. If it's not enabled, the error is
-only sent via <code>warn</code> and the file currently being processed is aborted.</p>
+
+<p>Stream RiveScript code directly into the module. This is for providing RS code from within the Perl script instead of from an external file. Returns true on success.</p>
+
 </dd>
-<dt><strong><a name="sortreplies" class="item">void sortReplies ()</a></strong></dt>
-
+<dt id="string-checkSyntax-char-COMMAND-string-LINE">string checkSyntax (char $COMMAND, string $LINE)</dt>
 <dd>
-<p>Call this method after loading replies to create an internal sort buffer. This
-is necessary for trigger matching purposes. If you fail to call this method
-yourself, RiveScript will call it once when you request a reply. However, it
-will complain loudly about it.</p>
+
+<p>Check the syntax of a line of RiveScript code. This is called automatically for each line parsed by the module. <code>$COMMAND</code> is the command part of the line, and <code>$LINE</code> is the rest of the line following the command (and excluding inline comments).</p>
+
+<p>If there is no problem with the line, this method returns <code>undef</code>. Otherwise it returns the text of the syntax error.</p>
+
+<p>If <code>strict</code> mode is enabled in the constructor (which is on by default), a syntax error will result in a fatal error. If it&#39;s not enabled, the error is only sent via <code>warn</code> and the file currently being processed is aborted.</p>
+
 </dd>
-<dt><strong><a name="deparse" class="item">data deparse ()</a></strong></dt>
-
+<dt id="void-sortReplies">void sortReplies ()</dt>
 <dd>
-<p>Translate the in-memory representation of the loaded RiveScript documents into
-a Perl data structure. This would be useful for developing a user interface to
-facilitate editing of RiveScript replies without having to edit the RiveScript
-code manually.</p>
+
+<p>Call this method after loading replies to create an internal sort buffer. This is necessary for trigger matching purposes. If you fail to call this method yourself, RiveScript will call it once when you request a reply. However, it will complain loudly about it.</p>
+
+</dd>
+<dt id="data-deparse">data deparse ()</dt>
+<dd>
+
+<p>Translate the in-memory representation of the loaded RiveScript documents into a Perl data structure. This would be useful for developing a user interface to facilitate editing of RiveScript replies without having to edit the RiveScript code manually.</p>
+
 <p>The data structure returned from this will follow this format:</p>
-<pre>
-  {
+
+<pre><code>  {
     &quot;begin&quot; =&gt; { # Contains begin block and config settings
       &quot;global&quot; =&gt; { # ! global (global variables)
         &quot;depth&quot; =&gt; 50,
@@ -194,7 +169,7 @@ code manually.</p>
         ...
       },
       &quot;sub&quot; =&gt; {    # ! sub (substitutions)
-        &quot;what's&quot; =&gt; &quot;what is&quot;,
+        &quot;what&#39;s&quot; =&gt; &quot;what is&quot;,
         ...
       },
       &quot;person&quot; =&gt; { # ! person (person substitutions)
@@ -230,241 +205,247 @@ code manually.</p>
     &quot;inherit&quot; =&gt; { # topic inheritence
       &quot;alpha&quot; =&gt; [ &quot;delta&quot; ], # &gt; topic alpha inherits delta
     }
-  }</pre>
-<p>Note that inline object macros can't be deparsed this way. This is probably for
-the best (for security, etc). The global variables &quot;debug&quot; and &quot;depth&quot; are only
-provided if the values differ from the defaults (true and 50, respectively).</p>
-</dd>
-<dt><strong><a name="write" class="item">void write (glob $fh || string $file[, data $deparsed])</a></strong></dt>
+  }</code></pre>
 
+<p>Note that inline object macros can&#39;t be deparsed this way. This is probably for the best (for security, etc). The global variables &quot;debug&quot; and &quot;depth&quot; are only provided if the values differ from the defaults (true and 50, respectively).</p>
+
+</dd>
+<dt id="void-write-glob-fh-string-file-data-deparsed">void write (glob $fh || string $file[, data $deparsed])</dt>
 <dd>
-<p>Write the currently parsed RiveScript data into a RiveScript file. This uses
-<a href="#deparse"><code>deparse()</code></a> to dump a representation of the loaded data and writes it to the
-destination file. Pass either a filehandle or a file name.</p>
-<p>If you provide <code>$deparsed</code>, it should be a data structure matching the format
-of <a href="#deparse"><code>deparse()</code></a>. This way you can deparse your RiveScript brain, add/edit
-replies and then pass in the new version to this method to save the changes
-back to disk. Otherwise, <a href="#deparse"><code>deparse()</code></a> will be called to get the current
-snapshot of the brain.</p>
+
+<p>Write the currently parsed RiveScript data into a RiveScript file. This uses <code>deparse()</code> to dump a representation of the loaded data and writes it to the destination file. Pass either a filehandle or a file name.</p>
+
+<p>If you provide <code>$deparsed</code>, it should be a data structure matching the format of <code>deparse()</code>. This way you can deparse your RiveScript brain, add/edit replies and then pass in the new version to this method to save the changes back to disk. Otherwise, <code>deparse()</code> will be called to get the current snapshot of the brain.</p>
+
 </dd>
 </dl>
-<p>
-</p>
-<h2><a name="configuration">CONFIGURATION</a></h2>
-<dl>
-<dt><strong><a name="sethandler" class="item">bool setHandler (string $LANGUAGE =&gt; code $CODEREF, ...)</a></strong></dt>
 
+<h2 id="CONFIGURATION">CONFIGURATION</h2>
+
+<dl>
+
+<dt id="bool-setHandler-string-LANGUAGE-code-CODEREF">bool setHandler (string $LANGUAGE =&gt; code $CODEREF, ...)</dt>
 <dd>
-<p>Define some code to handle objects of a particular programming language. If the
-coderef is <code>undef</code>, it will delete the handler.</p>
-<p>The code receives the variables <code>$rs, $action, $name,</code> and <code>$data</code>. These
-variables are described here:</p>
-<pre>
-  $rs     = Reference to Perl RiveScript object.
+
+<p>Define some code to handle objects of a particular programming language. If the coderef is <code>undef</code>, it will delete the handler.</p>
+
+<p>The code receives the variables <code>$rs, $action, $name,</code> and <code>$data</code>. These variables are described here:</p>
+
+<pre><code>  $rs     = Reference to Perl RiveScript object.
   $action = &quot;load&quot; during the parsing phase when an &gt;object is found.
             &quot;call&quot; when provoked via a &lt;call&gt; tag for a reply
   $name   = The name of the object.
   $data   = The source of the object during the parsing phase, or an array
-            reference of arguments when provoked via a &lt;call&gt; tag.</pre>
+            reference of arguments when provoked via a &lt;call&gt; tag.</code></pre>
+
 <p>There is a default handler set up that handles Perl objects.</p>
-<p>If you want to block Perl objects from being loaded, you can just set it to be
-undef, and its handler will be deleted and Perl objects will be skipped over:</p>
-<pre>
-  $rs-&gt;setHandler (perl =&gt; undef);</pre>
-<p>The rationale behind this &quot;pluggable&quot; object interface is that it makes
-RiveScript more flexible given certain environments. For instance, if you use
-RiveScript on the web where the user chats with your bot using CGI, you might
-define a handler so that JavaScript objects can be loaded and called. Perl
-itself can't execute JavaScript, but the user's web browser can.</p>
+
+<p>If you want to block Perl objects from being loaded, you can just set it to be undef, and its handler will be deleted and Perl objects will be skipped over:</p>
+
+<pre><code>  $rs-&gt;setHandler (perl =&gt; undef);</code></pre>
+
+<p>The rationale behind this &quot;pluggable&quot; object interface is that it makes RiveScript more flexible given certain environments. For instance, if you use RiveScript on the web where the user chats with your bot using CGI, you might define a handler so that JavaScript objects can be loaded and called. Perl itself can&#39;t execute JavaScript, but the user&#39;s web browser can.</p>
+
 <p>See the JavaScript example in the <code>docs</code> directory in this distribution.</p>
-</dd>
-<dt><strong><a name="setsubroutine" class="item">bool setSubroutine (string $NAME, code $CODEREF)</a></strong></dt>
 
-<dd>
-<p>Manually create a RiveScript object (a dynamic bit of Perl code that can be
-provoked in a RiveScript response). <code>$NAME</code> should be a single-word,
-alphanumeric string. <code>$CODEREF</code> should be a pointer to a subroutine or an
-anonymous sub.</p>
 </dd>
-<dt><strong><a name="setglobal" class="item">bool setGlobal (hash %DATA)</a></strong></dt>
-
+<dt id="bool-setSubroutine-string-NAME-code-CODEREF">bool setSubroutine (string $NAME, code $CODEREF)</dt>
 <dd>
-<p>Set one or more global variables, in hash form, where the keys are the variable
-names and the values are their value. This subroutine will make sure that you
-don't override any reserved global variables, and warn if that happens.</p>
+
+<p>Manually create a RiveScript object (a dynamic bit of Perl code that can be provoked in a RiveScript response). <code>$NAME</code> should be a single-word, alphanumeric string. <code>$CODEREF</code> should be a pointer to a subroutine or an anonymous sub.</p>
+
+</dd>
+<dt id="bool-setGlobal-hash-DATA">bool setGlobal (hash %DATA)</dt>
+<dd>
+
+<p>Set one or more global variables, in hash form, where the keys are the variable names and the values are their value. This subroutine will make sure that you don&#39;t override any reserved global variables, and warn if that happens.</p>
+
 <p>This is equivalent to <code>! global</code> in RiveScript code.</p>
-<p>To delete a global, set its value to <code>undef</code> or &quot;<code>&lt;undef&gt;</code>&quot;. This
-is true for variables, substitutions, person, and uservars.</p>
-</dd>
-<dt><strong><a name="setvariable" class="item">bool setVariable (hash %DATA)</a></strong></dt>
 
+<p>To delete a global, set its value to <code>undef</code> or &quot;<code>&lt;undef&gt;</code>&quot;. This is true for variables, substitutions, person, and uservars.</p>
+
+</dd>
+<dt id="bool-setVariable-hash-DATA">bool setVariable (hash %DATA)</dt>
 <dd>
-<p>Set one or more bot variables (things that describe your bot's personality).</p>
+
+<p>Set one or more bot variables (things that describe your bot&#39;s personality).</p>
+
 <p>This is equivalent to <code>! var</code> in RiveScript code.</p>
-</dd>
-<dt><strong><a name="setsubstitution" class="item">bool setSubstitution (hash %DATA)</a></strong></dt>
 
+</dd>
+<dt id="bool-setSubstitution-hash-DATA">bool setSubstitution (hash %DATA)</dt>
 <dd>
-<p>Set one or more substitution patterns. The keys should be the original word, and
-the value should be the word to substitute with it.</p>
-<pre>
-  $rs-&gt;setSubstitution (
-    q{what's}  =&gt; 'what is',
-    q{what're} =&gt; 'what are',
-  );</pre>
+
+<p>Set one or more substitution patterns. The keys should be the original word, and the value should be the word to substitute with it.</p>
+
+<pre><code>  $rs-&gt;setSubstitution (
+    q{what&#39;s}  =&gt; &#39;what is&#39;,
+    q{what&#39;re} =&gt; &#39;what are&#39;,
+  );</code></pre>
+
 <p>This is equivalent to <code>! sub</code> in RiveScript code.</p>
-</dd>
-<dt><strong><a name="setperson" class="item">bool setPerson (hash %DATA)</a></strong></dt>
 
+</dd>
+<dt id="bool-setPerson-hash-DATA">bool setPerson (hash %DATA)</dt>
 <dd>
+
 <p>Set a person substitution. This is equivalent to <code>! person</code> in RiveScript code.</p>
-</dd>
-<dt><strong><a name="setuservar" class="item">bool setUservar (string $USER, hash %DATA)</a></strong></dt>
 
+</dd>
+<dt id="bool-setUservar-string-USER-hash-DATA">bool setUservar (string $USER, hash %DATA)</dt>
 <dd>
-<p>Set a variable for a user. <code>$USER</code> should be their User ID, and <code>%DATA</code> is a
-hash containing variable/value pairs.</p>
+
+<p>Set a variable for a user. <code>$USER</code> should be their User ID, and <code>%DATA</code> is a hash containing variable/value pairs.</p>
+
 <p>This is like <code>&lt;set&gt;</code> for a specific user.</p>
-</dd>
-<dt><strong><a name="getuservar" class="item">string getUservar (string $USER, string $VAR)</a></strong></dt>
 
-<dd>
-<p>This is an alias for getUservars, and is here because it makes more grammatical
-sense.</p>
 </dd>
-<dt><strong><a name="getuservars" class="item">data getUservars ([string $USER][, string $VAR])</a></strong></dt>
-
+<dt id="string-getUservar-string-USER-string-VAR">string getUservar (string $USER, string $VAR)</dt>
 <dd>
-<p>Get all the variables about a user. If a username is provided, returns a hash
-<strong>reference</strong> containing that user's information. Else, a hash reference of all
-the users and their information is returned.</p>
-<p>You can optionally pass a second argument, <code>$VAR</code>, to get a specific variable
-that belongs to the user. For instance, <a href="#getuservars"><code>getUservars (&quot;soandso&quot;, &quot;age&quot;)</code></a>.</p>
+
+<p>This is an alias for getUservars, and is here because it makes more grammatical sense.</p>
+
+</dd>
+<dt id="data-getUservars-string-USER-string-VAR">data getUservars ([string $USER][, string $VAR])</dt>
+<dd>
+
+<p>Get all the variables about a user. If a username is provided, returns a hash <b>reference</b> containing that user&#39;s information. Else, a hash reference of all the users and their information is returned.</p>
+
+<p>You can optionally pass a second argument, <code>$VAR</code>, to get a specific variable that belongs to the user. For instance, <code>getUservars (&quot;soandso&quot;, &quot;age&quot;)</code>.</p>
+
 <p>This is like <code>&lt;get&gt;</code> for a specific user or for all users.</p>
-</dd>
-<dt><strong><a name="clearuservars" class="item">bool clearUservars ([string $USER])</a></strong></dt>
 
-<dd>
-<p>Clears all variables about <code>$USER</code>. If no <code>$USER</code> is provided, clears all
-variables about all users.</p>
 </dd>
-<dt><strong><a name="freezeuservars" class="item">bool freezeUservars (string $USER)</a></strong></dt>
-
+<dt id="bool-clearUservars-string-USER">bool clearUservars ([string $USER])</dt>
 <dd>
-<p>Freeze the current state of variables for user <code>$USER</code>. This will back up the
-user's current state (their variables and reply history). This won't statically
-prevent the user's state from changing; it merely saves its current state. Then
-use <a href="#thawuservars"><code>thawUservars()</code></a> to revert back to this previous state.</p>
+
+<p>Clears all variables about <code>$USER</code>. If no <code>$USER</code> is provided, clears all variables about all users.</p>
+
 </dd>
-<dt><strong><a name="thawuservars" class="item">bool thawUservars (string $USER[, hash %OPTIONS])</a></strong></dt>
-
+<dt id="bool-freezeUservars-string-USER">bool freezeUservars (string $USER)</dt>
 <dd>
-<p>If the variables for <code>$USER</code> were previously frozen, this method will restore
-them to the state they were in when they were last frozen. It will then delete
-the stored cache by default. The following options are accepted as an additional
-hash of parameters (these options are mutually exclusive and you shouldn't use
-both of them at the same time. If you do, &quot;discard&quot; will win.):</p>
-<pre>
-  discard: Don't restore the user's state from the frozen copy, just delete the
+
+<p>Freeze the current state of variables for user <code>$USER</code>. This will back up the user&#39;s current state (their variables and reply history). This won&#39;t statically prevent the user&#39;s state from changing; it merely saves its current state. Then use thawUservars() to revert back to this previous state.</p>
+
+</dd>
+<dt id="bool-thawUservars-string-USER-hash-OPTIONS">bool thawUservars (string $USER[, hash %OPTIONS])</dt>
+<dd>
+
+<p>If the variables for <code>$USER</code> were previously frozen, this method will restore them to the state they were in when they were last frozen. It will then delete the stored cache by default. The following options are accepted as an additional hash of parameters (these options are mutually exclusive and you shouldn&#39;t use both of them at the same time. If you do, &quot;discard&quot; will win.):</p>
+
+<pre><code>  discard: Don&#39;t restore the user&#39;s state from the frozen copy, just delete the
            frozen copy.
-  keep:    Keep the frozen copy even after restoring the user's state. With this
+  keep:    Keep the frozen copy even after restoring the user&#39;s state. With this
            you can repeatedly thawUservars on the same user to revert their state
            without having to keep freezing them again. On the next freeze, the
-           last frozen state will be replaced with the new current state.</pre>
+           last frozen state will be replaced with the new current state.</code></pre>
+
 <p>Examples:</p>
-<pre>
-  # Delete the frozen cache but don't modify the user's variables.
-  $rs-&gt;thawUservars (&quot;soandso&quot;, discard =&gt; 1);</pre>
-<pre>
-  # Restore the user's state from cache, but don't delete the cache.
-  $rs-&gt;thawUservars (&quot;soandso&quot;, keep =&gt; 1);</pre>
-</dd>
-<dt><strong><a name="lastmatch" class="item">string lastMatch (string $USER)</a></strong></dt>
 
+<pre><code>  # Delete the frozen cache but don&#39;t modify the user&#39;s variables.
+  $rs-&gt;thawUservars (&quot;soandso&quot;, discard =&gt; 1);
+
+  # Restore the user&#39;s state from cache, but don&#39;t delete the cache.
+  $rs-&gt;thawUservars (&quot;soandso&quot;, keep =&gt; 1);</code></pre>
+
+</dd>
+<dt id="string-lastMatch-string-USER">string lastMatch (string $USER)</dt>
 <dd>
-<p>After fetching a reply for user <code>$USER</code>, the <a href="#lastmatch"><code>lastMatch</code></a> method will return the
-raw text of the trigger that the user has matched with their reply. This function
-may return undef in the event that the user <strong>did not</strong> match any trigger at all
-(likely the last reply was &quot;<code>ERR: No Reply Matched</code>&quot; as well).</p>
+
+<p>After fetching a reply for user <code>$USER</code>, the <code>lastMatch</code> method will return the raw text of the trigger that the user has matched with their reply. This function may return undef in the event that the user <b>did not</b> match any trigger at all (likely the last reply was &quot;<code>ERR: No Reply Matched</code>&quot; as well).</p>
+
 </dd>
 </dl>
-<p>
-</p>
-<h2><a name="interaction">INTERACTION</a></h2>
-<dl>
-<dt><strong><a name="reply" class="item">string reply (string $USER, string $MESSAGE)</a></strong></dt>
 
+<h2 id="INTERACTION">INTERACTION</h2>
+
+<dl>
+
+<dt id="string-reply-string-USER-string-MESSAGE">string reply (string $USER, string $MESSAGE)</dt>
 <dd>
-<p>Fetch a response to <code>$MESSAGE</code> from user <code>$USER</code>. RiveScript will take care of
-lowercasing, running substitutions, and removing punctuation from the message.</p>
+
+<p>Fetch a response to <code>$MESSAGE</code> from user <code>$USER</code>. RiveScript will take care of lowercasing, running substitutions, and removing punctuation from the message.</p>
+
 <p>Returns a response from the RiveScript brain.</p>
+
 </dd>
 </dl>
-<p>
-</p>
-<hr />
-<h1><a name="rivescript">RIVESCRIPT</a></h1>
-<p>This interpreter tries its best to follow RiveScript standards. Currently it
-supports RiveScript 2.0 documents. A current copy of the RiveScript working
-draft is included with this package: see <a href="/RiveScript/WD.html">the RiveScript::WD manpage</a>.</p>
-<p>
-</p>
-<hr />
-<h1><a name="constants">CONSTANTS</a></h1>
+
+<h1 id="RIVESCRIPT">RIVESCRIPT</h1>
+
+<p>This interpreter tries its best to follow RiveScript standards. Currently it supports RiveScript 2.0 documents. A current copy of the RiveScript working draft is included with this package: see <a>RiveScript::WD</a>.</p>
+
+<h1 id="UTF-8-SUPPORT">UTF-8 SUPPORT</h1>
+
+<p>Version 1.29+ adds experimental support for UTF-8 in RiveScript. It is not enabled by default. Enable it by passing a true value for the <code>utf8</code> option in the constructor, or by using the <code>--utf8</code> argument to the <code>rivescript</code> application.</p>
+
+<p>By default (without UTF-8 mode on), triggers may only contain basic ASCII characters (no foreign characters), and the user&#39;s message is stripped of all characters except letters and spaces. This means that, for example, you can&#39;t capture a user&#39;s e-mail address in a RiveScript reply, because of the @ and . characters.</p>
+
+<p>When UTF-8 mode is enabled, these restrictions are lifted. Triggers are only limited to not contain certain metacharacters like the backslash, and the user&#39;s message is only stripped of backslashes and HTML angled brackets (to prevent obvious XSS if you use RiveScript in a web application). The <code>&lt;star&gt;</code> tags in RiveScript will capture the user&#39;s &quot;raw&quot; input, so you can write replies to get the user&#39;s e-mail address or store foreign characters in their name.</p>
+
+<h1 id="CONSTANTS">CONSTANTS</h1>
+
 <p>This module can export some constants.</p>
-<pre>
-  use RiveScript qw(:standard);</pre>
+
+<pre><code>  use RiveScript qw(:standard);</code></pre>
+
 <p>These constants include:</p>
+
 <dl>
-<dt><strong><a name="rs_err_match" class="item">RS_ERR_MATCH</a></strong></dt>
 
+<dt id="RS_ERR_MATCH">RS_ERR_MATCH</dt>
 <dd>
-<p>This is the reply text given when no trigger has matched the message. It equals
-&quot;<code>ERR: No Reply Matched</code>&quot;.</p>
-<pre>
-  if ($reply eq RS_ERR_MATCH) {
-    $reply = &quot;I couldn't find a good reply for you!&quot;;
-  }</pre>
+
+<p>This is the reply text given when no trigger has matched the message. It equals &quot;<code>ERR: No Reply Matched</code>&quot;.</p>
+
+<pre><code>  if ($reply eq RS_ERR_MATCH) {
+    $reply = &quot;I couldn&#39;t find a good reply for you!&quot;;
+  }</code></pre>
+
 </dd>
-<dt><strong><a name="rs_err_reply" class="item">RS_ERR_REPLY</a></strong></dt>
-
+<dt id="RS_ERR_REPLY">RS_ERR_REPLY</dt>
 <dd>
-<p>This is the reply text given when a trigger <em>was</em> matched, but no reply was
-given from it (for example, the trigger only had conditionals and all of them
-were false, with no default replies to fall back on). It equals
-&quot;<code>ERR: No Reply Found</code>&quot;.</p>
-<pre>
-  if ($reply eq RS_ERR_REPLY) {
-    $reply = &quot;I don't know what to say about that!&quot;;
-  }</pre>
+
+<p>This is the reply text given when a trigger <i>was</i> matched, but no reply was given from it (for example, the trigger only had conditionals and all of them were false, with no default replies to fall back on). It equals &quot;<code>ERR: No Reply Found</code>&quot;.</p>
+
+<pre><code>  if ($reply eq RS_ERR_REPLY) {
+    $reply = &quot;I don&#39;t know what to say about that!&quot;;
+  }</code></pre>
+
 </dd>
 </dl>
-<p>
-</p>
-<hr />
-<h1><a name="see_also">SEE ALSO</a></h1>
-<p><a href="/RiveScript/WD.html">the RiveScript::WD manpage</a> - A current snapshot of the Working Draft that
-defines the standards of RiveScript.</p>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a>RiveScript::WD</a> - A current snapshot of the Working Draft that defines the standards of RiveScript.</p>
+
 <p><a href="http://www.rivescript.com/">http://www.rivescript.com/</a> - The official homepage of RiveScript.</p>
-<p>
-</p>
-<hr />
-<h1><a name="changes">CHANGES</a></h1>
-<pre>
+
+<h1 id="CHANGES">CHANGES</h1>
+
+<pre><code>  1.29
+  - Added &quot;TCP Mode&quot; to the `rivescript` command so that it can listen on a
+    socket instead of using standard input and output.
+  - Added a &quot;--data&quot; option to the `rivescript` command for providing JSON
+    input as a command line argument instead of standard input.
+  - Added experimental UTF-8 support.
+  - Bugfix: don&#39;t use hacky ROT13-encoded placeholders for message
+    substitutions... use a null character method instead. ;)
+
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
-  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.</pre>
-<pre>
+  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.
+
   1.26  May 29 2012
   - Added EXE_FILES to Makefile.PL so the rivescript utility installs
-    correctly.</pre>
-<pre>
+    correctly.
+
   1.24  May 15 2012
   - Fixed: having a single-line, multiline comment, e.g. /* ... */
   - Fixed: you can use &lt;input&gt; and &lt;reply&gt; in triggers now, instead of only
     &lt;input1&gt;-&lt;input9&gt; and &lt;reply1&gt;-&lt;reply9&gt;
   - When a trigger consists of nothing but multiple wildcard symbols, sort
-    the trigger by length, this way you can have '* * * * *' type triggers
+    the trigger by length, this way you can have &#39;* * * * *&#39; type triggers
     still work correctly (each &lt;star&gt; tag would get one word, with the final
     &lt;star&gt; collecting the remainder).
   - Backported new feature from Python lib: you can now use &lt;bot&gt; and &lt;env&gt;
@@ -480,21 +461,21 @@ defines the standards of RiveScript.</p>
   - POD documentation now only shows recent changes. For older changes, see the
     &quot;CHANGES&quot; file in the distribution.
   - Removed the `rsup` script from the distribution (it upgrades RiveScript 1.x
-    code to 2.x; there probably isn't any 1.x code out in the wild anyway).</pre>
-<pre>
+    code to 2.x; there probably isn&#39;t any 1.x code out in the wild anyway).
+
   1.22  Sep 22 2011
   - Cleaned up the documentation of RiveScript; moved the JavaScript object
-    example to a separate document in the `docs' directory.
+    example to a separate document in the `docs&#39; directory.
   - Obsoleted the `rsdemo` command that used to ship with the distribution. In
     its place is `rivescript`, which can also be used non-interactively so that a
     third party, non-Perl application could still make use of RiveScript.
   - RiveScript.pm is now dual licensed. It uses the GPLv2 for open source
     applications as before, but you can contact the author for details if you
-    want to use RiveScript.pm in a closed source commercial application.</pre>
-<pre>
+    want to use RiveScript.pm in a closed source commercial application.
+
   1.20  Jul 30 2009
   - Added automatic syntax checking when parsing RiveScript code. Also added
-    'strict mode' - if true (default), a syntax error is a fatal error. If false,
+    &#39;strict mode&#39; - if true (default), a syntax error is a fatal error. If false,
     a syntax error is a warning, and RiveScript aborts processing the file any
     further.
   - Changed the behavior of &quot;inherits&quot; a bit: a new type has been added called
@@ -506,18 +487,18 @@ defines the standards of RiveScript.</p>
     version numbers, stable (CPAN) versions will have even numbers.
   - Fixed the Eliza brain; in many places a &lt;star2&gt; was used when there was only one
     star in the trigger. Fixes lots of issues with Eliza.
-  - Bugfix: recursion depth limits weren't taken into account when the {@} tag
+  - Bugfix: recursion depth limits weren&#39;t taken into account when the {@} tag
     was responsible for a redirection. Fixed.
   - Bugfix: there was a problem in the regular expression that counts real words
-    while sorting triggers, so that triggers with *'s in them weren't sorted
+    while sorting triggers, so that triggers with *&#39;s in them weren&#39;t sorted
     properly and would therefore cause matching issues.
   - Bugfix: when the internal _getreply is called because of a recursive
-    redirection (@, {@}), the %previous tags should be ignored. They weren't.
+    redirection (@, {@}), the %previous tags should be ignored. They weren&#39;t.
     since &quot;lastreply&quot; is always the same no matter how deeply recursive _getreply
     is going, it could result in some infinite recursion in rare cases. Fixed.
-  - Bugfix: using a reserved name as a global variable wasn't working properly
-    and would crash RiveScript. Fixed.</pre>
-<pre>
+  - Bugfix: using a reserved name as a global variable wasn&#39;t working properly
+    and would crash RiveScript. Fixed.
+
   1.19  Apr 12 2009
   - Added support for defining custom object handlers for non-Perl programming
     languages.
@@ -525,64 +506,60 @@ defines the standards of RiveScript.</p>
     accept undef or &quot;&lt;undef&gt;&quot; as values - this will delete the variables.
   - There are no reserved global variable names anymore. Now, if a variable name
     would conflict with a reserved name, it is put into a &quot;protected&quot; space
-    elsewhere in the object. Still take note of which names are reserved though.</pre>
-<pre>
+    elsewhere in the object. Still take note of which names are reserved though.
+
   1.18  Dec 31 2008
   - Added support for topics to inherit their triggers from other topics.
     e.g. &gt; topic alpha inherits beta
-  - Fixed some bugs related to !array with ^continue's, and expanded its
+  - Fixed some bugs related to !array with ^continue&#39;s, and expanded its
     functionality therein.
   - Updated the getUservars() function to optionally be able to get just a specific
-    variable from the user's data. Added getUservar() as a grammatically correct
+    variable from the user&#39;s data. Added getUservar() as a grammatically correct
     alias to this new functionality.
   - Added the functions freezeUservars() and thawUservars() to back up and
-    restore a user's variables.
+    restore a user&#39;s variables.
   - Added the function lastMatch(), which returns the text of the trigger that
-    matched the user's last message.
+    matched the user&#39;s last message.
   - The # command for RiveScript comments has been deprecated in revision 7 of
     the RiveScript Working Draft. The Perl module will now emit warnings each
     time the # comments are processed.
   - Modified a couple of triggers in the default Eliza brain to improve matching
     issues therein.
   - +Triggers can contain user &lt;get&gt; tags now.
-  - Updated the RiveScript Working Draft.</pre>
-<p>
-</p>
-<hr />
-<h1><a name="author">AUTHOR</a></h1>
-<pre>
-  Noah Petherbridge, <a href="http://www.kirsle.net">http://www.kirsle.net</a></pre>
-<p>
-</p>
-<hr />
-<h1><a name="keywords">KEYWORDS</a></h1>
+  - Updated the RiveScript Working Draft.</code></pre>
+
+<h1 id="AUTHOR">AUTHOR</h1>
+
+<pre><code>  Noah Petherbridge, http://www.kirsle.net</code></pre>
+
+<h1 id="KEYWORDS">KEYWORDS</h1>
+
 <p>bot, chatbot, chatterbot, chatter bot, reply, replies, script, aiml, alpha</p>
-<p>
-</p>
-<hr />
-<h1><a name="copyright_and_license">COPYRIGHT AND LICENSE</a></h1>
-<p>The Perl RiveScript interpreter is dual licensed as of version 1.22.
-For open source applications the module is using the GNU General Public
-License. If you'd like to use the RiveScript module in a closed source or
-commercial application, contact the author for more information.</p>
-<pre>
-  RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2011 Noah Petherbridge</pre>
-<pre>
+
+<h1 id="COPYRIGHT-AND-LICENSE">COPYRIGHT AND LICENSE</h1>
+
+<p>The Perl RiveScript interpreter is dual licensed as of version 1.22. For open source applications the module is using the GNU General Public License. If you&#39;d like to use the RiveScript module in a closed source or commercial application, contact the author for more information.</p>
+
+<pre><code>  RiveScript - Rendering Intelligence Very Easily
+  Copyright (C) 2011 Noah Petherbridge
+
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.</pre>
-<pre>
+  (at your option) any later version.
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.</pre>
-<pre>
+  GNU General Public License for more details.
+
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</pre>
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA</code></pre>
+
 
 </body>
 
 </html>
+
+
