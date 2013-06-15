@@ -2,7 +2,7 @@
 
 # RiveScript Unit Tests
 use strict;
-use Test::More tests => 29;
+use Test::More tests => 118;
 
 use_ok('RiveScript');
 my @tests;
@@ -170,11 +170,412 @@ push @tests, sub {
     test($rs, 'my name is Bob', 'Nice to meet you, bob.', 'One star.');
     test($rs, 'bob told me to say hi', 'Why did bob tell you to say hi?',
         'Two stars.');
-#    test($rs, 'i am 5 years old', 'A lot of people are 5.', 'Number wildcard.');
+    test($rs, 'i am 5 years old', 'A lot of people are 5.', 'Number wildcard.');
     test($rs, 'i am five years old', 'Say that with numbers.',
         'Underscore wildcard.');
     test($rs, 'i am twenty five years old', 'Say that with fewer words.',
         'Star wildcard.');
+};
+
+push @tests, sub {
+    # Alternatives & Optionals
+    my $rs = bot("
+        + what (are|is) you
+        - I am a robot.
+
+        + what is your (home|office|cell) [phone] number
+        - It is 555-1234.
+
+        + [please|can you] ask me a question
+        - Why is the sky blue?
+    ");
+    test($rs, 'what are you', 'I am a robot.', 'Alternatives 1.');
+    test($rs, 'what is you', 'I am a robot.', 'Alternatives 2.');
+    foreach my $kind (qw(home office cell)) {
+        test($rs, "what is your $kind phone number", 'It is 555-1234.',
+            "Alternatives & optionals - $kind.");
+        test($rs, "what is your $kind number", 'It is 555-1234.',
+            "Alternatives & optionals - $kind.");
+    }
+    test($rs, 'can you ask me a question', 'Why is the sky blue?',
+        'Optionals 1.');
+    test($rs, 'ask me a question', 'Why is the sky blue?',
+        'Optionals 2.');
+    test($rs, 'please ask me a question', 'Why is the sky blue?',
+        'Optionals 3.');
+};
+
+push @tests, sub {
+    # Arrays.
+    my $rs = bot('
+        ! array colors = red blue green yellow white
+
+        + what color is my (@colors) *
+        - Your <star2> is <star1>.
+
+        + what color was * (@colors) *
+        - It was <star2>.
+
+        + i have a @colors *
+        - Tell me more about your <star>.
+    ');
+    test($rs, 'what color is my red shirt', 'Your shirt is red.',
+        'Array with wildcards 1.');
+    test($rs, 'what color is my blue car', 'Your car is blue.',
+        'Array with wildcards 2.');
+    test($rs, 'what color is my pink house', $MATCH,
+        'Array doesn\'t match message.');
+
+    test($rs, 'What color was Napoleon\'s white horse?', 'It was white.',
+        'Array with wildcards 3.');
+    test($rs, 'What color was my red shirt?', 'It was red.',
+        'Array with wildcards 4.');
+
+    test($rs, 'I have a blue car', 'Tell me more about your car.',
+        'Non-capturing array.');
+    test($rs, 'I have a cyan car', $MATCH,
+        'Non-capturing array doesn\'t match message.');
+};
+
+push @tests, sub {
+    # Priority triggers.
+    my $rs = bot('
+        + * or something{weight=10}
+        - Or something. <@>
+
+        + can you run a google search for *
+        - Sure!
+
+        + hello *{weight=20}
+        - Hi there!
+    ');
+    test($rs, 'Hello robot', 'Hi there!', 'Highest weight trigger (20).');
+    test($rs, 'Hello or something', 'Hi there!',
+        'Weight of 20 is higher than 10.');
+    test($rs, 'Can you run a Google search for Perl', 'Sure!',
+        'Normal trigger.');
+    test($rs, 'Can you run a Google search for Python or something',
+        'Or something. Sure!', 'Higher weight trigger matched over normal.');
+};
+
+#-----------------------------------------------------------------------------#
+# Responses                                                                   #
+#-----------------------------------------------------------------------------#
+
+# TODO: no way to reliably test random responses in a way that doesn't create
+# a slim chance that the unit tests will fail?
+
+push @tests, sub {
+    # %Previous.
+    my $rs = bot("
+        ! sub who's  = who is
+        ! sub it's   = it is
+        ! sub didn't = did not
+
+        + knock knock{weight=1}
+        - Who's there?
+
+        + *
+        % who is there
+        - <star> who?
+
+        + *
+        % * who
+        - Haha! <star>!
+
+        + *
+        - I don't know.
+    ");
+    test($rs, 'knock knock', "Who's there?", 'Knock-knock joke pt1.');
+    test($rs, 'Canoe', 'canoe who?', 'Knock-knock joke pt2.');
+    test($rs, 'Canoe help me with my homework?',
+        'Haha! canoe help me with my homework!', 'Knock-knock joke pt3.');
+
+    test($rs, 'hello', "I don't know.", 'Normal catch-all still works.');
+};
+
+push @tests, sub {
+    # Continuations.
+    my $rs = bot('
+        + tell me a poem
+        - There once was a man named Tim,\s
+        ^ who never quite learned how to swim.\s
+        ^ He fell off a dock, and sank like a rock,\s
+        ^ and that was the end of him.
+    ');
+    test($rs, 'Tell me a poem.', "There once was a man named Tim, "
+        . "who never quite learned how to swim. "
+        . "He fell off a dock, and sank like a rock, "
+        . "and that was the end of him.",
+        'Continuation for a multi-line poem.');
+};
+
+push @tests, sub {
+    # Redirects.
+    my $rs = bot('
+        + hello
+        - Hi there!
+
+        + hey
+        @ hello
+
+        + hi there
+        - {@hello}
+    ');
+    foreach my $greet ('hello', 'hey', 'hi there') {
+        test($rs, $greet, 'Hi there!', "Redirect w/ greeting: $greet");
+    }
+};
+
+push @tests, sub {
+    # Conditional testing.
+    my $rs = bot("
+        + i am # years old
+        - <set age=<star>>OK.
+
+        + what can i do
+        * <get age> == undefined => I don't know.
+        * <get age> > 25  => Anything you want.
+        * <get age> == 25 => Rent a car for cheap.
+        * <get age> >= 21 => Drink.
+        * <get age> >= 18 => Vote.
+        * <get age> < 18  => Not much of anything.
+
+        + am i your master
+        * <get master> == true => Yes.
+        - No.
+    ");
+    my $q = 'What can I do?';
+    test($rs, $q, "I don't know.", "Conditions 1.");
+    test($rs, 'I am 16 years old.', 'OK.', "Set age=16.");
+    test($rs, $q, "Not much of anything.", "Conditions 2.");
+    test($rs, 'I am 18 years old.', 'OK.', "Set age=18.");
+    test($rs, $q, "Vote.", "Conditions 3.");
+    test($rs, 'I am 20 years old.', 'OK.', "Set age=20.");
+    test($rs, $q, "Vote.", "Conditions 4.");
+    test($rs, 'I am 22 years old.', 'OK.', "Set age=22.");
+    test($rs, $q, "Drink.", "Conditions 5.");
+    test($rs, 'I am 24 years old.', 'OK.', "Set age=24.");
+    test($rs, $q, "Drink.", "Conditions 6.");
+    test($rs, 'I am 25 years old.', 'OK.', "Set age=25.");
+    test($rs, $q, "Rent a car for cheap.", "Conditions 7.");
+    test($rs, 'I am 27 years old.', 'OK.', "Set age=27.");
+    test($rs, $q, "Anything you want.", "Conditions 8.");
+
+    test($rs, 'Am I your master?', 'No.', 'Conditions 9.');
+    $rs->setUservar('user', 'master' => 'true');
+    test($rs, 'Am I your master?', 'Yes.', 'Conditions 10.');
+};
+
+#-----------------------------------------------------------------------------#
+# Object Macros                                                               #
+#-----------------------------------------------------------------------------#
+
+push @tests, sub {
+    # Perl objects.
+    my $rs = bot('
+        > object nolang
+            return "Test w/o language.";
+        < object
+
+        > object wlang perl
+            return "Test w/ language.";
+        < object
+
+        > object reverse perl
+            my ($rs, @args) = @_;
+            my $msg = join " ", @args;
+            my @char = split(//, $msg);
+            return join "", reverse(@char);
+        < object
+
+        > object broken perl
+            return "syntax error;
+        < object
+
+        > object foreign javascript
+            return "JavaScript checking in!";
+        < object
+
+        + test nolang
+        - Nolang: <call>nolang</call>
+
+        + test wlang
+        - Wlang: <call>wlang</call>
+
+        + reverse *
+        - <call>reverse <star></call>
+
+        + test broken
+        - Broken: <call>broken</call>
+
+        + test fake
+        - Fake: <call>fake</call>
+
+        + test js
+        - JS: <call>foreign</call>
+    ');
+    test($rs, 'Test nolang', 'Nolang: Test w/o language.',
+        'Object macro with no language specified.');
+    test($rs, 'Test wlang', 'Wlang: Test w/ language.',
+        'Object macro with Perl language specified.');
+    test($rs, 'Reverse hello world', 'dlrow olleh',
+        'Test the reverse macro.');
+    test($rs, 'Test broken', 'Broken: [ERR: Object Not Found]',
+        'Test calling a broken object.');
+    test($rs, 'Test JS', 'JS: [ERR: Object Not Found]',
+        'Test calling a foreign language object.');
+};
+
+push @tests, sub {
+    # Try Perl objects when it's been disabled.
+    my $rs = RiveScript->new();
+    $rs->setHandler(perl => undef);
+    $rs->stream('
+        > object test perl
+            return "Perl here!";
+        < object
+
+        + test
+        - Result: <call>test</call>
+    ');
+    $rs->sortReplies();
+
+    test($rs, 'test', 'Result: [ERR: Object Not Found]',
+        'Perl object macros disabled.');
+};
+
+#-----------------------------------------------------------------------------#
+# Topics                                                                      #
+#-----------------------------------------------------------------------------#
+
+push @tests, sub {
+    # Punishment topic.
+    my $rs = bot("
+        + hello
+        - Hi there!
+
+        + swear word
+        - How rude! Apologize or I won't talk to you again.{topic=sorry}
+
+        + *
+        - Catch-all.
+
+        > topic sorry
+            + sorry
+            - It's ok!{topic=random}
+
+            + *
+            - Say you're sorry!
+        < topic
+    ");
+    test($rs, 'hello', 'Hi there!', 'Default topic 1.');
+    test($rs, 'How are you?', 'Catch-all.', 'Default topic catch-all 1.');
+    test($rs, 'Swear word!',
+        "How rude! Apologize or I won't talk to you again.",
+        'Entering a topic trap.');
+    test($rs, 'hello', "Say you're sorry!", 'In-topic catch-all 1.');
+    test($rs, 'how are you?', "Say you're sorry!", 'In-topic catch-all 2.');
+    test($rs, 'Sorry!', "It's ok!", 'Escape the topic.');
+    test($rs, 'hello', 'Hi there!', 'Default topic 2.');
+    test($rs, 'How are you?', 'Catch-all.', 'Default topic catch-all 2.');
+};
+
+push @tests, sub {
+    # Topic inheritence.
+    my $rs = bot('
+        > topic colors
+            + what color is the sky
+            - Blue.
+
+            + what color is the sun
+            - Yellow.
+        < topic
+
+        > topic linux
+            + name a red hat distro
+            - Fedora.
+
+            + name a debian distro
+            - Ubuntu.
+        < topic
+
+        > topic stuff includes colors linux
+            + say stuff
+            - "Stuff."
+        < topic
+
+        > topic override inherits colors
+            + what color is the sun
+            - Purple.
+        < topic
+
+        > topic morecolors includes colors
+            + what color is grass
+            - Green.
+        < topic
+
+        > topic evenmore inherits morecolors
+            + what color is grass
+            - Blue, sometimes.
+        < topic
+    ');
+
+    $rs->setUservar('user', 'topic' => 'colors');
+    test($rs, 'What color is the sky?', 'Blue.', 'Topic=colors 1.');
+    test($rs, 'What color is the sun?', 'Yellow.', 'Topic=colors 2.');
+    test($rs, 'What color is grass?', $MATCH, 'Topic=colors 3.');
+    test($rs, 'Name a Red Hat distro.', $MATCH, 'Topic=colors 4.');
+    test($rs, 'Name a Debian distro.', $MATCH, 'Topic=colors 5.');
+    test($rs, 'Say stuff.', $MATCH, 'Topic=colors 6.');
+
+    $rs->setUservar('user', 'topic' => 'linux');
+    test($rs, 'Name a Red Hat distro.', 'Fedora.', 'Topic=linux 1.');
+    test($rs, 'Name a Debian distro.', 'Ubuntu.', 'Topic=linux 2.');
+    test($rs, 'What color is the sky?', $MATCH, 'Topic=linux 3.');
+    test($rs, 'What color is the sun?', $MATCH, 'Topic=linux 4.');
+    test($rs, 'What color is grass?', $MATCH, 'Topic=linux 5.');
+    test($rs, 'Say stuff.', $MATCH, 'Topic=linux 6.');
+
+    $rs->setUservar('user', 'topic' => 'stuff');
+    test($rs, 'What color is the sky?', 'Blue.', 'Topic=stuff 1.');
+    test($rs, 'What color is the sun?', 'Yellow.', 'Topic=stuff 2.');
+    test($rs, 'What color is grass?', $MATCH, 'Topic=stuff 3.');
+    test($rs, 'Name a Red Hat distro.', 'Fedora.', 'Topic=stuff 4.');
+    test($rs, 'Name a Debian distro.', 'Ubuntu.', 'Topic=stuff 5.');
+    test($rs, 'Say stuff.', '"Stuff."', 'Topic=stuff 6.');
+
+    $rs->setUservar('user', 'topic' => 'override');
+    test($rs, 'What color is the sky?', 'Blue.', 'Topic=override 1.');
+    test($rs, 'What color is the sun?', 'Purple.', 'Topic=override 2.');
+
+    $rs->setUservar('user', 'topic' => 'morecolors');
+    test($rs, 'What color is the sky?', 'Blue.', 'Topic=morecolors 1.');
+    test($rs, 'What color is the sun?', 'Yellow.', 'Topic=morecolors 2.');
+    test($rs, 'What color is grass?', 'Green.', 'Topic=morecolors 3.');
+
+    $rs->setUservar('user', 'topic' => 'evenmore');
+    test($rs, 'What color is the sky?', 'Blue.', 'Topic=evenmore 1.');
+    test($rs, 'What color is the sun?', 'Yellow.', 'Topic=evenmore 2.');
+    test($rs, 'What color is grass?', 'Blue, sometimes.', 'Topic=evenmore 3.');
+
+};
+
+#-----------------------------------------------------------------------------#
+# Error handling                                                              #
+#-----------------------------------------------------------------------------#
+
+push @tests, sub {
+    # Deep recursion.
+    my $rs = bot("
+        + one
+        @ two
+
+        + two
+        @ one
+    ");
+    testl($rs, 'one', qr/^ERR: Deep Recursion Detected/,
+        'Deep recursion check.');
 };
 
 #-----------------------------------------------------------------------------#
@@ -191,7 +592,7 @@ for my $t (@tests) {
 # Make a new bot
 sub bot {
     my $code = shift;
-    my $rs = RiveScript->new();
+    my $rs = RiveScript->new(debug=>0);
     return extend($rs, $code);
 }
 
@@ -208,6 +609,11 @@ sub test {
     my ($rs, $in, $out, $note) = @_;
     my $reply = $rs->reply('user', $in);
     is($reply, $out, $note);
+}
+sub testl {
+    my ($rs, $in, $out, $note) = @_;
+    my $reply = $rs->reply('user', $in);
+    like($reply, $out, $note);
 }
 
 # Test user variable.

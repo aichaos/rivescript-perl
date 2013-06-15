@@ -746,12 +746,12 @@ sub parse {
 			}
 			if ($type eq 'object') {
 				# If a field was provided, it should be the programming language.
-				my $lang = (scalar(@fields) ? $fields[0] : undef);
+				my $lang = (scalar(@fields) ? $fields[0] : '');
 				$lang = lc($lang); $lang =~ s/\s+//g;
 
 				# Only try to parse a language we support.
 				$ontrig = '';
-				if (not defined $lang) {
+				if (not length $lang) {
 					$self->issue ("Trying to parse unknown programming language at $fname line $lineno.");
 					$lang = "perl"; # Assume it's Perl.
 				}
@@ -2789,7 +2789,7 @@ sub _reply_regexp {
 
 	$regexp =~ s/\*/(.+?)/ig;        # Convert * into (.+?)
 	$regexp =~ s/\#/(\\d+)/ig;    # Convert # into ([0-9]+?)
-	$regexp =~ s/\_/([A-Za-z]+)/ig; # Convert _ into ([A-Za-z]+?)
+	$regexp =~ s/\_/(\\w+)/ig; # Convert _ into ([A-Za-z]+?)
 	$regexp =~ s/\{weight=\d+\}//ig; # Remove {weight} tags.
 	$regexp =~ s/<zerowidthstar>/(.*?)/i;
 	while ($regexp =~ /\[(.+?)\]/i) { # Optionals
@@ -2806,11 +2806,14 @@ sub _reply_regexp {
 		my $pipes = join("|",@new);
 		$pipes =~ s/\(\.\+\?\)/(?:.+?)/ig; # (.+?) --> (?:.+?)
 		$pipes =~ s/\(\\d\+\)/(?:\\d+)/ig; # (\d+) --> (?:\d+)
-		$pipes =~ s/\([A-Za-z]\+\)/(?:[A-Za-z]+)/ig; # (\w+) --> (?:\w+)
+		$pipes =~ s/\(\\w\+\)/(?:\\w+)/ig; # (\w+) --> (?:\w+)
 
 		my $rep = "(?:$pipes)";
 		$regexp =~ s/\s*\[(.+?)\]\s*/$rep/i;
 	}
+
+    # _ wildcards can't match numbers!
+    $regexp =~ s/\\w/[A-Za-z]/g;
 
 	# Filter in arrays.
 	while ($regexp =~ /\@(.+?)\b/) {
