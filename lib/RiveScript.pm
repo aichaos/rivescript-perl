@@ -147,8 +147,9 @@ sub new {
 		reserved   => [   # Reserved global variable names.
 			qw(topics sorted sortsthat sortedthat thats arrays subs person
 			client bot objects syntax sortlist reserved debugopts frozen
-			handlers globals objlangs)
+			handlers globals objlangs current_user)
 		],
+		current_user => undef, # The user ID of the current chatter
 		@_,
 	};
 	bless ($self,$class);
@@ -2352,6 +2353,28 @@ sub lastMatch {
 	return undef;
 }
 
+=item string currentUser ()
+
+Get the user ID of the current user chatting with the bot. This is mostly useful
+inside of a Perl object macro in RiveScript to get the user ID of the person who
+invoked the object macro (e.g., to get/set variables for them using the
+C<$rs> instance).
+
+This will return C<undef> if used outside the context of a reply (the value is
+unset at the end of the C<reply()> method).
+
+=cut
+
+sub currentUser {
+	my $self = shift;
+
+	if (!defined $self->{current_user}) {
+		$self->issue("currentUser() is meant to be used from within a Perl object macro!");
+	}
+
+	return $self->{current_user};
+}
+
 ################################################################################
 ## Interaction Methods                                                        ##
 ################################################################################
@@ -2375,6 +2398,9 @@ sub reply {
 	my ($self,$user,$msg) = @_;
 
 	$self->debug ("Get reply to [$user] $msg");
+
+	# Store the current user's ID.
+	$self->{current_user} = $user;
 
 	# Format their message.
 	$msg = $self->_formatMessage ($msg);
@@ -2421,6 +2447,9 @@ sub reply {
 	while (scalar @{$self->{client}->{$user}->{__history__}->{reply}} > 9) {
 		pop (@{$self->{client}->{$user}->{__history__}->{reply}});
 	}
+
+	# Unset the current user's ID.
+	$self->{current_user} = undef;
 
 	return $reply;
 }
