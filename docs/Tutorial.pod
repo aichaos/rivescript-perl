@@ -21,10 +21,10 @@ program. You can use Notepad for Windows, or gedit for Linux, or any other
 text editors you have available.
 
 A RiveScript document is a text file containing RiveScript code. These files
-will have a C<.rs> extension. An example file name would be C<greetings.rs>.
+will have a C<.rive> extension. An example file name would be C<greetings.rive>.
 If you're writing RiveScript documents on Windows, you may need to put the
-file name in quotes when you save it, for example C<"greetings.rs"> to be
-sure it gets saved with the file extension (and not "C<greetings.rs.txt>").
+file name in quotes when you save it, for example C<"greetings.rive"> to be
+sure it gets saved with the file extension (and not "C<greetings.rive.txt>").
 
 To B<execute> and test your RiveScript code, you will need a RiveScript
 Interpreter, or, a program that uses a RiveScript library to read and execute
@@ -102,7 +102,7 @@ In your text editor, create a new file and write the following in it:
   + hello bot
   - Hello, human!
 
-Save this in your project directory as C<hello.rs>, and then run the RiveScript
+Save this in your project directory as C<hello.rive>, and then run the RiveScript
 interpreter on that directory (see L<"Project Directory"> for reference). You
 should see something along these lines in your terminal window:
 
@@ -127,7 +127,7 @@ you said something that there was no RiveScript code written to handle. There
 is only a handler for "hello bot", and nothing else. Later you will learn how
 to write a "catch-all" response that will be used when you say something the
 bot wasn't programmed to handle. But first, let's go over the code you wrote
-for C<hello.rs>.
+for C<hello.rive>.
 
 =head3 The Code, Explained
 
@@ -168,7 +168,7 @@ says will get boring really quickly. For this reason, RiveScript makes it
 easy to add random responses to a trigger!
 
 Getting random responses is as easy as entering multiple Response commands
-for the same trigger. To see this in action, open your C<hello.rs> file from
+for the same trigger. To see this in action, open your C<hello.rive> file from
 L<"Hello, Human!"> and add the following lines to it:
 
   + how are you
@@ -210,7 +210,7 @@ You'll learn about these later in this tutorial.
 
 =back
 
-So, our C<hello.rs> should look like this now:
+So, our C<hello.rive> should look like this now:
 
   ! version = 2.0
 
@@ -307,7 +307,7 @@ each other. Before continuing, you should know how RiveScript brains are
 typically organized.
 
 RiveScript brains (a "brain" is a set of RiveScript documents) should, by
-convention, include a document named C<begin.rs> that contains some
+convention, include a document named C<begin.rive> that contains some
 configuration settings for your bot's brain. The most useful settings that
 would be set here include B<substitutions>, which are able to make changes
 to the user's message I<before> a reply is looked for.
@@ -320,7 +320,7 @@ interpreter looks for a reply for it. With substitutions, you can see to it
 that "what's" is expanded into "what is" instead -- allowing you better
 control over how you reply to the user's message!
 
-Let's start with our C<begin.rs> file. In your text editor, create a new
+Let's start with our C<begin.rive> file. In your text editor, create a new
 document and write the following code into it (this code will be explained
 below):
 
@@ -347,7 +347,7 @@ below):
   ! sub what've = what have
   ! sub what'll = what will
 
-Save this as C<begin.rs> in your project directory. Now, for an explanation on
+Save this as C<begin.rive> in your project directory. Now, for an explanation on
 what this code is doing.
 
 =head3 Definitions
@@ -381,7 +381,7 @@ With these substitutions, if a user says to the bot, "what's up?" or
 messages out to "what is up" and "i have been at work all day", respectively,
 before it starts looking for a reply.
 
-Here is some more code that you can add to your C<hello.rs> file from earlier
+Here is some more code that you can add to your C<hello.rive> file from earlier
 that demonstrates how substitutions work:
 
   + what is up
@@ -405,7 +405,7 @@ they'll be covered later in this tutorial.
 
 B<Note:> there will be many more examples of RiveScript code in this
 tutorial. You can put these in any RiveScript document you wish; you can
-create a new C<.rs> file for them if you like. Now and then I'll mention
+create a new C<.rive> file for them if you like. Now and then I'll mention
 a recommended file name, though, but the names don't really matter that
 much.
 
@@ -484,7 +484,7 @@ the bot say "ERR: No Reply Matched", and use it to try to steer the
 conversation back on track.
 
 Conventionally, your catch-all trigger should go into a file named
-C<star.rs>, so that when you're looking for it later to make changes
+C<star.rive>, so that when you're looking for it later to make changes
 you'll know exactly where you put it.
 
 =head3 Specialized Wildcards
@@ -589,8 +589,8 @@ why B<Arrays> exist! In RiveScript, you can make a list of words or phrases,
 give that list a name, and then use it in a trigger (or multiple triggers!)
 
 You define an array using the C<! array> command, which was first mentioned
-in the L<"Definitions">. By convention, all definitions belong in C<begin.rs>,
-so write the following code in C<begin.rs>:
+in the L<"Definitions">. By convention, all definitions belong in C<begin.rive>,
+so write the following code in C<begin.rive>:
 
   ! array colors = red blue green yellow
 
@@ -760,7 +760,7 @@ In the C<%> command, the bot's previous response is sent through the same
 substitutions as the user's messages are. Notice that the bot's reply was
 "Who's there?", but the C<%> line on the next trigger says "who is there".
 This is because the "Who's" was substituted for "who is" due to the
-substitution defined in your C<begin.rs> file!
+substitution defined in your C<begin.rive> file!
 
 C<% Previous> lines need to be lowercased just like triggers do.
 
@@ -803,7 +803,7 @@ information about the user.
   - You are <get age> years old.
 
 While we're talking about variables, what about those bot variables we defined
-in C<begin.rs>? You can retrieve them in a similar fashion:
+in C<begin.rive>? You can retrieve them in a similar fashion:
 
   // The user can ask the bot its name too!
   + what is your name
@@ -941,7 +941,7 @@ C<{topic}> is a little shorter to type.
 
 Topics are capable of inheriting and including triggers from other topics, too.
 But, this is for more advanced users and is outside the scope of this tutorial
-(see the file C<rpg.rs> that comes with standard RiveScript distributions for
+(see the file C<rpg.rive> that comes with standard RiveScript distributions for
 a practical example of this).
 
 You may be wondering what happens if you accidentally set the topic to one
@@ -953,7 +953,7 @@ automatically.
 =head2 The Begin Block
 
 The Begin Block is an optional feature of a RiveScript brain. The Begin Block
-will typically be found in C<begin.rs>. They work in a similar fashion as
+will typically be found in C<begin.rive>. They work in a similar fashion as
 topics. Here is an example:
 
   > begin
@@ -1120,7 +1120,7 @@ object).
 
 =head1 MORE DEFINITIONS
 
-To go back to C<begin.rs> definition commands, there are two more types that
+To go back to C<begin.rive> definition commands, there are two more types that
 may come in handy.
 
 =head2 Global Variables
@@ -1169,7 +1169,7 @@ This value should be a positive number higher than zero.
 
 These are a special kind of substitution that is intended to swap first- and
 second-person pronouns. Here is how you define the person substitutions
-(usually in your C<begin.rs> file):
+(usually in your C<begin.rive> file):
 
   ! person i am    = you are
   ! person you are = i am

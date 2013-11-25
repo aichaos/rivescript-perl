@@ -34,7 +34,7 @@ RiveScript - Rendering Intelligence Very Easily
   $rs->loadDirectory ("./replies");
 
   # Load another file.
-  $rs->loadFile ("./more_replies.rs");
+  $rs->loadFile ("./more_replies.rive");
 
   # Stream in some RiveScript code.
   $rs->stream (q~
@@ -249,7 +249,7 @@ sub issue {
 
 Load a directory full of RiveScript documents. C<$PATH> must be a path to a
 directory. C<@EXTS> is optionally an array containing file extensions, including
-the dot. By default C<@EXTS> is C<('.rs')>.
+the dot. By default C<@EXTS> is C<('.rive', '.rs')>.
 
 Returns true on success, false on failure.
 
@@ -258,33 +258,27 @@ Returns true on success, false on failure.
 sub loadDirectory {
 	my $self = shift;
 	my $dir = shift || '.';
-	my (@exts) = @_ || ('.rs');
+	my (@exts) = @_ || ('.rive', '.rs');
 
 	if (!-d $dir) {
 		$self->issue ("loadDirectory failed: $dir is not a directory!");
 		return 0;
 	}
 
-	$self->debug ("loadDirectory: Open $dir");
+	$self->debug ("loadDirectory: Open $dir - extensions: @exts");
 
-	# If a begin.rs file exists, load it first.
-	if (-f "$dir/begin.rs") {
-		$self->debug ("loadDirectory: Read begin.rs");
-		$self->loadFile ("$dir/begin.rs");
-	}
 
 	opendir (my $dh, $dir);
 	foreach my $file (sort { $a cmp $b } readdir($dh)) {
 		next if $file eq '.';
 		next if $file eq '..';
 		next if $file =~ /\~$/i; # Skip backup files
-		next if $file eq 'begin.rs';
-		my $badExt = 0;
+		my $goodExt = 0;
 		foreach (@exts) {
 			my $re = quotemeta($_);
-			$badExt = 1 unless $file =~ /$re$/;
+			$goodExt = 1 if $file =~ /$re$/;
 		}
-		next if $badExt;
+		next unless $goodExt;
 
 		$self->debug ("loadDirectory: Read $file");
 
@@ -2337,8 +2331,6 @@ raw text of the trigger that the user has matched with their reply. This functio
 may return undef in the event that the user B<did not> match any trigger at all
 (likely the last reply was "C<ERR: No Reply Matched>" as well).
 
-=back
-
 =cut
 
 sub lastMatch {
@@ -2362,6 +2354,8 @@ C<$rs> instance).
 
 This will return C<undef> if used outside the context of a reply (the value is
 unset at the end of the C<reply()> method).
+
+=back
 
 =cut
 

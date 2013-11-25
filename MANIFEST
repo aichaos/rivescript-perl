@@ -3,7 +3,7 @@ Makefile.PL
 MANIFEST
 README.md
 LICENSE
-testsuite.rs
+testsuite.rive
 rpmbuild
 bin/rivescript
 docs/rivescript.css
@@ -14,9 +14,9 @@ docs/bin-rivescript.html
 t/RiveScript.t
 lib/RiveScript.pm
 lib/RiveScript/WD.pm
-lib/RiveScript/demo/admin.rs
-lib/RiveScript/demo/begin.rs
-lib/RiveScript/demo/clients.rs
-lib/RiveScript/demo/eliza.rs
-lib/RiveScript/demo/myself.rs
+lib/RiveScript/demo/admin.rive
+lib/RiveScript/demo/begin.rive
+lib/RiveScript/demo/clients.rive
+lib/RiveScript/demo/eliza.rive
+lib/RiveScript/demo/myself.rive
 META.yml                                 Module meta-data (added by MakeMaker)
