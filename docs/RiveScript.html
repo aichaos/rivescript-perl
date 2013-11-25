@@ -431,7 +431,7 @@
 
 <h1 id="CHANGES">CHANGES</h1>
 
-<pre><code>  1.29
+<pre><code>  1.30  Nov 25 2013
   - Added &quot;TCP Mode&quot; to the `rivescript` command so that it can listen on a
     socket instead of using standard input and output.
   - Added a &quot;--data&quot; option to the `rivescript` command for providing JSON
@@ -439,6 +439,9 @@
   - Added experimental UTF-8 support.
   - Bugfix: don&#39;t use hacky ROT13-encoded placeholders for message
     substitutions... use a null character method instead. ;)
+  - Make .rive the default preferred file extension for RiveScript documents
+    instead of .rs (which conflicts with the Rust programming language).
+    Backwards compatibility remains to load .rs files, though.
 
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)

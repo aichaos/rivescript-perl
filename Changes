@@ -1,5 +1,17 @@
 Revision history for Perl extension RiveScript.
 
+  1.30  Nov 25 2013
+  - Added "TCP Mode" to the `rivescript` command so that it can listen on a
+    socket instead of using standard input and output.
+  - Added a "--data" option to the `rivescript` command for providing JSON
+    input as a command line argument instead of standard input.
+  - Added experimental UTF-8 support.
+  - Bugfix: don't use hacky ROT13-encoded placeholders for message
+    substitutions... use a null character method instead. ;)
+  - Make .rive the default preferred file extension for RiveScript documents
+    instead of .rs (which conflicts with the Rust programming language).
+    Backwards compatibility remains to load .rs files, though.
+
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
   - Added constants RS_ERR_MATCH and RS_ERR_REPLY.

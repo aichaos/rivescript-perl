@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.29'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.30'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -3313,7 +3313,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.29
+  1.30  Nov 25 2013
   - Added "TCP Mode" to the `rivescript` command so that it can listen on a
     socket instead of using standard input and output.
   - Added a "--data" option to the `rivescript` command for providing JSON
@@ -3321,6 +3321,9 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
   - Added experimental UTF-8 support.
   - Bugfix: don't use hacky ROT13-encoded placeholders for message
     substitutions... use a null character method instead. ;)
+  - Make .rive the default preferred file extension for RiveScript documents
+    instead of .rs (which conflicts with the Rust programming language).
+    Backwards compatibility remains to load .rs files, though.
 
   1.28  Aug 14 2012
   - FIXED: Typos in RiveScript::WD (Bug #77618)
