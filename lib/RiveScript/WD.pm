@@ -1,6 +1,9 @@
 package RiveScript::WD;
 
-our $VERSION = '1.21';
+use strict;
+use warnings;
+
+our $VERSION = '1.32';
 
 # This is not a real module; it's only a current copy of the RiveScript
 # Working Draft. See the latest version at

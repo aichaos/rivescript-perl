@@ -1,12 +1,20 @@
 --- #YAML:1.0
 name:                RiveScript
-version:             1.22
+version:             1.32
 abstract:            Rendering Intelligence Very Easily
-license:             ~
+license:             gpl_2
 author:              Noah Petherbridge <kirsle@cpan.org>
 generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
-requires:     
+requires:
+    JSON: 0
+provides:
+    RiveScript:
+        file: lib/RiveScript.pm
+        version: 1.32
+    RiveScript::WD:
+        file: lib/RiveScript/WD.pm
+        version: 1.32
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

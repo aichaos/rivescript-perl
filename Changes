@@ -1,5 +1,11 @@
 Revision history for Perl extension RiveScript.
 
+  1.32  Feb 24 2014
+  - Maintenance release to fix some errors per the CPANTS.
+  - Add license to Makefile.PL
+  - Make Makefile.PL not executable
+  - Make version numbers consistent
+
   1.30  Nov 25 2013
   - Added "TCP Mode" to the `rivescript` command so that it can listen on a
     socket instead of using standard input and output.

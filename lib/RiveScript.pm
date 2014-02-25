@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.30'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.32'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -3312,6 +3312,12 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.32  Feb 24 2014
+  - Maintenance release to fix some errors per the CPANTS.
+  - Add license to Makefile.PL
+  - Make Makefile.PL not executable
+  - Make version numbers consistent
 
   1.30  Nov 25 2013
   - Added "TCP Mode" to the `rivescript` command so that it can listen on a
