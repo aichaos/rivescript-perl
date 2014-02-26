@@ -7,6 +7,7 @@ author:
 license: gpl
 distribution_type: module
 requires:
+    perl: 5.008000
     JSON: 0
 recommends:
     Clone: 0
