@@ -1,20 +1,32 @@
 --- #YAML:1.0
-name:                RiveScript
-version:             1.32
-abstract:            Rendering Intelligence Very Easily
-license:             gpl_2
-author:              Noah Petherbridge <kirsle@cpan.org>
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
+name: RiveScript
+abstract: A scripting language for chatbots.
+version: 1.34
+author:
+    - Noah Petherbridge <kirsle@cpan.org>
+license: gpl
+distribution_type: module
 requires:
     JSON: 0
+recommends:
+    Clone: 0
+build_requires:
+    Test::More: 0
 provides:
     RiveScript:
         file: lib/RiveScript.pm
-        version: 1.32
+        version: 1.34
     RiveScript::WD:
         file: lib/RiveScript/WD.pm
-        version: 1.32
+        version: 1.34
+keywords:
+    - chatbot
+    - chatterbot
+    - alice
+    - aiml
+    - chatscript
+    - artificial intelligence
+generated_by: Noah Petherbridge
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    version: 1.4
+    url: http://module-build.sourceforge.net/META-spec-v1.4.html

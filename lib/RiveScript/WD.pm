@@ -3,7 +3,7 @@ package RiveScript::WD;
 use strict;
 use warnings;
 
-our $VERSION = '1.32';
+our $VERSION = '1.34';
 
 # This is not a real module; it's only a current copy of the RiveScript
 # Working Draft. See the latest version at

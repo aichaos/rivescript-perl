@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.32'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.34'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -3313,6 +3313,10 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
+  1.34  Feb 26 2014
+  - Update README.md to include module documentation for github.
+  - Fixes to META.yml
+
   1.32  Feb 24 2014
   - Maintenance release to fix some errors per the CPANTS.
   - Add license to Makefile.PL
@@ -3443,7 +3447,7 @@ License. If you'd like to use the RiveScript module in a closed source or
 commercial application, contact the author for more information.
 
   RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2011 Noah Petherbridge
+  Copyright (C) 2014 Noah Petherbridge
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

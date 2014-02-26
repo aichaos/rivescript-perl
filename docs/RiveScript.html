@@ -78,7 +78,7 @@
 
 <dl>
 
-<dt id="RiveScript-new-hash-ARGS-">RiveScript new (hash %ARGS)</dt>
+<dt id="RiveScript-new-hash-ARGS">RiveScript new (hash %ARGS)</dt>
 <dd>
 
 <p>Create a new instance of a RiveScript interpreter. The instance will become its own &quot;chatterbot,&quot; with its own set of responses and user variables. You can pass in any global variables here. The two standard variables are:</p>
@@ -115,7 +115,7 @@
 
 <dl>
 
-<dt id="bool-loadDirectory-string-PATH-string-EXTS-">bool loadDirectory (string $PATH[, string @EXTS])</dt>
+<dt id="bool-loadDirectory-string-PATH-string-EXTS">bool loadDirectory (string $PATH[, string @EXTS])</dt>
 <dd>
 
 <p>Load a directory full of RiveScript documents. <code>$PATH</code> must be a path to a directory. <code>@EXTS</code> is optionally an array containing file extensions, including the dot. By default <code>@EXTS</code> is <code>(&#39;.rive&#39;, &#39;.rs&#39;)</code>.</p>
@@ -123,19 +123,19 @@
 <p>Returns true on success, false on failure.</p>
 
 </dd>
-<dt id="bool-loadFile-string-PATH-">bool loadFile (string $PATH)</dt>
+<dt id="bool-loadFile-string-PATH">bool loadFile (string $PATH)</dt>
 <dd>
 
 <p>Load a single RiveScript document. <code>$PATH</code> should be the path to a valid RiveScript file. Returns true on success; false otherwise.</p>
 
 </dd>
-<dt id="bool-stream-arrayref-CODE-">bool stream (arrayref $CODE)</dt>
+<dt id="bool-stream-arrayref-CODE">bool stream (arrayref $CODE)</dt>
 <dd>
 
 <p>Stream RiveScript code directly into the module. This is for providing RS code from within the Perl script instead of from an external file. Returns true on success.</p>
 
 </dd>
-<dt id="string-checkSyntax-char-COMMAND-string-LINE-">string checkSyntax (char $COMMAND, string $LINE)</dt>
+<dt id="string-checkSyntax-char-COMMAND-string-LINE">string checkSyntax (char $COMMAND, string $LINE)</dt>
 <dd>
 
 <p>Check the syntax of a line of RiveScript code. This is called automatically for each line parsed by the module. <code>$COMMAND</code> is the command part of the line, and <code>$LINE</code> is the rest of the line following the command (and excluding inline comments).</p>
@@ -145,13 +145,13 @@
 <p>If <code>strict</code> mode is enabled in the constructor (which is on by default), a syntax error will result in a fatal error. If it&#39;s not enabled, the error is only sent via <code>warn</code> and the file currently being processed is aborted.</p>
 
 </dd>
-<dt id="void-sortReplies-">void sortReplies ()</dt>
+<dt id="void-sortReplies">void sortReplies ()</dt>
 <dd>
 
 <p>Call this method after loading replies to create an internal sort buffer. This is necessary for trigger matching purposes. If you fail to call this method yourself, RiveScript will call it once when you request a reply. However, it will complain loudly about it.</p>
 
 </dd>
-<dt id="data-deparse-">data deparse ()</dt>
+<dt id="data-deparse">data deparse ()</dt>
 <dd>
 
 <p>Translate the in-memory representation of the loaded RiveScript documents into a Perl data structure. This would be useful for developing a user interface to facilitate editing of RiveScript replies without having to edit the RiveScript code manually.</p>
@@ -210,7 +210,7 @@
 <p>Note that inline object macros can&#39;t be deparsed this way. This is probably for the best (for security, etc). The global variables &quot;debug&quot; and &quot;depth&quot; are only provided if the values differ from the defaults (true and 50, respectively).</p>
 
 </dd>
-<dt id="void-write-glob-fh-string-file-data-deparsed-">void write (glob $fh || string $file[, data $deparsed])</dt>
+<dt id="void-write-glob-fh-string-file-data-deparsed">void write (glob $fh || string $file[, data $deparsed])</dt>
 <dd>
 
 <p>Write the currently parsed RiveScript data into a RiveScript file. This uses <code>deparse()</code> to dump a representation of the loaded data and writes it to the destination file. Pass either a filehandle or a file name.</p>
@@ -224,7 +224,7 @@
 
 <dl>
 
-<dt id="bool-setHandler-string-LANGUAGE-code-CODEREF-...-">bool setHandler (string $LANGUAGE =&gt; code $CODEREF, ...)</dt>
+<dt id="bool-setHandler-string-LANGUAGE-code-CODEREF">bool setHandler (string $LANGUAGE =&gt; code $CODEREF, ...)</dt>
 <dd>
 
 <p>Define some code to handle objects of a particular programming language. If the coderef is <code>undef</code>, it will delete the handler.</p>
@@ -249,13 +249,13 @@
 <p>See the JavaScript example in the <code>docs</code> directory in this distribution.</p>
 
 </dd>
-<dt id="bool-setSubroutine-string-NAME-code-CODEREF-">bool setSubroutine (string $NAME, code $CODEREF)</dt>
+<dt id="bool-setSubroutine-string-NAME-code-CODEREF">bool setSubroutine (string $NAME, code $CODEREF)</dt>
 <dd>
 
 <p>Manually create a RiveScript object (a dynamic bit of Perl code that can be provoked in a RiveScript response). <code>$NAME</code> should be a single-word, alphanumeric string. <code>$CODEREF</code> should be a pointer to a subroutine or an anonymous sub.</p>
 
 </dd>
-<dt id="bool-setGlobal-hash-DATA-">bool setGlobal (hash %DATA)</dt>
+<dt id="bool-setGlobal-hash-DATA">bool setGlobal (hash %DATA)</dt>
 <dd>
 
 <p>Set one or more global variables, in hash form, where the keys are the variable names and the values are their value. This subroutine will make sure that you don&#39;t override any reserved global variables, and warn if that happens.</p>
@@ -265,7 +265,7 @@
 <p>To delete a global, set its value to <code>undef</code> or &quot;<code>&lt;undef&gt;</code>&quot;. This is true for variables, substitutions, person, and uservars.</p>
 
 </dd>
-<dt id="bool-setVariable-hash-DATA-">bool setVariable (hash %DATA)</dt>
+<dt id="bool-setVariable-hash-DATA">bool setVariable (hash %DATA)</dt>
 <dd>
 
 <p>Set one or more bot variables (things that describe your bot&#39;s personality).</p>
@@ -273,7 +273,7 @@
 <p>This is equivalent to <code>! var</code> in RiveScript code.</p>
 
 </dd>
-<dt id="bool-setSubstitution-hash-DATA-">bool setSubstitution (hash %DATA)</dt>
+<dt id="bool-setSubstitution-hash-DATA">bool setSubstitution (hash %DATA)</dt>
 <dd>
 
 <p>Set one or more substitution patterns. The keys should be the original word, and the value should be the word to substitute with it.</p>
@@ -286,13 +286,13 @@
 <p>This is equivalent to <code>! sub</code> in RiveScript code.</p>
 
 </dd>
-<dt id="bool-setPerson-hash-DATA-">bool setPerson (hash %DATA)</dt>
+<dt id="bool-setPerson-hash-DATA">bool setPerson (hash %DATA)</dt>
 <dd>
 
 <p>Set a person substitution. This is equivalent to <code>! person</code> in RiveScript code.</p>
 
 </dd>
-<dt id="bool-setUservar-string-USER-hash-DATA-">bool setUservar (string $USER, hash %DATA)</dt>
+<dt id="bool-setUservar-string-USER-hash-DATA">bool setUservar (string $USER, hash %DATA)</dt>
 <dd>
 
 <p>Set a variable for a user. <code>$USER</code> should be their User ID, and <code>%DATA</code> is a hash containing variable/value pairs.</p>
@@ -300,13 +300,13 @@
 <p>This is like <code>&lt;set&gt;</code> for a specific user.</p>
 
 </dd>
-<dt id="string-getUservar-string-USER-string-VAR-">string getUservar (string $USER, string $VAR)</dt>
+<dt id="string-getUservar-string-USER-string-VAR">string getUservar (string $USER, string $VAR)</dt>
 <dd>
 
 <p>This is an alias for getUservars, and is here because it makes more grammatical sense.</p>
 
 </dd>
-<dt id="data-getUservars-string-USER-string-VAR-">data getUservars ([string $USER][, string $VAR])</dt>
+<dt id="data-getUservars-string-USER-string-VAR">data getUservars ([string $USER][, string $VAR])</dt>
 <dd>
 
 <p>Get all the variables about a user. If a username is provided, returns a hash <b>reference</b> containing that user&#39;s information. Else, a hash reference of all the users and their information is returned.</p>
@@ -316,19 +316,19 @@
 <p>This is like <code>&lt;get&gt;</code> for a specific user or for all users.</p>
 
 </dd>
-<dt id="bool-clearUservars-string-USER-">bool clearUservars ([string $USER])</dt>
+<dt id="bool-clearUservars-string-USER">bool clearUservars ([string $USER])</dt>
 <dd>
 
 <p>Clears all variables about <code>$USER</code>. If no <code>$USER</code> is provided, clears all variables about all users.</p>
 
 </dd>
-<dt id="bool-freezeUservars-string-USER-">bool freezeUservars (string $USER)</dt>
+<dt id="bool-freezeUservars-string-USER">bool freezeUservars (string $USER)</dt>
 <dd>
 
 <p>Freeze the current state of variables for user <code>$USER</code>. This will back up the user&#39;s current state (their variables and reply history). This won&#39;t statically prevent the user&#39;s state from changing; it merely saves its current state. Then use thawUservars() to revert back to this previous state.</p>
 
 </dd>
-<dt id="bool-thawUservars-string-USER-hash-OPTIONS-">bool thawUservars (string $USER[, hash %OPTIONS])</dt>
+<dt id="bool-thawUservars-string-USER-hash-OPTIONS">bool thawUservars (string $USER[, hash %OPTIONS])</dt>
 <dd>
 
 <p>If the variables for <code>$USER</code> were previously frozen, this method will restore them to the state they were in when they were last frozen. It will then delete the stored cache by default. The following options are accepted as an additional hash of parameters (these options are mutually exclusive and you shouldn&#39;t use both of them at the same time. If you do, &quot;discard&quot; will win.):</p>
@@ -349,13 +349,13 @@
   $rs-&gt;thawUservars (&quot;soandso&quot;, keep =&gt; 1);</code></pre>
 
 </dd>
-<dt id="string-lastMatch-string-USER-">string lastMatch (string $USER)</dt>
+<dt id="string-lastMatch-string-USER">string lastMatch (string $USER)</dt>
 <dd>
 
 <p>After fetching a reply for user <code>$USER</code>, the <code>lastMatch</code> method will return the raw text of the trigger that the user has matched with their reply. This function may return undef in the event that the user <b>did not</b> match any trigger at all (likely the last reply was &quot;<code>ERR: No Reply Matched</code>&quot; as well).</p>
 
 </dd>
-<dt id="string-currentUser-">string currentUser ()</dt>
+<dt id="string-currentUser">string currentUser ()</dt>
 <dd>
 
 <p>Get the user ID of the current user chatting with the bot. This is mostly useful inside of a Perl object macro in RiveScript to get the user ID of the person who invoked the object macro (e.g., to get/set variables for them using the <code>$rs</code> instance).</p>
@@ -369,7 +369,7 @@
 
 <dl>
 
-<dt id="string-reply-string-USER-string-MESSAGE-">string reply (string $USER, string $MESSAGE)</dt>
+<dt id="string-reply-string-USER-string-MESSAGE">string reply (string $USER, string $MESSAGE)</dt>
 <dd>
 
 <p>Fetch a response to <code>$MESSAGE</code> from user <code>$USER</code>. RiveScript will take care of lowercasing, running substitutions, and removing punctuation from the message.</p>
@@ -431,7 +431,17 @@
 
 <h1 id="CHANGES">CHANGES</h1>
 
-<pre><code>  1.30  Nov 25 2013
+<pre><code>  1.34  Feb 26 2014
+  - Update README.md to include module documentation for github.
+  - Fixes to META.yml
+
+  1.32  Feb 24 2014
+  - Maintenance release to fix some errors per the CPANTS.
+  - Add license to Makefile.PL
+  - Make Makefile.PL not executable
+  - Make version numbers consistent
+
+  1.30  Nov 25 2013
   - Added &quot;TCP Mode&quot; to the `rivescript` command so that it can listen on a
     socket instead of using standard input and output.
   - Added a &quot;--data&quot; option to the `rivescript` command for providing JSON
@@ -552,7 +562,7 @@
 <p>The Perl RiveScript interpreter is dual licensed as of version 1.22. For open source applications the module is using the GNU General Public License. If you&#39;d like to use the RiveScript module in a closed source or commercial application, contact the author for more information.</p>
 
 <pre><code>  RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2011 Noah Petherbridge
+  Copyright (C) 2014 Noah Petherbridge
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
