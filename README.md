@@ -4,33 +4,35 @@ RiveScript - Rendering Intelligence Very Easily
 
 # SYNOPSIS
 
-    use RiveScript;
+```perl
+use RiveScript;
 
-    # Create a new RiveScript interpreter.
-    my $rs = new RiveScript;
+# Create a new RiveScript interpreter.
+my $rs = new RiveScript;
 
-    # Load a directory of replies.
-    $rs->loadDirectory ("./replies");
+# Load a directory of replies.
+$rs->loadDirectory ("./replies");
 
-    # Load another file.
-    $rs->loadFile ("./more_replies.rive");
+# Load another file.
+$rs->loadFile ("./more_replies.rive");
 
-    # Stream in some RiveScript code.
-    $rs->stream (q~
-      + hello bot
-      - Hello, human.
-    ~);
+# Stream in some RiveScript code.
+$rs->stream (q~
+    + hello bot
+    - Hello, human.
+~);
 
-    # Sort all the loaded replies.
-    $rs->sortReplies;
+# Sort all the loaded replies.
+$rs->sortReplies;
 
-    # Chat with the bot.
-    while (1) {
-      print "You> ";
-      chomp (my $msg = <STDIN>);
-      my $reply = $rs->reply ('localuser',$msg);
-      print "Bot> $reply\n";
-    }
+# Chat with the bot.
+while (1) {
+    print "You> ";
+    chomp (my $msg = <STDIN>);
+    my $reply = $rs->reply ('localuser',$msg);
+    print "Bot> $reply\n";
+}
+```
 
 # DESCRIPTION
 
@@ -130,6 +132,7 @@ http://www.rivescript.com/
 
     The data structure returned from this will follow this format:
 
+    ```perl
         {
           "begin" => { # Contains begin block and config settings
             "global" => { # ! global (global variables)
@@ -178,6 +181,7 @@ http://www.rivescript.com/
             "alpha" => [ "delta" ], # > topic alpha inherits delta
           }
         }
+    ```
 
     Note that inline object macros can't be deparsed this way. This is probably for
     the best (for security, etc). The global variables "debug" and "depth" are only
@@ -256,10 +260,12 @@ http://www.rivescript.com/
     Set one or more substitution patterns. The keys should be the original word, and
     the value should be the word to substitute with it.
 
+    ```perl
         $rs->setSubstitution (
           q{what's}  => 'what is',
           q{what're} => 'what are',
         );
+    ```
 
     This is equivalent to `! sub` in RiveScript code.
 
@@ -319,11 +325,13 @@ http://www.rivescript.com/
 
     Examples:
 
+    ```perl
         # Delete the frozen cache but don't modify the user's variables.
         $rs->thawUservars ("soandso", discard => 1);
 
         # Restore the user's state from cache, but don't delete the cache.
         $rs->thawUservars ("soandso", keep => 1);
+    ```
 
 - string lastMatch (string $USER)
 
@@ -391,9 +399,11 @@ These constants include:
     This is the reply text given when no trigger has matched the message. It equals
     "`ERR: No Reply Matched`".
 
+    ```perl
         if ($reply eq RS_ERR_MATCH) {
           $reply = "I couldn't find a good reply for you!";
         }
+    ```
 
 - RS\_ERR\_REPLY
 
@@ -402,9 +412,11 @@ These constants include:
     were false, with no default replies to fall back on). It equals
     "`ERR: No Reply Found`".
 
+    ```perl
         if ($reply eq RS_ERR_REPLY) {
           $reply = "I don't know what to say about that!";
         }
+    ```
 
 # SEE ALSO
 
