@@ -1,8 +1,11 @@
 #!/usr/bin/perl
 
 # RiveScript Unit Tests
+use utf8;
 use strict;
-use Test::More tests => 118;
+use Test::More tests => 127;
+
+binmode(STDOUT, ":utf8");
 
 use_ok('RiveScript');
 my @tests;
@@ -562,6 +565,61 @@ push @tests, sub {
 };
 
 #-----------------------------------------------------------------------------#
+# UTF-8 Support                                                               #
+#-----------------------------------------------------------------------------#
+
+push @tests, sub {
+	my $rs = RiveScript->new(utf8=>1);
+	extend($rs, "
+		! sub who's = who is
+
+		+ äh
+		- What's the matter?
+
+		+ ブラッキー
+		- エーフィ
+
+		// Make sure %Previous continues working in UTF-8 mode.
+		+ knock knock
+		- Who's there?
+
+		+ *
+		% who is there
+		- <sentence> who?
+
+		+ *
+		% * who
+		- Haha! <sentence>!
+
+		// And with UTF-8.
+		+ tëll më ä pöëm
+		- Thërë öncë wäs ä män nämëd Tïm
+
+		+ more
+		% thërë öncë wäs ä män nämëd tïm
+		- Whö nëvër qüïtë lëärnëd höw tö swïm
+
+		+ more
+		% whö nëvër qüïtë lëärnëd höw tö swïm
+		- Hë fëll öff ä döck, änd sänk lïkë ä röck
+
+		+ more
+		% hë fëll öff ä döck änd sänk lïkë ä röck
+		- Änd thät wäs thë ënd öf hïm.
+	");
+
+	test($rs, "äh", "What's the matter?", "UTF-8 Umlaut test.");
+	test($rs, "ブラッキー", "エーフィ", "UTF-8 Japanese test.");
+	test($rs, "knock knock", "Who's there?", "UTF-8 %Previous test 1.");
+	test($rs, "Orange", "Orange who?", "UTF-8 %Previous test 2.");
+	test($rs, "banana", "Haha! Banana!", "UTF-8 %Previous test 3.");
+	test($rs, "tëll më ä pöëm", "Thërë öncë wäs ä män nämëd Tïm", "UTF-8 Umlaut poem test 1.");
+	test($rs, "more", "Whö nëvër qüïtë lëärnëd höw tö swïm", "UTF-8 Umlaut poem test 2.");
+	test($rs, "more", "Hë fëll öff ä döck, änd sänk lïkë ä röck", "UTF-8 Umlaut poem test 3.");
+	test($rs, "more", "Änd thät wäs thë ënd öf hïm.", "UTF-8 Umlaut poem test 4.");
+};
+
+#-----------------------------------------------------------------------------#
 # Error handling                                                              #
 #-----------------------------------------------------------------------------#
 
@@ -592,7 +650,7 @@ for my $t (@tests) {
 # Make a new bot
 sub bot {
     my $code = shift;
-    my $rs = RiveScript->new(debug=>0);
+    my $rs = RiveScript->new();
     return extend($rs, $code);
 }
 

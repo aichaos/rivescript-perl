@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.34'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.35'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -2530,7 +2530,7 @@ sub _getreply {
 					my $lastReply = $self->{client}->{$user}->{__history__}->{reply}->[0];
 
 					# Format the bot's last reply the same as the human's.
-					$lastReply = $self->_formatMessage ($lastReply);
+					$lastReply = $self->_formatMessage ($lastReply, "lastReply");
 
 					$self->debug ("lastReply: $lastReply");
 
@@ -3137,7 +3137,7 @@ sub processTags {
 }
 
 sub _formatMessage {
-	my ($self,$string) = @_;
+	my ($self,$string, $botReply) = @_;
 
 	# Lowercase it.
 	$string = lc($string);
@@ -3171,6 +3171,11 @@ sub _formatMessage {
 	if ($self->{utf8}) {
 		# Backslashes and HTML tags
 		$string =~ s/[\\<>]//g;
+
+		# If formatting the bot's last reply for %Previous, also remove punctuation.
+		if ($botReply) {
+			$string =~ s/[.?,!;:@#$%^&*()]//g;
+		}
 	} else {
 		$string =~ s/[^A-Za-z0-9 ]//g;
 	}
@@ -3312,6 +3317,10 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.36
+  - Strip punctuation from the bot's responses in UTF-8 mode to
+    support compatibility with %Previous.
 
   1.34  Feb 26 2014
   - Update README.md to include module documentation for github.
