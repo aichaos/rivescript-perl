@@ -2873,25 +2873,29 @@ sub _reply_regexp {
 	}
 
 	# Filter input tags.
-	my $firstInput = $self->_formatMessage($self->{client}->{$user}->{__history__}->{input}->[0] || "undefined", "botReply");
-	my $firstReply = $self->_formatMessage($self->{client}->{$user}->{__history__}->{reply}->[0] || "undefined", "botReply");
-	$regexp =~ s/<input>/$firstInput/ig;
-	$regexp =~ s/<reply>/$firstReply/ig;
-	while ($regexp =~ /<input([1-9])>/i) {
-		my $index = $1;
-		my (@arrInput) = @{$self->{client}->{$user}->{__history__}->{input}};
-		unshift (@arrInput,'');
-		my $line = $arrInput[$index];
-		$line = $self->_formatMessage ($line, "botReply");
-		$regexp =~ s/<input$index>/$line/ig;
+	if ($regexp =~ /<input/i) {
+		my $firstInput = $self->_formatMessage($self->{client}->{$user}->{__history__}->{input}->[0] || "undefined", "botReply");
+		$regexp =~ s/<input>/$firstInput/ig;
+		while ($regexp =~ /<input([1-9])>/i) {
+			my $index = $1;
+			my (@arrInput) = @{$self->{client}->{$user}->{__history__}->{input}};
+			unshift (@arrInput,'');
+			my $line = $arrInput[$index];
+			$line = $self->_formatMessage ($line, "botReply");
+			$regexp =~ s/<input$index>/$line/ig;
+		}
 	}
-	while ($regexp =~ /<reply([1-9])>/i) {
-		my $index = $1;
-		my (@arrReply) = @{$self->{client}->{$user}->{__history__}->{reply}};
-		unshift (@arrReply,'');
-		my $line = $arrReply[$index];
-		$line = $self->_formatMessage ($line, "botReply");
-		$regexp =~ s/<reply$index>/$line/ig;
+	if ($regexp =~ /<reply/i) {
+		my $firstReply = $self->_formatMessage($self->{client}->{$user}->{__history__}->{reply}->[0] || "undefined", "botReply");
+		$regexp =~ s/<reply>/$firstReply/ig;
+		while ($regexp =~ /<reply([1-9])>/i) {
+			my $index = $1;
+			my (@arrReply) = @{$self->{client}->{$user}->{__history__}->{reply}};
+			unshift (@arrReply,'');
+			my $line = $arrReply[$index];
+			$line = $self->_formatMessage ($line, "botReply");
+			$regexp =~ s/<reply$index>/$line/ig;
+		}
 	}
 
 	return $regexp;
