@@ -2873,22 +2873,24 @@ sub _reply_regexp {
 	}
 
 	# Filter input tags.
-	$regexp =~ s/<input>/$self->{client}->{$user}->{__history__}->{input}->[0]/ig;
-	$regexp =~ s/<reply>/$self->{client}->{$user}->{__history__}->{reply}->[0]/ig;
-	while ($regexp =~ /<input([0-9])>/i) {
+	my $firstInput = $self->_formatMessage($self->{client}->{$user}->{__history__}->{input}->[0] || "undefined", "botReply");
+	my $firstReply = $self->_formatMessage($self->{client}->{$user}->{__history__}->{reply}->[0] || "undefined", "botReply");
+	$regexp =~ s/<input>/$firstInput/ig;
+	$regexp =~ s/<reply>/$firstReply/ig;
+	while ($regexp =~ /<input([1-9])>/i) {
 		my $index = $1;
 		my (@arrInput) = @{$self->{client}->{$user}->{__history__}->{input}};
 		unshift (@arrInput,'');
 		my $line = $arrInput[$index];
-		$line = $self->_formatMessage ($line);
+		$line = $self->_formatMessage ($line, "botReply");
 		$regexp =~ s/<input$index>/$line/ig;
 	}
-	while ($regexp =~ /<reply([0-9])>/i) {
+	while ($regexp =~ /<reply([1-9])>/i) {
 		my $index = $1;
 		my (@arrReply) = @{$self->{client}->{$user}->{__history__}->{reply}};
 		unshift (@arrReply,'');
 		my $line = $arrReply[$index];
-		$line = $self->_formatMessage ($line);
+		$line = $self->_formatMessage ($line, "botReply");
 		$regexp =~ s/<reply$index>/$line/ig;
 	}
 
@@ -3174,7 +3176,7 @@ sub _formatMessage {
 
 		# If formatting the bot's last reply for %Previous, also remove punctuation.
 		if ($botReply) {
-			$string =~ s/[.?,!;:@#$%^&*()]//g;
+			$string =~ s/[.?,!;:@#$%^&*()\-+]//g;
 		}
 	} else {
 		$string =~ s/[^A-Za-z0-9 ]//g;
