@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 127;
+use Test::More tests => 133;
 
 binmode(STDOUT, ":utf8");
 
@@ -98,10 +98,31 @@ push @tests, sub {
 
         + what are you
         - I'm <bot gender>.
+
+        + happy birthday
+        - <bot age=6>Thanks!
     ");
     test($rs, 'What is your name?', 'My name is Aiden.', 'Bot name.');
     test($rs, 'How old are you?', 'I am 5.', 'Bot age.');
     test($rs, 'What are you?', "I'm undefined.", 'Undefined bot variable.');
+    test($rs, 'Happy birthday!', 'Thanks!', 'Set bot variable.');
+    test($rs, 'How old are you?', 'I am 6.', 'Bot age was updated.');
+};
+
+push @tests, sub {
+    # Global vars.
+    my $rs = bot("
+        ! global debug = false
+
+        + debug mode
+        - Debug mode is: <env debug>
+
+        + set debug mode *
+        - <env debug=<star>>Switched to <star>.
+    ");
+    test($rs, 'Debug mode.', 'Debug mode is: false', 'Global variable test.');
+    test($rs, 'Set debug mode true', 'Switched to true.', 'Change global variable.');
+    test($rs, 'Debug mode?', 'Debug mode is: true', 'Global variable was updated.');
 };
 
 push @tests, sub {
@@ -212,6 +233,7 @@ push @tests, sub {
     # Arrays.
     my $rs = bot('
         ! array colors = red blue green yellow white
+          ^ dark blue|light blue
 
         + what color is my (@colors) *
         - Your <star2> is <star1>.
@@ -228,6 +250,8 @@ push @tests, sub {
         'Array with wildcards 2.');
     test($rs, 'what color is my pink house', $MATCH,
         'Array doesn\'t match message.');
+    test($rs, 'what color is my dark blue jacket', 'Your jacket is dark blue.',
+        'Array with wildcards 3.');
 
     test($rs, 'What color was Napoleon\'s white horse?', 'It was white.',
         'Array with wildcards 3.');
@@ -569,54 +593,54 @@ push @tests, sub {
 #-----------------------------------------------------------------------------#
 
 push @tests, sub {
-	my $rs = RiveScript->new(utf8=>1);
-	extend($rs, "
-		! sub who's = who is
+    my $rs = RiveScript->new(utf8=>1);
+    extend($rs, "
+        ! sub who's = who is
 
-		+ äh
-		- What's the matter?
+        + äh
+        - What's the matter?
 
-		+ ブラッキー
-		- エーフィ
+        + ブラッキー
+        - エーフィ
 
-		// Make sure %Previous continues working in UTF-8 mode.
-		+ knock knock
-		- Who's there?
+        // Make sure %Previous continues working in UTF-8 mode.
+        + knock knock
+        - Who's there?
 
-		+ *
-		% who is there
-		- <sentence> who?
+        + *
+        % who is there
+        - <sentence> who?
 
-		+ *
-		% * who
-		- Haha! <sentence>!
+        + *
+        % * who
+        - Haha! <sentence>!
 
-		// And with UTF-8.
-		+ tëll më ä pöëm
-		- Thërë öncë wäs ä män nämëd Tïm
+        // And with UTF-8.
+        + tëll më ä pöëm
+        - Thërë öncë wäs ä män nämëd Tïm
 
-		+ more
-		% thërë öncë wäs ä män nämëd tïm
-		- Whö nëvër qüïtë lëärnëd höw tö swïm
+        + more
+        % thërë öncë wäs ä män nämëd tïm
+        - Whö nëvër qüïtë lëärnëd höw tö swïm
 
-		+ more
-		% whö nëvër qüïtë lëärnëd höw tö swïm
-		- Hë fëll öff ä döck, änd sänk lïkë ä röck
+        + more
+        % whö nëvër qüïtë lëärnëd höw tö swïm
+        - Hë fëll öff ä döck, änd sänk lïkë ä röck
 
-		+ more
-		% hë fëll öff ä döck änd sänk lïkë ä röck
-		- Änd thät wäs thë ënd öf hïm.
-	");
+        + more
+        % hë fëll öff ä döck änd sänk lïkë ä röck
+        - Änd thät wäs thë ënd öf hïm.
+    ");
 
-	test($rs, "äh", "What's the matter?", "UTF-8 Umlaut test.");
-	test($rs, "ブラッキー", "エーフィ", "UTF-8 Japanese test.");
-	test($rs, "knock knock", "Who's there?", "UTF-8 %Previous test 1.");
-	test($rs, "Orange", "Orange who?", "UTF-8 %Previous test 2.");
-	test($rs, "banana", "Haha! Banana!", "UTF-8 %Previous test 3.");
-	test($rs, "tëll më ä pöëm", "Thërë öncë wäs ä män nämëd Tïm", "UTF-8 Umlaut poem test 1.");
-	test($rs, "more", "Whö nëvër qüïtë lëärnëd höw tö swïm", "UTF-8 Umlaut poem test 2.");
-	test($rs, "more", "Hë fëll öff ä döck, änd sänk lïkë ä röck", "UTF-8 Umlaut poem test 3.");
-	test($rs, "more", "Änd thät wäs thë ënd öf hïm.", "UTF-8 Umlaut poem test 4.");
+    test($rs, "äh", "What's the matter?", "UTF-8 Umlaut test.");
+    test($rs, "ブラッキー", "エーフィ", "UTF-8 Japanese test.");
+    test($rs, "knock knock", "Who's there?", "UTF-8 %Previous test 1.");
+    test($rs, "Orange", "Orange who?", "UTF-8 %Previous test 2.");
+    test($rs, "banana", "Haha! Banana!", "UTF-8 %Previous test 3.");
+    test($rs, "tëll më ä pöëm", "Thërë öncë wäs ä män nämëd Tïm", "UTF-8 Umlaut poem test 1.");
+    test($rs, "more", "Whö nëvër qüïtë lëärnëd höw tö swïm", "UTF-8 Umlaut poem test 2.");
+    test($rs, "more", "Hë fëll öff ä döck, änd sänk lïkë ä röck", "UTF-8 Umlaut poem test 3.");
+    test($rs, "more", "Änd thät wäs thë ënd öf hïm.", "UTF-8 Umlaut poem test 4.");
 };
 
 #-----------------------------------------------------------------------------#
