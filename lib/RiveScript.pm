@@ -1597,8 +1597,10 @@ sub deparse {
 			person   => {},
 			array    => {},
 			triggers => {},
+			that     => {},
 		},
 		topic   => {},
+		that    => {},
 		inherit => {},
 		include => {},
 	};
@@ -1647,14 +1649,14 @@ sub deparse {
 
 		if ($topic eq "__begin__") {
 			# Begin block.
-			$dest = $deparse->{begin}->{triggers};
+			$dest = $deparse->{begin}->{that};
 		}
 		else {
 			# Normal topic.
-			if (!exists $deparse->{topic}->{$topic}) {
-				$deparse->{topic}->{$topic} = {};
+			if (!exists $deparse->{that}->{$topic}) {
+				$deparse->{that}->{$topic} = {};
 			}
-			$dest = $deparse->{topic}->{$topic};
+			$dest = $deparse->{that}->{$topic};
 		}
 
 		# The "that" structure is backwards: bot reply, then trigger, then info.
@@ -1755,12 +1757,29 @@ sub write {
 	foreach my $sort (qw/global var sub person array/) {
 		next unless scalar keys %{$deparse->{begin}->{$sort}} > 0;
 		foreach my $var (sort keys %{$deparse->{begin}->{$sort}}) {
-			my $value = ref($deparse->{begin}->{$sort}->{$var}) ?
-				join("|", @{$deparse->{begin}->{$sort}->{$var}}) :
-				$deparse->{begin}->{$sort}->{$var};
+			# Array types need to be separated by either spaces or pipes.
+			my $data = $deparse->{begin}->{$sort}->{$var};
+			if (ref($data) eq "ARRAY") {
+				my $needs_pipes = 0;
+				foreach my $test (@{$data}) {
+					if ($test =~ /\s+/) {
+						$needs_pipes = 1;
+						last;
+					}
+				}
 
-			print {$fh} "! $sort $var = " . $self->_write_wrapped($value,
-				$sort eq "array" ? "|" : " ") . "\n";
+				# Word-wrap the result, target width is 78 chars minus the
+				# sort, var, and spaces and equals sign.
+				my $width = 78 - length($sort) - length($var) - 4;
+
+				if ($needs_pipes) {
+					$data = $self->_write_wrapped(join("|", @{$data}), "|", undef, $width);
+				} else {
+					$data = join(" ", @{$data});
+				}
+			}
+
+			print {$fh} "! $sort $var = $data\n";
 		}
 		print {$fh} "\n";
 	}
@@ -1797,6 +1816,11 @@ sub write {
 		}
 
 		$self->_write_triggers($fh, $deparse->{topic}->{$topic}, $tagged ? "indent" : 0);
+
+		# Any %Previous's?
+		if (exists $deparse->{that}->{$topic}) {
+			$self->_write_triggers($fh, $deparse->{that}->{$topic}, $tagged ? "indent" : 0);
+		}
 
 		if ($tagged) {
 			print {$fh} "< topic\n\n";
@@ -1840,7 +1864,8 @@ sub _write_triggers {
 }
 
 sub _write_wrapped {
-	my ($self, $line, $sep, $indent) = @_;
+	my ($self, $line, $sep, $indent, $width) = @_;
+	$width ||= 78;
 
 	my $id = $indent ? "\t" : "";
 
@@ -1858,7 +1883,7 @@ sub _write_wrapped {
 	while (scalar(@words)) {
 		push (@buf, shift(@words));
 		$line = join($sep, @buf);
-		if (length $line > 78) {
+		if (length $line > $width) {
 			# Need to word wrap.
 			unshift(@words, pop(@buf)); # Undo
 			push (@lines, join($sep,@buf));
@@ -3327,6 +3352,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
   1.36
   - Strip punctuation from the bot's responses in UTF-8 mode to
     support compatibility with %Previous.
+  - Bugfix in deparse(): If you had two matching triggers, one with a %Previous
+    and one without, you'd lose the data for one of them in the output.
 
   1.34  Feb 26 2014
   - Update README.md to include module documentation for github.
