@@ -11,6 +11,7 @@ docs/rivescript.css
 docs/RiveScript.html
 docs/RiveScript-WD.html
 docs/JavaScript.pod
+docs/JavaScript.html
 docs/bin-rivescript.html
 t/RiveScript.t
 lib/RiveScript.pm
