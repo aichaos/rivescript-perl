@@ -3,7 +3,7 @@ Version: [% version %]
 Release: [% build %]
 Summary: Chatterbot Brain Development Toolkit
 Group:   Development/Libraries
-License: GPL+ or Artistic
+License: MIT
 URL:     http://search.cpan.org/dist/RiveScript/
 
 Provides: perl(RiveScript) = %{version}
