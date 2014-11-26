@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.35'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.36'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -933,7 +933,7 @@ sub checkSyntax {
 		my @chr = split(//, $line);
 		for (my $i = 0; $i < scalar(@chr); $i++) {
 			my $char = $chr[$i];
-			
+
 			# Count brackets.
 			$parens++  if $char eq '('; $parens--  if $char eq ')';
 			$square++  if $char eq '['; $square--  if $char eq ']';
@@ -3350,6 +3350,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 =head1 CHANGES
 
   1.36
+  - Relicense under the MIT License.
   - Strip punctuation from the bot's responses in UTF-8 mode to
     support compatibility with %Previous.
   - Bugfix in deparse(): If you had two matching triggers, one with a %Previous
@@ -3483,26 +3484,26 @@ bot, chatbot, chatterbot, chatter bot, reply, replies, script, aiml, alpha
 
 =head1 COPYRIGHT AND LICENSE
 
-The Perl RiveScript interpreter is dual licensed as of version 1.22.
-For open source applications the module is using the GNU General Public
-License. If you'd like to use the RiveScript module in a closed source or
-commercial application, contact the author for more information.
+  The MIT License (MIT)
 
-  RiveScript - Rendering Intelligence Very Easily
-  Copyright (C) 2014 Noah Petherbridge
+  Copyright (c) 2014 Noah Petherbridge
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
 
 =cut

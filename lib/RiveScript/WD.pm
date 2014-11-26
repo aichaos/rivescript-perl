@@ -3,7 +3,7 @@ package RiveScript::WD;
 use strict;
 use warnings;
 
-our $VERSION = '1.34';
+our $VERSION = '1.36';
 
 # This is not a real module; it's only a current copy of the RiveScript
 # Working Draft. See the latest version at
@@ -809,7 +809,7 @@ more information.
 The C<^> command is used to continue the text of a lengthy previous command down
 to the new line. It can be used to extend any other command. Example:
 
-  + tell me a poem 
+  + tell me a poem
   - Little Miss Muffit sat on her tuffet\n
   ^ in a nonchalant sort of way.\n
   ^ With her forcefield around her,\n

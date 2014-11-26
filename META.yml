@@ -4,7 +4,7 @@ abstract: A scripting language for chatbots.
 version: 1.34
 author:
     - Noah Petherbridge <kirsle@cpan.org>
-license: gpl
+license: mit
 distribution_type: module
 requires:
     perl: 5.008000

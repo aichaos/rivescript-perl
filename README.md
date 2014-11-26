@@ -221,7 +221,9 @@ http://www.rivescript.com/
     If you want to block Perl objects from being loaded, you can just set it to be
     undef, and its handler will be deleted and Perl objects will be skipped over:
 
+    ```perl
         $rs->setHandler (perl => undef);
+    ```
 
     The rationale behind this "pluggable" object interface is that it makes
     RiveScript more flexible given certain environments. For instance, if you use
@@ -394,7 +396,7 @@ This module can export some constants.
 
 These constants include:
 
-- RS\_ERR\_MATCH
+- RS_ERR_MATCH
 
     This is the reply text given when no trigger has matched the message. It equals
     "`ERR: No Reply Matched`".
@@ -405,7 +407,7 @@ These constants include:
         }
     ```
 
-- RS\_ERR\_REPLY
+- RS_ERR_REPLY
 
     This is the reply text given when a trigger _was_ matched, but no reply was
     given from it (for example, the trigger only had conditionals and all of them
@@ -426,6 +428,13 @@ defines the standards of RiveScript.
 [http://www.rivescript.com/](http://www.rivescript.com/) - The official homepage of RiveScript.
 
 # CHANGES
+
+    1.36
+    - Relicense under the MIT License.
+    - Strip punctuation from the bot's responses in UTF-8 mode to
+      support compatibility with %Previous.
+    - Bugfix in deparse(): If you had two matching triggers, one with a %Previous
+      and one without, you'd lose the data for one of them in the output.
 
     1.34  Feb 26 2014
     - Update README.md to include module documentation for github.
@@ -555,24 +564,24 @@ bot, chatbot, chatterbot, chatter bot, reply, replies, script, aiml, alpha
 
 # COPYRIGHT AND LICENSE
 
-The Perl RiveScript interpreter is dual licensed as of version 1.22.
-For open source applications the module is using the GNU General Public
-License. If you'd like to use the RiveScript module in a closed source or
-commercial application, contact the author for more information.
+    The MIT License (MIT)
 
-    RiveScript - Rendering Intelligence Very Easily
-    Copyright (C) 2014 Noah Petherbridge
+    Copyright (c) 2014 Noah Petherbridge
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.

@@ -8,7 +8,7 @@ WriteMakefile(
 		JSON => 0,
 	}, # e.g., Module::Name => 1.1
 	EXE_FILES         => [ 'bin/rivescript' ],
-	LICENSE           => 'gpl_2',
+	LICENSE           => 'mit',
 	MIN_PERL_VERSION  => '5.8.0',
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/RiveScript.pm', # retrieve abstract from module
