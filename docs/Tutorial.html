@@ -16,14 +16,14 @@
   <li><a href="#NAME">NAME</a></li>
   <li><a href="#INTRODUCTION">INTRODUCTION</a>
     <ul>
-      <li><a href="#What-is-RiveScript-">What is RiveScript?</a></li>
+      <li><a href="#What-is-RiveScript">What is RiveScript?</a></li>
       <li><a href="#Getting-Started">Getting Started</a></li>
       <li><a href="#Project-Directory">Project Directory</a></li>
     </ul>
   </li>
   <li><a href="#FIRST-STEPS">FIRST STEPS</a>
     <ul>
-      <li><a href="#Hello-Human-">Hello, Human!</a>
+      <li><a href="#Hello-Human">Hello, Human!</a>
         <ul>
           <li><a href="#The-Code-Explained">The Code, Explained</a></li>
         </ul>
@@ -108,7 +108,7 @@
 
 <p>This tutorial will help you learn how to write your own chatbot personalities using the RiveScript language.</p>
 
-<h2 id="What-is-RiveScript-">What is RiveScript?</h2>
+<h2 id="What-is-RiveScript">What is RiveScript?</h2>
 
 <p>RiveScript is a text-based scripting language meant to aid in the development of interactive chatbots. A chatbot is a software application that can communicate with humans using natural languages such as English in order to provide entertainment, services or just have a conversation.</p>
 
@@ -159,7 +159,7 @@
 
 <h1 id="FIRST-STEPS">FIRST STEPS</h1>
 
-<h2 id="Hello-Human-">Hello, Human!</h2>
+<h2 id="Hello-Human">Hello, Human!</h2>
 
 <p>Let&#39;s write our first few lines of RiveScript code!</p>
 
@@ -204,7 +204,7 @@
 
 <p>Making your bot <i>always</i> respond exactly the same way to something the user says will get boring really quickly. For this reason, RiveScript makes it easy to add random responses to a trigger!</p>
 
-<p>Getting random responses is as easy as entering multiple Response commands for the same trigger. To see this in action, open your <code>hello.rive</code> file from <a href="#Hello-Human-">&quot;Hello, Human!&quot;</a> and add the following lines to it:</p>
+<p>Getting random responses is as easy as entering multiple Response commands for the same trigger. To see this in action, open your <code>hello.rive</code> file from <a href="#Hello-Human">&quot;Hello, Human!&quot;</a> and add the following lines to it:</p>
 
 <pre><code>  + how are you
   - I&#39;m great, how are you?
@@ -409,7 +409,7 @@
 
 <h3 id="Catch-All-Trigger">Catch-All Trigger</h3>
 
-<p>Remember back in <a href="#Hello-Human-">&quot;Hello, Human!&quot;</a> where the bot would say &quot;ERR: No Reply Matched&quot; whenever we said something it couldn&#39;t reply to? Well, we can remedy this by writing a catch-all trigger.</p>
+<p>Remember back in <a href="#Hello-Human">&quot;Hello, Human!&quot;</a> where the bot would say &quot;ERR: No Reply Matched&quot; whenever we said something it couldn&#39;t reply to? Well, we can remedy this by writing a catch-all trigger.</p>
 
 <p>A catch-all trigger is one that simply consists of a single wildcard:</p>
 
@@ -1111,7 +1111,7 @@
 <p>These tags can not be used with <code>+ Trigger</code>.</p>
 
 </dd>
-<dt id="topic-"><code>{topic}</code></dt>
+<dt id="topic"><code>{topic}</code></dt>
 <dd>
 
 <p>This tag changes the client&#39;s topic.</p>
@@ -1132,7 +1132,7 @@
 <p>This tag can not be used with <code>+ Trigger</code>.</p>
 
 </dd>
-<dt id="weight-"><code>{weight}</code></dt>
+<dt id="weight"><code>{weight}</code></dt>
 <dd>
 
 <p>This tag applies a weight to a trigger or response. When used with a trigger, it controls the matching priority of the trigger (a higher weight means higher priority). When used with a reply, it controls how frequently that reply will be randomly chosen.</p>
@@ -1148,7 +1148,7 @@
 <p>This tag can only be used with <code>+ Trigger</code> and <code>- Reply</code>.</p>
 
 </dd>
-<dt id="pod-"><code>{@}, &lt;@&gt;</code></dt>
+<dt id="pod"><code>{@}, &lt;@&gt;</code></dt>
 <dd>
 
 <p>This tag performs an inline redirection to a different trigger. <code>&lt;@&gt;</code> is an alias for <code>{@ &lt;star&gt;}</code>.</p>
@@ -1161,7 +1161,7 @@
 <p>This tag can not be used with <code>+ Trigger</code>.</p>
 
 </dd>
-<dt id="random-"><code>{random}</code></dt>
+<dt id="random"><code>{random}</code></dt>
 <dd>
 
 <p>Insert a sub-set of random text. This can come in handy in conditional lines, if you want a random reply for a condition.</p>
@@ -1219,7 +1219,7 @@
 <p>The first word in the <code>&lt;call&gt;</code> tag is the name of an object macro to call (see <a href="#Object-Macros">&quot;Object Macros&quot;</a>). The macros may optionally take some arguments, and you can pass them in by placing them in the <code>&lt;call&gt;</code> tag as shown in this example.</p>
 
 </dd>
-<dt id="ok-"><code>{ok}</code></dt>
+<dt id="ok"><code>{ok}</code></dt>
 <dd>
 
 <p>This is only used in the Begin Block in response to the <code>request</code> trigger. It indicates that it&#39;s OK to fetch a reply for the user&#39;s message. The reply will replace the <code>{ok}</code> tag.</p>
