@@ -1,5 +1,10 @@
 Revision history for Perl extension RiveScript.
 
+  1.37  TBD
+  - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
+    <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
+    tags (for example, <set copy=<get orig>> will work now).
+
   1.36  Nov 26 2014
   - Relicense under the MIT License.
   - Strip punctuation from the bot's responses in UTF-8 mode to

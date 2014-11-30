@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 133;
+use Test::More tests => 137;
 
 binmode(STDOUT, ":utf8");
 
@@ -392,6 +392,24 @@ push @tests, sub {
     test($rs, 'Am I your master?', 'No.', 'Conditions 9.');
     $rs->setUservar('user', 'master' => 'true');
     test($rs, 'Am I your master?', 'Yes.', 'Conditions 10.');
+};
+
+push @tests, sub {
+    # Embedded Tag Testing
+    my $rs = bot("
+        + my name is *
+        * <get name> != undefined => <set oldname=<get name>>I thought\\s
+          ^ your name was <get oldname>?
+          ^ <set name=<formal>>
+        - <set name=<formal>>OK.
+
+        + what is my name
+        - Your name is <get name>, right?
+    ");
+    test($rs, "What is my name?", "Your name is undefined, right?", "Embed tag test 1.");
+    test($rs, "My name is Alice.", "OK.", "Embed tag test 2.");
+    test($rs, "My name is Bob.", "I thought your name was Alice?", "Embed tag test 3.");
+    test($rs, "What is my name?", "Your name is Bob, right?", "Embed tag test 4.");
 };
 
 #-----------------------------------------------------------------------------#

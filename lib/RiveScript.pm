@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.36'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.37'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -2988,60 +2988,6 @@ sub processTags {
 		}
 		$reply =~ s/\{random\}(.+?)\{\/random\}/$output/i;
 	}
-	while ($reply =~ /<bot (.+?)=(.+?)>/i) {
-		my ($what,$is) = ($1, $2);
-		$self->{bot}->{$what} = $is;
-		$reply =~ s/<bot (.+?)=(.+?)>//i;
-	}
-	while ($reply =~ /<env (.+?)=(.+?)>/i) {
-		my ($what,$is) = ($1, $2);
-
-		# Reserved?
-		my $reserved = 0;
-		foreach my $res (@{$self->{reserved}}) {
-			if ($res eq $what) {
-				$reserved = 1;
-				last;
-			}
-		}
-
-		if ($reserved) {
-			$self->{globals}->{$what} = $is;
-		}
-		else {
-			$self->{$what} = $is;
-		}
-
-		$reply =~ s/<env (.+?)=(.+?)>//i;
-	}
-	while ($reply =~ /<bot (.+?)>/i) {
-		my $val = (exists $self->{bot}->{$1} ? $self->{bot}->{$1} : 'undefined');
-		$reply =~ s/<bot (.+?)>/$val/i;
-	}
-	while ($reply =~ /<env (.+?)>/i) {
-		my $var = $1;
-		my $val = '';
-		if (exists $self->{globals}->{$var}) {
-			$val = $self->{globals}->{$var};
-		}
-		else {
-			my $reserved = 0;
-			foreach my $res (@{$self->{reserved}}) {
-				if ($res eq $var) {
-					$reserved = 1;
-				}
-			}
-
-			if (not $reserved) {
-				$val = (exists $self->{$var} ? $self->{$var} : 'undefined');
-			}
-			else {
-				$val = "(reserved)";
-			}
-		}
-
-		$reply =~ s/<env (.+?)>/$val/i;
-	}
 	while ($reply =~ /\{\!(.+?)\}/i) {
 		# Just stream this back through.
 		$self->stream ("! $1");
@@ -3072,59 +3018,109 @@ sub processTags {
 		$lower = $self->_stringUtil ('lower',$lower);
 		$reply =~ s/\{lowercase\}(.+?)\{\/lowercase\}/$lower/i;
 	}
-	while ($reply =~ /<set (.+?)=(.+?)>/i) {
-		# Set a user variable.
-		$self->debug ("Set uservar $1 => $2");
-		$self->{client}->{$user}->{$1} = $2;
-		$reply =~ s/<set (.+?)=(.+?)>//i;
-	}
-	while ($reply =~ /<(add|sub|mult|div) (.+?)=(.+?)>/i) {
-		# Mathematic modifiers.
-		my $mod = lc($1);
-		my $var = $2;
-		my $value = $3;
-		my $output = '';
 
-		# Initialize the variable?
-		if (!exists $self->{client}->{$user}->{$var}) {
-			$self->{client}->{$user}->{$var} = 0;
-		}
+	# Handle all variable-related tags with an iterative regexp approach,
+	# to allow for nesting of tags in arbitrary ways (think <set a=<get b>>)
+	# Dummy out the <call> tags first, because we don't handle them right here.
+	$reply =~ s/<call>/{__call__}/og;
+	$reply =~ s/<\/call>/{\/__call__}/og;
+	while (1) {
+		# This regexp will match a <tag> which contains no other tag inside it,
+		# i.e. in the case of <set a=<get b>> it will match <get b> but not the
+		# <set> tag, on the first pass. The second pass will get the <set> tag,
+		# and so on.
+		if ($reply =~ /<([^<]+?)>/) {
+			my $match  = $1;
+			my @parts  = split(/\s+/, $match, 2);
+			my $tag    = lc($parts[0]);
+			my $data   = $parts[1] or "";
+			my $insert = ""; # Result of the tag evaluation.
 
-		# Only modify numeric variables.
-		if ($self->{client}->{$user}->{$var} !~ /^[0-9\-\.]+$/) {
-			$output = "[ERR: Can't Modify Non-Numeric Variable $var]";
-		}
-		elsif ($value =~ /^[^0-9\-\.]$/) {
-			$output = "[ERR: Math Can't \"$mod\" Non-Numeric Value $value]";
-		}
-		else {
-			# Modify the variable.
-			if ($mod eq 'add') {
-				$self->{client}->{$user}->{$var} += $value;
-			}
-			elsif ($mod eq 'sub') {
-				$self->{client}->{$user}->{$var} -= $value;
-			}
-			elsif ($mod eq 'mult') {
-				$self->{client}->{$user}->{$var} *= $value;
-			}
-			elsif ($mod eq 'div') {
-				# Don't divide by zero.
-				if ($value == 0) {
-					$output = "[ERR: Can't Divide By Zero]";
+			# Handle the tags.
+			if ($tag eq "bot" or $tag eq "env") {
+				# <bot> and <env> tags are similar.
+				my ($what, $is) = split(/=/, $data, 2);
+				my $target = $self->{bot};
+				if ($tag eq "env") {
+					# Reserved?
+					my $reserved = 0;
+					foreach my $res (@{$self->{reserved}}) {
+						if ($res eq $what) {
+							$reserved = 1;
+							last;
+						}
+					}
+					if ($reserved) {
+						$target = $self->{globals};
+					}
+					else {
+						$target = $self;
+					}
+				}
+
+				# Updating?
+				if ($data =~ /=/) {
+					$self->debug("Set $tag variable $what => $is");
+					$target->{$what} = $is;
 				}
 				else {
-					$self->{client}->{$user}->{$var} /= $value;
+					$insert = exists $target->{$what} ? $target->{$what} : "undefined";
 				}
 			}
-		}
+			elsif ($tag eq "set") {
+				# <set> user vars.
+				my ($what, $is) = split(/=/, $data, 2);
+				$self->debug("Set uservar $what => $is");
+				$self->{client}->{$user}->{$what} = $is;
+			}
+			elsif ($tag =~ /^(?:add|sub|mult|div)$/) {
+				my ($var, $value) = split(/=/, $data, 2);
 
-		$reply =~ s/<(add|sub|mult|div) (.+?)=(.+?)>/$output/i;
+				# Initialize the value?
+				if (!exists $self->{client}->{$user}->{$var}) {
+					$self->{client}->{$user}->{$var} = 0;
+				}
+
+				# Sanity checks.
+				if ($self->{client}->{$user}->{$var} !~ /^[0-9\-\.]+$/) {
+					$insert = "[ERR: Can't Modify Non-Numeric Variable $var]";
+				}
+				elsif ($value =~ /^[^0-9\-\.]$/) {
+					$insert = "[ERR: Math Can't '$tag' Non-Numeric Value $value]";
+				}
+				else {
+					# Modify the variable.
+					if ($tag eq "add") {
+						$self->{client}->{$user}->{$var} += $value;
+					}
+					elsif ($tag eq "sub") {
+						$self->{client}->{$user}->{$var} -= $value;
+					}
+					elsif ($tag eq "mult") {
+						$self->{client}->{$user}->{$var} *= $value;
+					}
+					elsif ($tag eq "div") {
+						# Don't divide by zero.
+						if ($value == 0) {
+							$insert = "[ERR: Can't Divide By Zero]";
+						}
+						else {
+							$self->{client}->{$user}->{$var} /= $value;
+						}
+					}
+				}
+			}
+			elsif ($tag eq "get") {
+				$insert = (exists $self->{client}->{$user}->{$data} ? $self->{client}->{$user}->{$data} : "undefined");
+			}
+
+			$reply =~ s/<$match>/$insert/i;
+		}
+		else {
+			last; # No more tags remaining.
+		}
 	}
-	while ($reply =~ /<get (.+?)>/i) {
-		my $val = (exists $self->{client}->{$user}->{$1} ? $self->{client}->{$user}->{$1} : 'undefined');
-		$reply =~ s/<get (.+?)>/$val/i;
-	}
+
 	if ($reply =~ /\{topic=(.+?)\}/i) {
 		# Set the user's topic.
 		$self->debug ("Topic set to $1");
@@ -3141,6 +3137,8 @@ sub processTags {
 		);
 		$reply =~ s/\{\@(.+?)\}/$subreply/i;
 	}
+	$reply =~ s/\{__call__\}/<call>/g;
+	$reply =~ s/\{\/__call__\}/<\/call>/g;
 	while ($reply =~ /<call>(.+?)<\/call>/i) {
 		my ($obj,@args) = split(/\s+/, $1);
 		my $output = '';
@@ -3349,7 +3347,12 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.36
+  1.37  TBD
+  - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
+    <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
+    tags (for example, <set copy=<get orig>> will work now).
+
+  1.36  Nov 26 2014
   - Relicense under the MIT License.
   - Strip punctuation from the bot's responses in UTF-8 mode to
     support compatibility with %Previous.
@@ -3378,101 +3381,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     instead of .rs (which conflicts with the Rust programming language).
     Backwards compatibility remains to load .rs files, though.
 
-  1.28  Aug 14 2012
-  - FIXED: Typos in RiveScript::WD (Bug #77618)
-  - Added constants RS_ERR_MATCH and RS_ERR_REPLY.
-
-  1.26  May 29 2012
-  - Added EXE_FILES to Makefile.PL so the rivescript utility installs
-    correctly.
-
-  1.24  May 15 2012
-  - Fixed: having a single-line, multiline comment, e.g. /* ... */
-  - Fixed: you can use <input> and <reply> in triggers now, instead of only
-    <input1>-<input9> and <reply1>-<reply9>
-  - When a trigger consists of nothing but multiple wildcard symbols, sort
-    the trigger by length, this way you can have '* * * * *' type triggers
-    still work correctly (each <star> tag would get one word, with the final
-    <star> collecting the remainder).
-  - Backported new feature from Python lib: you can now use <bot> and <env>
-    to SET variables (eg. <bot mood=happy>). The {!...} tag is deprecated.
-  - New feature: deparse() will return a Perl data structure representing all
-    of the RiveScript code parsed by the module so far. This way you can build
-    a user interface for editing replies without requiring a user to edit the
-    code directly.
-  - New method: write() will use deparse() to write a RiveScript document using
-    all of the in-memory triggers/responses/etc.
-  - Cleaned up the POD documentation, put POD code along side the Perl functions
-    it documents, removed useless bloat from the docs.
-  - POD documentation now only shows recent changes. For older changes, see the
-    "CHANGES" file in the distribution.
-  - Removed the `rsup` script from the distribution (it upgrades RiveScript 1.x
-    code to 2.x; there probably isn't any 1.x code out in the wild anyway).
-
-  1.22  Sep 22 2011
-  - Cleaned up the documentation of RiveScript; moved the JavaScript object
-    example to a separate document in the `docs' directory.
-  - Obsoleted the `rsdemo` command that used to ship with the distribution. In
-    its place is `rivescript`, which can also be used non-interactively so that a
-    third party, non-Perl application could still make use of RiveScript.
-  - RiveScript.pm is now dual licensed. It uses the GPLv2 for open source
-    applications as before, but you can contact the author for details if you
-    want to use RiveScript.pm in a closed source commercial application.
-
-  1.20  Jul 30 2009
-  - Added automatic syntax checking when parsing RiveScript code. Also added
-    'strict mode' - if true (default), a syntax error is a fatal error. If false,
-    a syntax error is a warning, and RiveScript aborts processing the file any
-    further.
-  - Changed the behavior of "inherits" a bit: a new type has been added called
-    "includes" which does what the old "inherits" does (mixes the trigger list
-    of both topics together into the same pool). The new "inherits" option though
-    causes the trigger list from the source topic to be higher in matching priority
-    than the trigger list of the inherited topic.
-  - Moving to a new versioning scheme: development releases will have odd
-    version numbers, stable (CPAN) versions will have even numbers.
-  - Fixed the Eliza brain; in many places a <star2> was used when there was only one
-    star in the trigger. Fixes lots of issues with Eliza.
-  - Bugfix: recursion depth limits weren't taken into account when the {@} tag
-    was responsible for a redirection. Fixed.
-  - Bugfix: there was a problem in the regular expression that counts real words
-    while sorting triggers, so that triggers with *'s in them weren't sorted
-    properly and would therefore cause matching issues.
-  - Bugfix: when the internal _getreply is called because of a recursive
-    redirection (@, {@}), the %previous tags should be ignored. They weren't.
-    since "lastreply" is always the same no matter how deeply recursive _getreply
-    is going, it could result in some infinite recursion in rare cases. Fixed.
-  - Bugfix: using a reserved name as a global variable wasn't working properly
-    and would crash RiveScript. Fixed.
-
-  1.19  Apr 12 2009
-  - Added support for defining custom object handlers for non-Perl programming
-    languages.
-  - All the methods like setGlobal, setVariable, setUservar, etc. will now
-    accept undef or "<undef>" as values - this will delete the variables.
-  - There are no reserved global variable names anymore. Now, if a variable name
-    would conflict with a reserved name, it is put into a "protected" space
-    elsewhere in the object. Still take note of which names are reserved though.
-
-  1.18  Dec 31 2008
-  - Added support for topics to inherit their triggers from other topics.
-    e.g. > topic alpha inherits beta
-  - Fixed some bugs related to !array with ^continue's, and expanded its
-    functionality therein.
-  - Updated the getUservars() function to optionally be able to get just a specific
-    variable from the user's data. Added getUservar() as a grammatically correct
-    alias to this new functionality.
-  - Added the functions freezeUservars() and thawUservars() to back up and
-    restore a user's variables.
-  - Added the function lastMatch(), which returns the text of the trigger that
-    matched the user's last message.
-  - The # command for RiveScript comments has been deprecated in revision 7 of
-    the RiveScript Working Draft. The Perl module will now emit warnings each
-    time the # comments are processed.
-  - Modified a couple of triggers in the default Eliza brain to improve matching
-    issues therein.
-  - +Triggers can contain user <get> tags now.
-  - Updated the RiveScript Working Draft.
+See the `Changes` file for older change history.
 
 =head1 AUTHOR
 
