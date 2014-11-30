@@ -12,7 +12,7 @@ our $VERSION = '1.36';
 
 =head1 NAME
 
-RiveScript::WD - RiveScript 2.00 Working Draft (2009/07/30)
+RiveScript::WD - RiveScript 2.00 Working Draft (2014/11/30)
 
 =head1 DESCRIPTION
 
@@ -1038,7 +1038,7 @@ L<"global"> commands.
   - No, debug mode is set to "<env debug>"
 
 The C<E<lt>envE<gt>> tag allows assignment as well (which deprecates the old
-C<{!...}> tag.
+C<{!...}> tag).
 
   + turn debug mode on
   * <get master> == true => <env debug=1>Debug mode enabled.
@@ -1344,22 +1344,42 @@ that a tag is allowed is as follows:
   \\          #
   \#          #
   {random}    # Random text insertion (which may contain other tags)
-  <bot>       # Insert bot variables
-  <env>       # Insert environment variables
   <person>    # String modifiers
   <formal>    #
   <sentence>  #
   <uppercase> #
   <lowercase> #
-  <set>       # User variable modifiers
-  <add>       #
-  <sub>       #
-  <mult>      #
-  <div>       #
-  <get>       # Get user variables
+  <bot>*      # Insert bot variables
+  <env>*      # Insert environment variables
+  <set>*      # User variable modifiers
+  <add>*      #
+  <sub>*      #
+  <mult>*     #
+  <div>*      #
+  <get>*      # Get user variables
   {topic}     # Set user topic
   <@>         # Inline redirection
   <call>      # Object macros.
+
+* The variable manipulation tags should all be processed "at the same time",
+not in any particular order. This will allow, for example, the following sort
+of trigger to work:
+
+  + my name is *
+  * <get name> != undefined =>
+    ^ <set oldname=<get name>>I thought your name was <get oldname>?
+    ^ <set name=<formal>>
+  - <set name=<formal>>Nice to meet you.
+
+In older implementations of RiveScript, `set` tags were processed earlier than
+`get` making it impossible to copy variables. Implementations should process
+this group of tags from the most-embedded outward.
+
+An easy way to do this is with a regular expression that matches a tag that
+contains no other tag, and make multiple passes until no tags remain that match
+the regexp:
+
+  /<([^<]+?)>/
 
 =head1 REVERSE COMPATIBILITY
 
@@ -1421,6 +1441,9 @@ Or perhaps there will just be a converter tool created that would go through cod
 that it already assumes will be RiveScript 1.x and update it to 2.x standards.
 
 =head1 REVISIONS
+
+  Rev 12 - Nov 30, 2014
+  - Added implementation guidelines for dealing with variable-setting tags.
 
   Rev 11 - Jun 13, 2013
   - Clarify the ability for the <bot> and <env> tags to be used for assignment.
