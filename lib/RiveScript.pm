@@ -3113,6 +3113,10 @@ sub processTags {
 			elsif ($tag eq "get") {
 				$insert = (exists $self->{client}->{$user}->{$data} ? $self->{client}->{$user}->{$data} : "undefined");
 			}
+			else {
+				# Might be HTML tag, it's unrecognized. Preserve it.
+				$insert = "\x00$match\x01";
+			}
 
 			$reply =~ s/<$match>/$insert/i;
 		}
@@ -3120,6 +3124,10 @@ sub processTags {
 			last; # No more tags remaining.
 		}
 	}
+
+	# Recover mangled HTML-like tag parts.
+	$reply =~ s/\x00/</g;
+	$reply =~ s/\x01/>/g;
 
 	if ($reply =~ /\{topic=(.+?)\}/i) {
 		# Set the user's topic.

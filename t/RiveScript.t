@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 137;
+use Test::More tests => 138;
 
 binmode(STDOUT, ":utf8");
 
@@ -405,11 +405,15 @@ push @tests, sub {
 
         + what is my name
         - Your name is <get name>, right?
+
+        + html test
+        - <set name=<b>Name</b>>This has some non-RS <em>tags</em> in it.
     ");
     test($rs, "What is my name?", "Your name is undefined, right?", "Embed tag test 1.");
     test($rs, "My name is Alice.", "OK.", "Embed tag test 2.");
     test($rs, "My name is Bob.", "I thought your name was Alice?", "Embed tag test 3.");
     test($rs, "What is my name?", "Your name is Bob, right?", "Embed tag test 4.");
+    test($rs, "HTML Test", "This has some non-RS <em>tags</em> in it.");
 };
 
 #-----------------------------------------------------------------------------#
