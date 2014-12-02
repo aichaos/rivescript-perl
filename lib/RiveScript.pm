@@ -3033,7 +3033,7 @@ sub processTags {
 			my $match  = $1;
 			my @parts  = split(/\s+/, $match, 2);
 			my $tag    = lc($parts[0]);
-			my $data   = $parts[1] or "";
+			my $data   = $parts[1] || "";
 			my $insert = ""; # Result of the tag evaluation.
 
 			# Handle the tags.
