@@ -4,6 +4,8 @@ Revision history for Perl extension RiveScript.
   - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
     <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
     tags (for example, <set copy=<get orig>> will work now).
+  - Fix trigger sorting so that triggers with matching word counts are sorted
+    by length descending.
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.

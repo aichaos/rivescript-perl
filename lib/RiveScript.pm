@@ -1173,20 +1173,12 @@ sub sortReplies {
 			$track->{ ($highest_inherits + 1) } = delete $track->{'-1'}; # Move the no-{inherits} group away for a sec
 			foreach my $ip (sort { $a <=> $b } keys %{$track}) {
 				$self->debug("ip=$ip");
-				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{atomic}}) {
-					push (@running,@{$track->{$ip}->{atomic}->{$i}});
-				}
-				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{option}}) {
-					push (@running,@{$track->{$ip}->{option}->{$i}});
-				}
-				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{alpha}}) {
-					push (@running,@{$track->{$ip}->{alpha}->{$i}});
-				}
-				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{number}}) {
-					push (@running,@{$track->{$ip}->{number}->{$i}});
-				}
-				foreach my $i (sort { $b <=> $a } keys %{$track->{$ip}->{wild}}) {
-					push (@running,@{$track->{$ip}->{wild}->{$i}});
+				foreach my $kind (qw(atomic option alpha number wild)) {
+					foreach my $wordcnt (sort { $b <=> $a } keys %{$track->{$ip}->{$kind}}) {
+						# Triggers with a matching word count should be sorted
+						# by length, descending.
+						push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{$kind}->{$wordcnt}});
+					}
 				}
 				push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{under}});
 				push (@running, sort { length($b) <=> length($a) } @{$track->{$ip}->{pound}});
@@ -3359,6 +3351,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
   - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
     <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
     tags (for example, <set copy=<get orig>> will work now).
+  - Fix trigger sorting so that triggers with matching word counts are sorted
+    by length descending.
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.
