@@ -364,6 +364,18 @@ sub parse {
 	my $lastcmd = '';       # Last command code.
 	my $isThat  = '';       # Is a %Previous trigger.
 
+	# Local (file scoped) parser options.
+	my %local_options = (
+		concat => "none", # Concat mode for ^Continue command.
+	);
+
+	# Concat mode characters.
+	my %concat_mode = (
+		none    => "",
+		space   => " ",
+		newline => "\n",
+	);
+
 	# Split the RS code into lines.
 	$code =~ s/([\x0d\x0a])+/\x0a/ig;
 	my @lines = split(/\x0a/, $code);
@@ -536,7 +548,10 @@ sub parse {
 				if ($cmd ne '^' && $lookCmd ne '%') {
 					if ($lookCmd eq '^') {
 						$self->debug ("\t^ [$lp;$i] $lookahead");
-						$line .= $lookahead;
+						my $concat = exists $concat_mode{$local_options{"concat"}}
+							? $concat_mode{$local_options{"concat"}}
+							: "";
+						$line .= $concat . $lookahead;
 					}
 					else {
 						last;
@@ -563,6 +578,10 @@ sub parse {
 					$self->issue ("Unsupported RiveScript Version. Skipping file $fname.");
 					return;
 				}
+			}
+			elsif ($type eq 'local') {
+				$self->debug ("\tSet local parser option $var = $value");
+				$local_options{$var} = $value;
 			}
 			elsif ($type eq 'global') {
 				if (not defined $var) {
@@ -3353,6 +3372,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     tags (for example, <set copy=<get orig>> will work now).
   - Fix trigger sorting so that triggers with matching word counts are sorted
     by length descending.
+  - Add support for `! local concat` option to override concatenation mode
+    (file scoped)
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.

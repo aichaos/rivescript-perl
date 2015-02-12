@@ -6,6 +6,8 @@ Revision history for Perl extension RiveScript.
     tags (for example, <set copy=<get orig>> will work now).
   - Fix trigger sorting so that triggers with matching word counts are sorted
     by length descending.
+  - Add support for `! local concat` option to override concatenation mode
+    (file scoped)
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.

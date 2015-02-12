@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 138;
+use Test::More tests => 144;
 
 binmode(STDOUT, ":utf8");
 
@@ -608,6 +608,59 @@ push @tests, sub {
     test($rs, 'What color is the sun?', 'Yellow.', 'Topic=evenmore 2.');
     test($rs, 'What color is grass?', 'Blue, sometimes.', 'Topic=evenmore 3.');
 
+};
+
+#-----------------------------------------------------------------------------#
+# Local file scoped parser options                                            #
+#-----------------------------------------------------------------------------#
+
+push @tests, sub {
+    my $rs = RiveScript->new();
+    extend($rs, "
+        // Default concat mode = none
+        + test concat default
+        - Hello
+        ^ world!
+
+        ! local concat = space
+        + test concat space
+        - Hello
+        ^ world!
+
+        ! local concat = none
+        + test concat none
+        - Hello
+        ^ world!
+
+        ! local concat = newline
+        + test concat newline
+        - Hello
+        ^ world!
+
+        // invalid concat setting is equivalent to `none`
+        ! local concat = foobar
+        + test concat foobar
+        - Hello
+        ^ world!
+
+        // the option is file scoped so it can be left at
+        // any setting and won't affect subsequent parses
+        ! local concat = newline
+    ");
+    extend($rs, "
+        // concat mode should be restored to the default in a
+        // separate file/stream parse
+        + test concat second file
+        - Hello
+        ^ world!
+    ");
+
+    test($rs, "test concat default", "Helloworld!");
+    test($rs, "test concat space", "Hello world!");
+    test($rs, "test concat none", "Helloworld!");
+    test($rs, "test concat newline", "Hello\nworld!");
+    test($rs, "test concat foobar", "Helloworld!");
+    test($rs, "test concat second file", "Helloworld!");
 };
 
 #-----------------------------------------------------------------------------#
