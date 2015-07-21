@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.37'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.38'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -1998,6 +1998,7 @@ sub setSubroutine {
 	my ($self,$name,$sub) = @_;
 
 	$self->{objects}->{$name} = $sub;
+	$self->{objlangs}->{$name} = "perl";
 	return 1;
 }
 
@@ -3366,7 +3367,7 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  1.37  TBD
+  1.38  Jul 21 2015
   - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
     <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
     tags (for example, <set copy=<get orig>> will work now).
@@ -3374,6 +3375,8 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
     by length descending.
   - Add support for `! local concat` option to override concatenation mode
     (file scoped)
+  - Bugfix where Perl object macros set via `setSubroutine()` failed to load
+    because they were missing a programming language internally.
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.

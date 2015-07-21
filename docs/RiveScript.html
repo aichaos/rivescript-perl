@@ -431,12 +431,16 @@
 
 <h1 id="CHANGES">CHANGES</h1>
 
-<pre><code>  1.37  TBD
+<pre><code>  1.38  Jul 21 2015
   - New algorithm for handling variable tags (&lt;get&gt;, &lt;set&gt;, &lt;add&gt;, &lt;sub&gt;,
     &lt;mult&gt;, &lt;div&gt;, &lt;bot&gt; and &lt;env&gt;) that allows for iterative nesting of these
     tags (for example, &lt;set copy=&lt;get orig&gt;&gt; will work now).
   - Fix trigger sorting so that triggers with matching word counts are sorted
     by length descending.
+  - Add support for `! local concat` option to override concatenation mode
+    (file scoped)
+  - Bugfix where Perl object macros set via `setSubroutine()` failed to load
+    because they were missing a programming language internally.
 
   1.36  Nov 26 2014
   - Relicense under the MIT License.

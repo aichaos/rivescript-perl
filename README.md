@@ -429,12 +429,18 @@ defines the standards of RiveScript.
 
 # CHANGES
 
-    1.37  TBD
+    1.38  Jul 21 2015
     - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
       <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these
       tags (for example, <set copy=<get orig>> will work now).
+    - Fix trigger sorting so that triggers with matching word counts are sorted
+      by length descending.
+    - Add support for `! local concat` option to override concatenation mode
+      (file scoped)
+    - Bugfix where Perl object macros set via `setSubroutine()` failed to load
+      because they were missing a programming language internally.
 
-    1.36
+    1.36  Nov 26 2014
     - Relicense under the MIT License.
     - Strip punctuation from the bot's responses in UTF-8 mode to
       support compatibility with %Previous.

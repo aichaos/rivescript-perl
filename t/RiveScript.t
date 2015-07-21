@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 144;
+use Test::More tests => 145;
 
 binmode(STDOUT, ":utf8");
 
@@ -492,6 +492,24 @@ push @tests, sub {
 
     test($rs, 'test', 'Result: [ERR: Object Not Found]',
         'Perl object macros disabled.');
+};
+
+push @tests, sub {
+    # Try manually entered Perl objects.
+    my $rs = RiveScript->new();
+    $rs->setSubroutine("reverse", sub {
+        my ($rs, @args) = @_;
+        my $msg = join " ", @args;
+        my @char = split("", $msg);
+        return join "", reverse @char;
+    });
+    $rs->stream('
+        + reverse *
+        - <call>reverse <star></call>
+    ');
+    $rs->sortReplies();
+
+    test($rs, "reverse hello world", "dlrow olleh", "Objects via setSubroutine");
 };
 
 #-----------------------------------------------------------------------------#
