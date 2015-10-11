@@ -117,7 +117,7 @@
 
 <h1 id="NAME">NAME</h1>
 
-<p>RiveScript::WD - RiveScript 2.00 Working Draft (2009/07/30)</p>
+<p>RiveScript::WD - RiveScript 2.00 Working Draft (2014/11/30)</p>
 
 <h1 id="DESCRIPTION">DESCRIPTION</h1>
 
@@ -924,7 +924,7 @@
   * &lt;env debug&gt; == 1 =&gt; Yes, debug mode is active.
   - No, debug mode is set to &quot;&lt;env debug&gt;&quot;</code></pre>
 
-<p>The <code>&lt;env&gt;</code> tag allows assignment as well (which deprecates the old <code>{!...}</code> tag.</p>
+<p>The <code>&lt;env&gt;</code> tag allows assignment as well (which deprecates the old <code>{!...}</code> tag).</p>
 
 <pre><code>  + turn debug mode on
   * &lt;get master&gt; == true =&gt; &lt;env debug=1&gt;Debug mode enabled.
@@ -1181,22 +1181,36 @@
   \\          #
   \#          #
   {random}    # Random text insertion (which may contain other tags)
-  &lt;bot&gt;       # Insert bot variables
-  &lt;env&gt;       # Insert environment variables
   &lt;person&gt;    # String modifiers
   &lt;formal&gt;    #
   &lt;sentence&gt;  #
   &lt;uppercase&gt; #
   &lt;lowercase&gt; #
-  &lt;set&gt;       # User variable modifiers
-  &lt;add&gt;       #
-  &lt;sub&gt;       #
-  &lt;mult&gt;      #
-  &lt;div&gt;       #
-  &lt;get&gt;       # Get user variables
+  &lt;bot&gt;*      # Insert bot variables
+  &lt;env&gt;*      # Insert environment variables
+  &lt;set&gt;*      # User variable modifiers
+  &lt;add&gt;*      #
+  &lt;sub&gt;*      #
+  &lt;mult&gt;*     #
+  &lt;div&gt;*      #
+  &lt;get&gt;*      # Get user variables
   {topic}     # Set user topic
   &lt;@&gt;         # Inline redirection
   &lt;call&gt;      # Object macros.</code></pre>
+
+<p>* The variable manipulation tags should all be processed &quot;at the same time&quot;, not in any particular order. This will allow, for example, the following sort of trigger to work:</p>
+
+<pre><code>  + my name is *
+  * &lt;get name&gt; != undefined =&gt;
+    ^ &lt;set oldname=&lt;get name&gt;&gt;I thought your name was &lt;get oldname&gt;?
+    ^ &lt;set name=&lt;formal&gt;&gt;
+  - &lt;set name=&lt;formal&gt;&gt;Nice to meet you.</code></pre>
+
+<p>In older implementations of RiveScript, `set` tags were processed earlier than `get` making it impossible to copy variables. Implementations should process this group of tags from the most-embedded outward.</p>
+
+<p>An easy way to do this is with a regular expression that matches a tag that contains no other tag, and make multiple passes until no tags remain that match the regexp:</p>
+
+<pre><code>  /&lt;([^&lt;]+?)&gt;/</code></pre>
 
 <h1 id="REVERSE-COMPATIBILITY">REVERSE COMPATIBILITY</h1>
 
@@ -1252,7 +1266,10 @@
 
 <h1 id="REVISIONS">REVISIONS</h1>
 
-<pre><code>  Rev 11 - Jun 13, 2013
+<pre><code>  Rev 12 - Nov 30, 2014
+  - Added implementation guidelines for dealing with variable-setting tags.
+
+  Rev 11 - Jun 13, 2013
   - Clarify the ability for the &lt;bot&gt; and &lt;env&gt; tags to be used for assignment.
 
   Rev 10 - May 15, 2012

@@ -431,7 +431,11 @@
 
 <h1 id="CHANGES">CHANGES</h1>
 
-<pre><code>  1.38  Jul 21 2015
+<pre><code>  1.40  Oct 10 2015
+  - Fix the regexp used when matching optionals so that the triggers don&#39;t match
+    on inputs where they shouldn&#39;t. (RiveScript-JS issue #46)
+
+  1.38  Jul 21 2015
   - New algorithm for handling variable tags (&lt;get&gt;, &lt;set&gt;, &lt;add&gt;, &lt;sub&gt;,
     &lt;mult&gt;, &lt;div&gt;, &lt;bot&gt; and &lt;env&gt;) that allows for iterative nesting of these
     tags (for example, &lt;set copy=&lt;get orig&gt;&gt; will work now).
