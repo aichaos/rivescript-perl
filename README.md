@@ -429,6 +429,10 @@ defines the standards of RiveScript.
 
 # CHANGES
 
+    1.40  Oct 10 2015
+    - Fix the regexp used when matching optionals so that the triggers don't match
+      on inputs where they shouldn't. (RiveScript-JS issue #46)
+
     1.38  Jul 21 2015
     - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
       <mult>, <div>, <bot> and <env>) that allows for iterative nesting of these

@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 145;
+use Test::More tests => 156;
 
 binmode(STDOUT, ":utf8");
 
@@ -212,6 +212,12 @@ push @tests, sub {
 
         + [please|can you] ask me a question
         - Why is the sky blue?
+
+        + (aa|bb|cc) [bogus]
+        - Matched.
+
+        + (yo|hi) [computer|bot] *
+        - Matched.
     ");
     test($rs, 'what are you', 'I am a robot.', 'Alternatives 1.');
     test($rs, 'what is you', 'I am a robot.', 'Alternatives 2.');
@@ -227,6 +233,19 @@ push @tests, sub {
         'Optionals 2.');
     test($rs, 'please ask me a question', 'Why is the sky blue?',
         'Optionals 3.');
+
+    test($rs, "aa", "Matched.", "Optionals 4.");
+    test($rs, "bb", "Matched.", "Optionals 5.");
+    test($rs, "aa bogus", "Matched.", "Optionals 6.");
+    test($rs, "aabogus", $MATCH, "Optionals 7.");
+    test($rs, "bogus", $MATCH, "Optionals 8.");
+
+    test($rs, "hi Aiden", "Matched.", "Optionals 9.");
+    test($rs, "hi bot how are you?", "Matched.", "Optionals 10.");
+    test($rs, "yo computer what time is it?", "Matched.", "Optionals 11.");
+    test($rs, "yoghurt is yummy", $MATCH, "Optionals 12.");
+    test($rs, "hide and seek is fun", $MATCH, "Optionals 13.");
+    test($rs, "hip hip hurrah", $MATCH, "Optionals 14.");
 };
 
 push @tests, sub {

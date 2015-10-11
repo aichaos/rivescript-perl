@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.38'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.40'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -2856,10 +2856,9 @@ sub _reply_regexp {
 		my @parts = split(/\|/, $1);
 		my @new = ();
 		foreach my $p (@parts) {
-			$p = '\s*' . $p . '\s*';
+			$p = '(?:\s|\b)+' . $p . '(?:\s|\b)+';
 			push (@new,$p);
 		}
-		push (@new,'\s*');
 
 		# If this optional had a star or anything in it, e.g. [*],
 		# make that non-matching.
@@ -2868,7 +2867,7 @@ sub _reply_regexp {
 		$pipes =~ s/\(\\d\+\)/(?:\\d+)/ig; # (\d+) --> (?:\d+)
 		$pipes =~ s/\(\\w\+\)/(?:\\w+)/ig; # (\w+) --> (?:\w+)
 
-		my $rep = "(?:$pipes)";
+		my $rep = "(?:$pipes|(?:\\s|\\b)+)";
 		$regexp =~ s/\s*\[(.+?)\]\s*/$rep/i;
 	}
 
@@ -3366,6 +3365,10 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.40  Oct 10 2015
+  - Fix the regexp used when matching optionals so that the triggers don't match
+    on inputs where they shouldn't. (RiveScript-JS issue #46)
 
   1.38  Jul 21 2015
   - New algorithm for handling variable tags (<get>, <set>, <add>, <sub>,
