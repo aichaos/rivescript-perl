@@ -3,7 +3,7 @@
 # RiveScript Unit Tests
 use utf8;
 use strict;
-use Test::More tests => 156;
+use Test::More tests => 162;
 
 binmode(STDOUT, ":utf8");
 
@@ -432,7 +432,7 @@ push @tests, sub {
     test($rs, "My name is Alice.", "OK.", "Embed tag test 2.");
     test($rs, "My name is Bob.", "I thought your name was Alice?", "Embed tag test 3.");
     test($rs, "What is my name?", "Your name is Bob, right?", "Embed tag test 4.");
-    test($rs, "HTML Test", "This has some non-RS <em>tags</em> in it.");
+    test($rs, "HTML Test", "This has some non-RS <em>tags</em> in it.", "Embed tag test 5.");
 };
 
 #-----------------------------------------------------------------------------#
@@ -692,12 +692,12 @@ push @tests, sub {
         ^ world!
     ");
 
-    test($rs, "test concat default", "Helloworld!");
-    test($rs, "test concat space", "Hello world!");
-    test($rs, "test concat none", "Helloworld!");
-    test($rs, "test concat newline", "Hello\nworld!");
-    test($rs, "test concat foobar", "Helloworld!");
-    test($rs, "test concat second file", "Helloworld!");
+    test($rs, "test concat default", "Helloworld!", "Test concat default");
+    test($rs, "test concat space", "Hello world!", "Test concat space");
+    test($rs, "test concat none", "Helloworld!", "Test concat none");
+    test($rs, "test concat newline", "Hello\nworld!", "Test concat newline");
+    test($rs, "test concat foobar", "Helloworld!", "Test concat foobar");
+    test($rs, "test concat second file", "Helloworld!", "Test concat second file");
 };
 
 #-----------------------------------------------------------------------------#
@@ -705,6 +705,7 @@ push @tests, sub {
 #-----------------------------------------------------------------------------#
 
 push @tests, sub {
+    # Unicode
     my $rs = RiveScript->new(utf8=>1);
     extend($rs, "
         ! sub who's = who is
@@ -753,6 +754,25 @@ push @tests, sub {
     test($rs, "more", "Whö nëvër qüïtë lëärnëd höw tö swïm", "UTF-8 Umlaut poem test 2.");
     test($rs, "more", "Hë fëll öff ä döck, änd sänk lïkë ä röck", "UTF-8 Umlaut poem test 3.");
     test($rs, "more", "Änd thät wäs thë ënd öf hïm.", "UTF-8 Umlaut poem test 4.");
+};
+
+push @tests, sub {
+    # Unicode punctuation
+    my $rs = RiveScript->new(utf8=>1);
+    extend($rs, "
+        + hello bot
+        - Hello human!
+    ");
+
+    test($rs, "Hello bot", "Hello human!", "UTF-8 punctuation test 1.");
+    test($rs, "Hello, bot", "Hello human!", "UTF-8 punctuation test 2.");
+    test($rs, "Hello: Bot", "Hello human!", "UTF-8 punctuation test 3.");
+    test($rs, "Hello... bot?", "Hello human!", "UTF-8 punctuation test 4.");
+
+    # Edit the punctuation regexp.
+    $rs->{unicode_punctuation} = qr/xxx/;
+    test($rs, "Hello bot", "Hello human!", "UTF-8 punctuation test 5.");
+    test($rs, "Hello, bot!", $MATCH, "UTF-8 punctuation test 6.");
 };
 
 #-----------------------------------------------------------------------------#

@@ -3,7 +3,7 @@ package RiveScript;
 use strict;
 use warnings;
 
-our $VERSION = '1.40'; # Version of the Perl RiveScript interpreter.
+our $VERSION = '1.42'; # Version of the Perl RiveScript interpreter.
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
 
@@ -117,14 +117,28 @@ sub new {
 	my $class = ref($proto) || $proto || 'RiveScript';
 
 	my $self = {
-		debug      => 0,
-		debugopts  => {
+		###
+		# User configurable fields.
+		###
+
+		# Debugging
+		debug     => 0,
+		debugopts => {
 			verbose => 1,  # Print to the terminal
 			file    => '', # Print to a filename
 		},
-		utf8       => 0,  # UTF-8 support
-		depth      => 50, # Recursion depth allowed.
-		strict     => 1,  # Strict syntax checking (causes a die)
+
+		# Unicode stuff
+		utf8                => 0,  # UTF-8 support
+		unicode_punctuation => qr/[.,!?;:]/,
+
+		# Misc.
+		depth  => 50, # Recursion depth allowed.
+		strict => 1,  # Strict syntax checking (causes a die)
+
+		###
+		# Internal fields.
+		###
 		topics     => {}, # Loaded replies under topics
 		lineage    => {}, # Keep track of topics that inherit other topics
 		includes   => {}, # Keep track of topics that include other topics
@@ -3219,6 +3233,7 @@ sub _formatMessage {
 	if ($self->{utf8}) {
 		# Backslashes and HTML tags
 		$string =~ s/[\\<>]//g;
+		$string =~ s/$self->{unicode_punctuation}//g;
 
 		# If formatting the bot's last reply for %Previous, also remove punctuation.
 		if ($botReply) {
@@ -3306,24 +3321,20 @@ draft is included with this package: see L<RiveScript::WD>.
 
 =head1 UTF-8 SUPPORT
 
-Version 1.29+ adds experimental support for UTF-8 in RiveScript. It is not
-enabled by default. Enable it by passing a true value for the C<utf8> option
-in the constructor, or by using the C<--utf8> argument to the C<rivescript>
-application.
+RiveScript supports Unicode but it is not enabled by default. Enable it by
+passing a true value for the C<utf8> option in the constructor, or by using the
+C<--utf8> argument to the C<rivescript> application.
 
-By default (without UTF-8 mode on), triggers may only contain basic ASCII
-characters (no foreign characters), and the user's message is stripped of
-all characters except letters and spaces. This means that, for example, you
-can't capture a user's e-mail address in a RiveScript reply, because of the
-@ and . characters.
+In UTF-8 mode, most characters in a user's message are left intact, except for
+certain metacharacters like backslashes and common punctuation characters like
+C</[.,!?;:]/>.
 
-When UTF-8 mode is enabled, these restrictions are lifted. Triggers are only
-limited to not contain certain metacharacters like the backslash, and the
-user's message is only stripped of backslashes and HTML angled brackets (to
-prevent obvious XSS if you use RiveScript in a web application). The
-C<E<lt>starE<gt>> tags in RiveScript will capture the user's "raw" input,
-so you can write replies to get the user's e-mail address or store foreign
-characters in their name.
+If you want to override the punctuation regexp, you can provide a new one by
+assigning the `unicode_punctuation` attribute of the bot object after
+initialization. Example:
+
+  my $bot = new RiveScript(utf8 => 1);
+  $bot->{unicode_punctuation} = qr/[.,!?;:]/;
 
 =head1 CONSTANTS
 
@@ -3365,6 +3376,10 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  1.42  Nov 20 2015
+  - Add configurable `unicode_punctuation` attribute to strip out punctuation
+    when running in UTF-8 mode.
 
   1.40  Oct 10 2015
   - Fix the regexp used when matching optionals so that the triggers don't match

@@ -1,5 +1,9 @@
 Revision history for Perl extension RiveScript.
 
+  1.42  Nov 20 2015
+  - Add configurable `unicode_punctuation` attribute to strip out punctuation
+    when running in UTF-8 mode.
+
   1.40  Oct 10 2015
   - Fix the regexp used when matching optionals so that the triggers don't match
     on inputs where they shouldn't. (RiveScript-JS issue #46)

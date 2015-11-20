@@ -369,24 +369,22 @@ draft is included with this package: see [RiveScript::WD](http://search.cpan.org
 
 # UTF-8 SUPPORT
 
-Version 1.29+ adds experimental support for UTF-8 in RiveScript. It is not
-enabled by default. Enable it by passing a true value for the `utf8` option
-in the constructor, or by using the `--utf8` argument to the `rivescript`
-application.
+RiveScript supports Unicode but it is not enabled by default. Enable it by
+passing a true value for the `utf8` option in the constructor, or by using the
+`--utf8` argument to the `rivescript` application.
 
-By default (without UTF-8 mode on), triggers may only contain basic ASCII
-characters (no foreign characters), and the user's message is stripped of
-all characters except letters and spaces. This means that, for example, you
-can't capture a user's e-mail address in a RiveScript reply, because of the
-@ and . characters.
+In UTF-8 mode, most characters in a user's message are left intact, except for
+certain metacharacters like backslashes and common punctuation characters like
+`/[.,!?;:]/`.
 
-When UTF-8 mode is enabled, these restrictions are lifted. Triggers are only
-limited to not contain certain metacharacters like the backslash, and the
-user's message is only stripped of backslashes and HTML angled brackets (to
-prevent obvious XSS if you use RiveScript in a web application). The
-`<star>` tags in RiveScript will capture the user's "raw" input,
-so you can write replies to get the user's e-mail address or store foreign
-characters in their name.
+If you want to override the punctuation regexp, you can provide a new one by
+assigning the \`unicode\_punctuation\` attribute of the bot object after
+initialization. Example:
+
+```perl
+    my $bot = new RiveScript(utf8 => 1);
+    $bot->{unicode_punctuation} = qr/[.,!?;:]/;
+```
 
 # CONSTANTS
 
@@ -428,6 +426,10 @@ defines the standards of RiveScript.
 [http://www.rivescript.com/](http://www.rivescript.com/) - The official homepage of RiveScript.
 
 # CHANGES
+
+    1.42  Nov 20 2015
+    - Add configurable `unicode_punctuation` attribute to strip out punctuation
+      when running in UTF-8 mode.
 
     1.40  Oct 10 2015
     - Fix the regexp used when matching optionals so that the triggers don't match
