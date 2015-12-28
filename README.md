@@ -427,6 +427,13 @@ defines the standards of RiveScript.
 
 # CHANGES
 
+    2.0.0  Dec 28 2015
+    - Switch from old-style floating point version number notation to dotted
+      decimal notation. This bumps the version number to `2.0.0` because the next
+      dotted-decimal version greater than `1.42` (`v1.420.0`) is `v1.421.0` and
+      I don't like having that many digits in the version number. This release is
+      simply a version update; no breaking API changes were introduced.
+
     1.42  Nov 20 2015
     - Add configurable `unicode_punctuation` attribute to strip out punctuation
       when running in UTF-8 mode.

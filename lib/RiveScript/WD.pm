@@ -3,7 +3,9 @@ package RiveScript::WD;
 use strict;
 use warnings;
 
-our $VERSION = '1.42';
+# Version of the Perl RiveScript interpreter. This must be on a single line!
+# See `perldoc version`
+use version; our $VERSION = version->declare('v2.0.0');
 
 # This is not a real module; it's only a current copy of the RiveScript
 # Working Draft. See the latest version at
