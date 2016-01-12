@@ -1,5 +1,10 @@
 Revision history for Perl extension RiveScript.
 
+  2.0.1  Jan 11 2015
+  - When formatting a user's message, consolidate multiple consecutive spaces
+    down to one.
+  - Apply downstream Debian patch that fixes a typo in RiveScript::WD.
+
   2.0.0  Dec 28 2015
   - Switch from old-style floating point version number notation to dotted
     decimal notation. This bumps the version number to `2.0.0` because the next

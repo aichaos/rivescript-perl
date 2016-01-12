@@ -5,7 +5,7 @@ use warnings;
 
 # Version of the Perl RiveScript interpreter. This must be on a single line!
 # See `perldoc version`
-use version; our $VERSION = version->declare('v2.0.0');
+use version; our $VERSION = version->declare('v2.0.1');
 
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
@@ -3254,9 +3254,10 @@ sub _formatMessage {
 		$string =~ s/[^A-Za-z0-9 ]//g;
 	}
 
-	# Remove excess whitespace.
+	# Remove excess whitespace and consolidate multiple spaces down to one.
 	$string =~ s/^\s+//g;
 	$string =~ s/\s+$//g;
+	$string =~ s/\s+/ /g;
 
 	return $string;
 }
@@ -3379,6 +3380,11 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  2.0.1  Jan 11 2015
+  - When formatting a user's message, consolidate multiple consecutive spaces
+    down to one.
+  - Apply downstream Debian patch that fixes a typo in RiveScript::WD.
 
   2.0.0  Dec 28 2015
   - Switch from old-style floating point version number notation to dotted
