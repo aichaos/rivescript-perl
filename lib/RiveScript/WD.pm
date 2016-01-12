@@ -72,7 +72,7 @@ save this information into Client Variables and recite it later.
 
 =head1 FORMAT
 
-A RiveScript document should be parsed line by line, and preferrably arranged
+A RiveScript document should be parsed line by line, and preferably arranged
 in the interpreter's memory in an efficient way.
 
 The first character on each line should be the C<command>, and the rest of the
