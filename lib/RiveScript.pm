@@ -5,7 +5,7 @@ use warnings;
 
 # Version of the Perl RiveScript interpreter. This must be on a single line!
 # See `perldoc version`
-use version; our $VERSION = version->declare('v2.0.1');
+use version; our $VERSION = version->declare('v2.0.2');
 
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
@@ -3381,7 +3381,10 @@ L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
 
-  2.0.1  Jan 11 2015
+  2.0.2  Jan 11 2016
+  - Fix typo in changelog.
+
+  2.0.1  Jan 11 2016
   - When formatting a user's message, consolidate multiple consecutive spaces
     down to one.
   - Apply downstream Debian patch that fixes a typo in RiveScript::WD.
