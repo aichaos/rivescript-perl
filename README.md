@@ -1,3 +1,7 @@
+# RiveScript-Perl
+
+[![Build Status](https://travis-ci.org/aichaos/rivescript-perl.svg?branch=master)](https://travis-ci.org/aichaos/rivescript-perl)
+
 # NAME
 
 RiveScript - Rendering Intelligence Very Easily
