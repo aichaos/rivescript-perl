@@ -5,7 +5,7 @@ use warnings;
 
 # Version of the Perl RiveScript interpreter. This must be on a single line!
 # See `perldoc version`
-use version; our $VERSION = version->declare('v2.0.2');
+use version; our $VERSION = version->declare('v2.0.3');
 
 our $SUPPORT = '2.0';  # Which RS standard we support.
 our $basedir = (__FILE__ =~ /^(.+?)\.pm$/i ? $1 : '.');
@@ -471,10 +471,10 @@ sub parse {
 
 		# Ignore inline comments if there's a space before and after
 		# the // or # symbols.
-		my $inline_comment_regexp = "(\\s+\\#\\s+|\\/\\/)";
+		my $inline_comment_regexp = qr/(\s+#\s+|\s+\/\/)/;
 		$line =~ s/\\\/\//\\\/\\\//g; # Turn \// into \/\/
 		if ($cmd eq '+') {
-			$inline_comment_regexp = "(\\s\\s\\#|\\/\\/)";
+			$inline_comment_regexp = qr/(\s\s#|\s+\/\/)/;
 			if ($line =~ /\s\s#\s/) {
 				# Deprecated.
 				$self->issue ("Using the # symbol for comments is deprecated at $fname line $lineno (near: $line).");
@@ -3380,6 +3380,10 @@ defines the standards of RiveScript.
 L<http://www.rivescript.com/> - The official homepage of RiveScript.
 
 =head1 CHANGES
+
+  2.0.3  Aug 26 2016
+  - Fix inline comment regexp that was making URLs impossible to represent
+    in replies.
 
   2.0.2  Jan 11 2016
   - Fix typo in changelog.

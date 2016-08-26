@@ -1,5 +1,9 @@
 Revision history for Perl extension RiveScript.
 
+  2.0.3  Aug 26 2016
+  - Fix inline comment regexp that was making URLs impossible to represent
+    in replies.
+
   2.0.2  Jan 11 2016
   - Fix typo in changelog.
 

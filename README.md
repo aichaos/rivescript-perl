@@ -431,6 +431,10 @@ defines the standards of RiveScript.
 
 # CHANGES
 
+    2.0.3  Aug 26 2016
+    - Fix inline comment regexp that was making URLs impossible to represent
+      in replies.
+
     2.0.0  Dec 28 2015
     - Switch from old-style floating point version number notation to dotted
       decimal notation. This bumps the version number to `2.0.0` because the next
