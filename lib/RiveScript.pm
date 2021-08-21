@@ -2867,7 +2867,7 @@ sub _reply_regexp {
 	$regexp =~ s/\*/(.+?)/ig;        # Convert * into (.+?)
 	$regexp =~ s/\#/(\\d+)/ig;    # Convert # into ([0-9]+?)
 	$regexp =~ s/\_/(\\w+)/ig; # Convert _ into ([A-Za-z]+?)
-	$regexp =~ s/\{weight=\d+\}//ig; # Remove {weight} tags.
+	$regexp =~ s/\s*\{weight=\d+\}\s*//ig; # Remove {weight} tags.
 	$regexp =~ s/<zerowidthstar>/(.*?)/i;
 	while ($regexp =~ /\[(.+?)\]/i) { # Optionals
 		my @parts = split(/\|/, $1);
