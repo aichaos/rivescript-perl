@@ -3146,7 +3146,7 @@ sub processTags {
 				$insert = "\x00$match\x01";
 			}
 
-			$reply =~ s/<$match>/$insert/i;
+			$reply =~ s/<\Q$match\E>/$insert/i;
 		}
 		else {
 			last; # No more tags remaining.
